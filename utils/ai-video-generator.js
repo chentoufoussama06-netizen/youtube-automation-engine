@@ -54,6 +54,16 @@ class AIVideoGenerator {
     this.logger.info('Generating TTS audio...');
     
     try {
+      // Edge neural voices: no API key, no quota. Gemini's free TTS tier allows
+      // 10 requests PER DAY, which cannot sustain even one long video reliably.
+      if ((process.env.TTS_PROVIDER || 'edge').toLowerCase() === 'edge') {
+        try {
+          return await this.generateEdgeTTS(text, outputPath);
+        } catch (edgeError) {
+          this.logger.warn(`Edge TTS failed (${edgeError.message}); trying other providers`);
+        }
+      }
+
       // Try ElevenLabs first (higher quality)
       if (this.elevenLabsApiKey && this.elevenLabsVoiceId) {
         return await this.generateElevenLabsTTS(text, outputPath);
@@ -130,31 +140,152 @@ class AIVideoGenerator {
     return outputPath;
   }
 
+  // Split narration on sentence boundaries so each request stays well inside the
+  // TTS input limit. A full 8-12 minute script sent as one request comes back
+  // without audio.
+  splitNarrationForTTS(text, maxChars = 1800) {
+    const sentences = String(text).replace(/\s+/g, ' ').trim().match(/[^.!?]+[.!?]*\s*/g) || [];
+    const chunks = [];
+    let current = '';
+
+    for (const sentence of sentences) {
+      if (current && (current + sentence).length > maxChars) {
+        chunks.push(current.trim());
+        current = '';
+      }
+      // A single sentence longer than the limit still has to go somewhere.
+      current += sentence;
+    }
+    if (current.trim()) {
+      chunks.push(current.trim());
+    }
+
+    return chunks.length > 0 ? chunks : [String(text)];
+  }
+
+  // Microsoft Edge neural voices. Free, unlimited, no API key. Chunked the same
+  // way as Gemini so very long scripts stay inside per-request limits.
+  async generateEdgeTTS(text, outputPath) {
+    const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
+    const voice = process.env.EDGE_TTS_VOICE || 'en-US-AndrewNeural';
+
+    // Documentary narration is slower and lower than a voice's default read,
+    // which is tuned for assistant-style chirpiness. Edge exposes SSML prosody
+    // for free and this was previously sending none, so every video was narrated
+    // at conversational pace and pitch.
+    const prosody = {};
+    if (process.env.EDGE_TTS_RATE) prosody.rate = process.env.EDGE_TTS_RATE;
+    if (process.env.EDGE_TTS_PITCH) prosody.pitch = process.env.EDGE_TTS_PITCH;
+    if (process.env.EDGE_TTS_VOLUME) prosody.volume = process.env.EDGE_TTS_VOLUME;
+    const hasProsody = Object.keys(prosody).length > 0;
+    // The Edge websocket drops long synthesis requests part-way through
+    // ("no turn.end received"), so keep each request short.
+    const chunks = this.splitNarrationForTTS(text, 1200);
+
+    this.logger.info(`Edge TTS: ${chunks.length} chunk(s), voice ${voice}${hasProsody ? `, prosody ${JSON.stringify(prosody)}` : ''}`);
+
+    const partPaths = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const partPath = `${outputPath}.part${i}.mp3`;
+      let buffer = null;
+      let lastError = null;
+
+      // Transient socket drops are common; retry before failing the whole run.
+      for (let attempt = 1; attempt <= 3 && !buffer; attempt++) {
+        try {
+          const tts = new MsEdgeTTS();
+          // 96kbit is the highest MP3 Edge offers and costs nothing extra. The
+          // narration is the only audio in the video, so it carries the whole mix.
+          await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+          const { audioStream } = hasProsody
+            ? await tts.toStream(chunks[i], prosody)
+            : await tts.toStream(chunks[i]);
+
+          const buffers = [];
+          const collected = await new Promise((resolve, reject) => {
+            audioStream.on('data', (c) => buffers.push(c));
+            audioStream.on('end', () => resolve(Buffer.concat(buffers)));
+            audioStream.on('error', reject);
+          });
+
+          if (collected.length === 0) {
+            throw new Error('empty audio stream');
+          }
+          buffer = collected;
+        } catch (error) {
+          lastError = error;
+          this.logger.warn(`Edge TTS chunk ${i + 1}/${chunks.length} attempt ${attempt} failed: ${error.message}`);
+          await new Promise(r => setTimeout(r, 2000 * attempt));
+        }
+      }
+
+      if (!buffer) {
+        throw new Error(`Edge TTS failed for chunk ${i + 1}/${chunks.length}: ${lastError?.message}`);
+      }
+
+      await fs.writeFile(partPath, buffer);
+      partPaths.push(partPath);
+      this.logger.info(`Edge TTS chunk ${i + 1}/${chunks.length} ok (${Math.round(buffer.length / 1024)} KB)`);
+    }
+
+    if (partPaths.length === 1) {
+      await fs.rename(partPaths[0], outputPath);
+    } else {
+      // Concat demuxer needs a list file; re-encode so the joins are clean.
+      const listPath = `${outputPath}.concat.txt`;
+      // The concat demuxer resolves each entry relative to the LIST FILE's
+      // directory, so full paths get doubled. The parts live beside the list.
+      await fs.writeFile(listPath, partPaths.map(p => `file '${path.basename(p)}'`).join('\n'));
+      await runFFmpeg(['-y', '-f', 'concat', '-safe', '0', '-i', listPath, '-c:a', 'libmp3lame', '-q:a', '2', outputPath]);
+      await fs.unlink(listPath).catch(() => {});
+      await Promise.all(partPaths.map(p => fs.unlink(p).catch(() => {})));
+    }
+
+    this.logger.info('Edge TTS generation complete');
+    return outputPath;
+  }
+
   async generateGeminiTTS(text, outputPath) {
     const model = process.env.GEMINI_TTS_MODEL || 'gemini-3.1-flash-tts-preview';
     const voiceName = process.env.GEMINI_TTS_VOICE || 'Kore';
+    const chunks = this.splitNarrationForTTS(text);
 
-    const response = await this.gemini.models.generateContent({
-      model,
-      contents: [{ parts: [{ text }] }],
-      config: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName }
-          }
-        }
-      }
-    });
-
-    const audioData = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!audioData) {
-      throw new Error('Gemini TTS returned no audio data');
+    if (chunks.length > 1) {
+      this.logger.info(`Narration split into ${chunks.length} TTS requests (${text.length} chars)`);
     }
 
-    // Gemini returns raw PCM (24kHz, mono, 16-bit); encode to the requested container via FFmpeg
+    const pcmBuffers = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const response = await this.gemini.models.generateContent({
+        model,
+        contents: [{ parts: [{ text: chunks[i] }] }],
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName }
+            }
+          }
+        }
+      });
+
+      // The audio is NOT always the first part — a text part is often returned
+      // alongside it, so search the parts rather than indexing into [0].
+      const parts = response.candidates?.[0]?.content?.parts || [];
+      const audioData = parts.find(part => part.inlineData?.data)?.inlineData?.data;
+      if (!audioData) {
+        const finishReason = response.candidates?.[0]?.finishReason || 'unknown';
+        throw new Error(`Gemini TTS returned no audio data for chunk ${i + 1}/${chunks.length} (finishReason: ${finishReason})`);
+      }
+
+      pcmBuffers.push(Buffer.from(audioData, 'base64'));
+      this.logger.info(`TTS chunk ${i + 1}/${chunks.length} complete`);
+    }
+
+    // Gemini returns raw PCM (24kHz, mono, 16-bit). Raw PCM concatenates
+    // directly, so the chunks join seamlessly before a single encode.
     const pcmPath = outputPath + '.pcm';
-    await fs.writeFile(pcmPath, Buffer.from(audioData, 'base64'));
+    await fs.writeFile(pcmPath, Buffer.concat(pcmBuffers));
     await runFFmpeg(['-y', '-f', 's16le', '-ar', '24000', '-ac', '1', '-i', pcmPath, outputPath]);
     await fs.unlink(pcmPath).catch(() => {});
 
@@ -195,10 +326,36 @@ class AIVideoGenerator {
     }
 
     if (this.gemini) {
-      return await this.generateGeminiImage(prompt, imagePath);
+      try {
+        return await this.generateGeminiImage(prompt, imagePath);
+      } catch (geminiError) {
+        // Free-tier image quota is 0, so this is the normal path, not an edge case.
+        this.logger.warn(`Gemini image generation unavailable (${String(geminiError.message).slice(0, 80)}); using Pollinations`);
+      }
     }
 
-    throw new Error('No image generation provider configured');
+    return await this.generatePollinationsImage(prompt, imagePath);
+  }
+
+  // Pollinations.ai: free image generation, no API key, no quota.
+  async generatePollinationsImage(prompt, imagePath) {
+    const seed = Math.floor(Math.random() * 1e9);
+    const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt)
+      + `?width=1920&height=1080&nologo=true&seed=${seed}`;
+
+    const response = await fetch(url, { signal: AbortSignal.timeout(120000) });
+    if (!response.ok) {
+      throw new Error(`Pollinations returned HTTP ${response.status}`);
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (buffer.length < 1024) {
+      throw new Error(`Pollinations returned ${buffer.length} bytes (not a usable image)`);
+    }
+
+    await fs.writeFile(imagePath, buffer);
+    this.logger.info(`Pollinations image saved (${Math.round(buffer.length / 1024)} KB)`);
+    return imagePath;
   }
 
   async generateOpenAIImage(prompt, imagePath) {
@@ -276,6 +433,16 @@ class AIVideoGenerator {
         return await this.generateReplicateVideo(script, visualAssets, audioPath, outputPath);
       }
       
+      // Real stock footage beats static slides. Static gradient slideshows are
+      // exactly the profile YouTube's 2026 inauthentic-content policy targets.
+      if (process.env.USE_STOCK_BROLL === 'true' && process.env.PEXELS_API_KEY) {
+        try {
+          return await this.generateStockFootageVideo(script, audioPath, outputPath);
+        } catch (brollError) {
+          this.logger.warn(`Stock footage assembly failed (${brollError.message}); falling back to slideshow`);
+        }
+      }
+
       // Fallback to simple slideshow with Playwright
       return await this.generateSlideshowVideo(script, visualAssets, audioPath, outputPath);
     } catch (error) {
@@ -308,6 +475,279 @@ class AIVideoGenerator {
     return outputPath;
   }
 
+  // Pull search terms from the script so the footage actually relates to what is
+  // being said, rather than being generic filler.
+  buildBrollQueries(script, count) {
+    const terms = [];
+    const sections = script.mainContent?.sections || [];
+
+    for (const section of sections) {
+      if (section.title) terms.push(String(section.title));
+    }
+    for (const keyword of script.keywords || []) {
+      terms.push(String(keyword));
+    }
+    if (script.title) terms.push(String(script.title));
+
+    // Strip filler words that return nothing useful on a stock library.
+    // NOTE: \w is ASCII-only, so a naive [^\w\s] strip shreds accented text
+    // ("génie" -> "g nie"). Use a unicode-aware class instead.
+    const cleaned = terms
+      .map(t => t.replace(/[^\p{L}\p{N}\s]/gu, ' ')
+        .replace(/\b(the|a|an|how|to|your|with|and|for|of|in|on|step|by|le|la|les|des|du|de|un|une|au|aux|et)\b/gi, ' ')
+        .replace(/\s+/g, ' ').trim())
+      .filter(t => t.length > 3);
+
+    const unique = [...new Set(cleaned)];
+    const queries = [];
+    for (let i = 0; i < count; i++) {
+      queries.push(unique[i % Math.max(unique.length, 1)] || 'technology abstract background');
+    }
+    return queries;
+  }
+
+  // Ask the LLM for concrete, filmable ENGLISH search terms.
+  //
+  // Deriving queries from section titles fails badly: stock libraries index in
+  // English, so a French script searched Pexels for "La descente aux enfers" and
+  // got unrelated clips. Abstract phrases have no footage in any language, so the
+  // model is asked for physical, visible scenes instead.
+  async generateVisualQueries(script, count) {
+    const sections = (script.mainContent?.sections || []).map(s => s.title).filter(Boolean);
+    const prompt = `You are choosing stock footage for a video titled "${script.title}".
+
+Its sections are:
+${sections.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+
+Return only valid JSON: { "queries": ["...", "..."] }
+
+Give exactly ${count} stock-footage search queries. Rules:
+- ENGLISH ONLY, whatever language the video is in. Stock libraries index in English.
+- Each query is a PHYSICAL, FILMABLE SCENE: "empty football stadium at night",
+  "close up hands counting money", "rain on a car window at night".
+- 2-5 words. No abstractions ("decline", "genius", "downfall") — those have no footage.
+- No named people, teams, or logos. Stock libraries have none, and it is a rights risk.
+- Match the subject matter and mood of the sections, and vary the shots.`;
+
+    try {
+      const { AITextService } = require('./ai-text-service');
+      const service = new AITextService(this.credentials || {});
+      if (!service.isAvailable()) throw new Error('no text provider');
+
+      const raw = await service.generateText(prompt, { maxTokens: 1024, temperature: 0.8, json: true });
+      const text = String(raw).replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
+      const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || text);
+      const queries = (parsed.queries || [])
+        .map(q => String(q).trim())
+        .filter(q => q.length > 2);
+
+      if (queries.length === 0) throw new Error('no queries returned');
+
+      this.logger.info(`Visual queries: ${queries.slice(0, 4).join(' | ')}${queries.length > 4 ? ' | ...' : ''}`);
+      return Array.from({ length: count }, (_, i) => queries[i % queries.length]);
+    } catch (error) {
+      this.logger.warn(`Visual query generation failed (${error.message}); using title-derived terms`);
+      return this.buildBrollQueries(script, count);
+    }
+  }
+
+  async fetchPexelsClip(query, targetPath, orientation = 'landscape') {
+    const url = `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}`
+      + `&per_page=10&orientation=${orientation}&size=medium`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: process.env.PEXELS_API_KEY },
+      signal: AbortSignal.timeout(60000)
+    });
+    if (!response.ok) {
+      throw new Error(`Pexels search HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const videos = data.videos || [];
+    if (videos.length === 0) return null;
+
+    const pick = videos[Math.floor(Math.random() * videos.length)];
+    // Prefer ~1080p: 4K files are large and get downscaled anyway.
+    // Portrait clips are 1080x1920, so the long edge is height, not width.
+    const longEdge = f => (orientation === 'portrait' ? f.height : f.width);
+    const file = (pick.video_files || [])
+      .filter(f => longEdge(f) >= 1280 && f.file_type === 'video/mp4')
+      .sort((a, b) => Math.abs(longEdge(a) - 1920) - Math.abs(longEdge(b) - 1920))[0];
+    if (!file) return null;
+
+    const clipResponse = await fetch(file.link, { signal: AbortSignal.timeout(180000) });
+    if (!clipResponse.ok) return null;
+
+    await fs.writeFile(targetPath, Buffer.from(await clipResponse.arrayBuffer()));
+    return targetPath;
+  }
+
+  // Vertical 9:16 Short built from the script's hook. The hook is already written
+  // as a self-contained 45-60s promise, which is exactly the Shorts format.
+  async generateShortVideo(script, outputPath) {
+    const hookText = typeof script.hook === 'object' ? script.hook?.text : script.hook;
+    if (!hookText) {
+      throw new Error('script has no hook to build a Short from');
+    }
+
+    const dir = path.dirname(outputPath);
+    await fs.mkdir(dir, { recursive: true });
+
+    const audioPath = outputPath.replace('.mp4', '_narration.mp3');
+    await this.generateTTSAudio(String(hookText), audioPath);
+
+    let seconds = await this.probeAudioDuration(audioPath);
+    if (!seconds) {
+      throw new Error('could not measure Short narration');
+    }
+    // Shorts are capped at 60s; trim the audio rather than shipping something
+    // YouTube will reject or silently treat as a normal video.
+    if (seconds > 59) {
+      const trimmed = outputPath.replace('.mp4', '_narration_trim.mp3');
+      await runFFmpeg(['-y', '-i', audioPath, '-t', '58', '-c:a', 'libmp3lame', '-q:a', '2', trimmed]);
+      await fs.unlink(audioPath).catch(() => {});
+      await fs.rename(trimmed, audioPath);
+      seconds = 58;
+      this.logger.info('Hook narration trimmed to 58s for Shorts limit');
+    }
+
+    const segment = Number(process.env.SHORT_SEGMENT_SECONDS) || 5;
+    const totalSegments = Math.max(2, Math.ceil(seconds / segment));
+    const segLen = seconds / totalSegments;
+
+    const brollDir = path.join(dir, 'short_broll');
+    await fs.mkdir(brollDir, { recursive: true });
+
+    const queries = await this.generateVisualQueries(script, Math.min(totalSegments, 8));
+    const clips = [];
+    for (let i = 0; i < queries.length; i++) {
+      const target = path.join(brollDir, `s_${String(i).padStart(2, '0')}.mp4`);
+      try {
+        const saved = await this.fetchPexelsClip(queries[i], target, 'portrait');
+        if (saved) clips.push(saved);
+      } catch (error) {
+        this.logger.warn(`Short clip ${i + 1} failed: ${error.message}`);
+      }
+    }
+    if (clips.length === 0) {
+      throw new Error('no portrait clips available');
+    }
+    this.logger.info(`Short: ${clips.length} clips, ${totalSegments} cuts over ${seconds.toFixed(0)}s`);
+
+    const args = [];
+    for (let seg = 0; seg < totalSegments; seg++) {
+      const clip = clips[seg % clips.length];
+      const offset = Math.floor(seg / clips.length) * segLen;
+      args.push('-stream_loop', '-1', '-ss', offset.toFixed(2), '-t', segLen.toFixed(2), '-i', clip);
+    }
+
+    const filters = [];
+    for (let i = 0; i < totalSegments; i++) {
+      filters.push(
+        `[${i}:v]scale=1080:1920:force_original_aspect_ratio=increase,`
+        + `crop=1080:1920,setsar=1,fps=30,format=yuv420p[v${i}]`
+      );
+    }
+    filters.push(Array.from({ length: totalSegments }, (_, i) => `[v${i}]`).join('')
+      + `concat=n=${totalSegments}:v=1:a=0[vout]`);
+
+    const silentPath = outputPath.replace('.mp4', '_silent.mp4');
+    args.push(
+      '-filter_complex', filters.join(';'),
+      '-map', '[vout]',
+      '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23',
+      '-r', '30', '-pix_fmt', 'yuv420p',
+      silentPath
+    );
+    await runFFmpeg(['-y', ...args]);
+
+    await this.addAudioToVideo(silentPath, audioPath, outputPath);
+    await fs.unlink(silentPath).catch(() => {});
+    await this.cleanupDirectory(brollDir);
+
+    this.logger.info('Short complete (1080x1920)');
+    return outputPath;
+  }
+
+  async generateStockFootageVideo(script, audioPath, outputPath) {
+    this.logger.info('Building video from stock footage...');
+
+    const narrationSeconds = await this.probeAudioDuration(audioPath);
+    if (!narrationSeconds) {
+      throw new Error('no narration audio to time the footage against');
+    }
+
+    // Cut roughly every 8s so the picture keeps moving. A 13-minute video would
+    // need ~100 clips at that rate, which is too many downloads, so fetch a
+    // bounded set of unique clips and revisit them at different offsets.
+    const targetSegment = Number(process.env.BROLL_SEGMENT_SECONDS) || 8;
+    const totalSegments = Math.max(3, Math.ceil(narrationSeconds / targetSegment));
+    const clipCount = Math.min(totalSegments, Number(process.env.BROLL_MAX_CLIPS) || 30);
+    const segment = narrationSeconds / totalSegments;
+    const brollDir = path.join(path.dirname(outputPath), 'broll');
+    await fs.mkdir(brollDir, { recursive: true });
+
+    const queries = await this.generateVisualQueries(script, clipCount);
+    this.logger.info(`Fetching ${clipCount} clips for ${narrationSeconds.toFixed(0)}s of narration`);
+
+    const clips = [];
+    for (let i = 0; i < queries.length; i++) {
+      const target = path.join(brollDir, `clip_${String(i).padStart(2, '0')}.mp4`);
+      try {
+        const saved = await this.fetchPexelsClip(queries[i], target);
+        if (saved) clips.push(saved);
+      } catch (error) {
+        this.logger.warn(`Clip ${i + 1} (“${queries[i]}”) failed: ${error.message}`);
+      }
+    }
+
+    if (clips.length === 0) {
+      throw new Error('no stock clips could be downloaded');
+    }
+    this.logger.info(`Downloaded ${clips.length}/${clipCount} clips`);
+
+    // Lay every segment on the timeline, cycling through the downloaded clips.
+    // Each revisit starts a little further into the source so a reused clip does
+    // not show the identical frames twice.
+    const timeline = [];
+    for (let seg = 0; seg < totalSegments; seg++) {
+      const clip = clips[seg % clips.length];
+      const pass = Math.floor(seg / clips.length);
+      timeline.push({ clip, startOffset: pass * segment });
+    }
+
+    // Trim, scale, and crop each segment to exactly 1080p/30fps. Uniform
+    // geometry is what makes concat safe.
+    const args = [];
+    for (const item of timeline) {
+      args.push('-stream_loop', '-1', '-ss', item.startOffset.toFixed(2), '-t', segment.toFixed(2), '-i', item.clip);
+    }
+
+    const filters = timeline.map((_, i) =>
+      `[${i}:v]scale=1920:1080:force_original_aspect_ratio=increase,`
+      + `crop=1920:1080,setsar=1,fps=30,format=yuv420p[v${i}]`
+    );
+    filters.push(timeline.map((_, i) => `[v${i}]`).join('') + `concat=n=${timeline.length}:v=1:a=0[vout]`);
+
+    const silentPath = outputPath.replace('.mp4', '_broll.mp4');
+    args.push(
+      '-filter_complex', filters.join(';'),
+      '-map', '[vout]',
+      '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23',
+      '-r', '30', '-pix_fmt', 'yuv420p',
+      silentPath
+    );
+    await runFFmpeg(['-y', ...args]);
+
+    await this.addAudioToVideo(silentPath, audioPath, outputPath);
+    await fs.unlink(silentPath).catch(() => {});
+    await this.cleanupDirectory(brollDir);
+
+    this.logger.info('Stock footage video complete');
+    return outputPath;
+  }
+
   async generateSlideshowVideo(script, visualAssets, audioPath, outputPath) {
     this.logger.info('Creating slideshow video...');
 
@@ -316,7 +756,17 @@ class AIVideoGenerator {
     }
 
     const { chromium } = require('playwright');
-    const browser = await chromium.launch();
+    // `npm install` fetches the playwright package but NOT its browser binaries,
+    // and a machine may carry browser builds from a different playwright version.
+    // Rather than hard-failing the whole render (which silently downgrades the
+    // video to a placeholder), fall back to a locally installed Chrome.
+    let browser;
+    try {
+      browser = await chromium.launch();
+    } catch (launchError) {
+      this.logger.warn(`Bundled Chromium unavailable (${launchError.message.split('\n')[0]}); falling back to installed Chrome`);
+      browser = await chromium.launch({ channel: 'chrome' });
+    }
     const slidesDir = path.join(path.dirname(outputPath), 'slides');
 
     try {
@@ -350,7 +800,16 @@ class AIVideoGenerator {
       }
 
       const videoPath = outputPath.replace('.mp4', '_visual.mp4');
-      const duration = this.calculateScriptDuration(script);
+      // Prefer the real narration length. calculateScriptDuration() walks a script
+      // shape the AI path does not produce, so it collapses to its 30s floor and
+      // the -shortest mux then throws away minutes of finished narration.
+      const probed = await this.probeAudioDuration(audioPath);
+      const duration = probed || this.calculateScriptDuration(script);
+      if (probed) {
+        this.logger.info(`Matching slide track to narration length: ${probed.toFixed(1)}s`);
+      } else {
+        this.logger.warn(`Could not read narration length; estimating ${duration}s from word count`);
+      }
       await this.renderSlidesToVideo(stills, duration, videoPath);
 
       // Add audio
@@ -643,6 +1102,29 @@ class AIVideoGenerator {
     
     // Convert to duration (150 words per minute)
     return Math.max(30, Math.ceil((totalWords / 150) * 60));
+  }
+
+  // Returns the audio duration in seconds, or null when it cannot be determined
+  // (missing file, no ffprobe on PATH). Callers fall back to an estimate.
+  async probeAudioDuration(audioPath) {
+    if (!audioPath || !(await this.isUsableAudioFile(audioPath))) {
+      return null;
+    }
+
+    return new Promise((resolve) => {
+      const { execFile } = require('child_process');
+      execFile(
+        'ffprobe',
+        ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', audioPath],
+        (error, stdout) => {
+          if (error) {
+            return resolve(null);
+          }
+          const seconds = parseFloat(String(stdout).trim());
+          resolve(Number.isFinite(seconds) && seconds > 0 ? seconds : null);
+        }
+      );
+    });
   }
 
   async addAudioToVideo(videoPath, audioPath, outputPath) {

@@ -19,8 +19,12 @@ class ModernAuth {
     try {
       const credentials = JSON.parse(fs.readFileSync(this.credentialsPath));
       
-      // Use a random high port to avoid conflicts
-      const port = 8000 + Math.floor(Math.random() * 1000);
+      // Fixed port, NOT random. Only "Desktop app" OAuth clients may use an
+      // arbitrary localhost port; a "Web application" client matches the callback
+      // against its registered Authorized redirect URIs, so the port has to be
+      // stable and registered in the Cloud Console. Changing this value means
+      // updating the redirect URI there to match.
+      const port = Number(process.env.OAUTH_CALLBACK_PORT) || 8420;
       const redirectUri = `http://localhost:${port}/callback`;
       
       const oauth2Client = new google.auth.OAuth2(
@@ -69,10 +73,14 @@ class ModernAuth {
         this.rejectAuth = reject;
         
         // Set timeout
+        // Google can take a few minutes to propagate a newly added redirect URI,
+        // and first-time consent involves account picking plus the "unverified
+        // app" interstitial. Five minutes is tight enough to expire mid-flow.
+        const timeoutMs = (Number(process.env.OAUTH_TIMEOUT_MINUTES) || 20) * 60000;
         setTimeout(() => {
           this.cleanup();
-          reject(new Error('Authentication timeout (5 minutes)'));
-        }, 300000); // 5 minutes
+          reject(new Error(`Authentication timeout (${timeoutMs / 60000} minutes)`));
+        }, timeoutMs);
       });
       
     } catch (error) {

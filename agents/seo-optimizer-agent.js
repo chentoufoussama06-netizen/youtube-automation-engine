@@ -95,13 +95,37 @@ class SEOOptimizerAgent {
       return null;
     }
 
-    const prompt = `You are optimizing YouTube metadata.
+    // Title patterns taken from what actually ranks in this niche (pulled from
+    // the YouTube Data API, sorted by view count), not from generic SEO advice.
+    const runtimeMinutes = Math.max(1, Math.round((script.duration || 900) / 60));
+
+    const prompt = `You are writing the packaging for a YouTube video: the title decides
+whether anyone clicks, so it matters more than everything else here.
+
 Return only valid JSON with this exact shape:
 {
-  "title": "SEO title under 100 characters",
+  "title": "SEO title under 70 characters",
   "description": "YouTube description with useful summary and timestamps if relevant",
   "tags": ["tag"]
 }
+
+TITLE RULES — these patterns are what currently wins in this niche:
+1. Time-boxed mastery:  "Learn 90% of X in Under ${runtimeMinutes} Minutes"
+2. Fear + reassurance:  "You're Not Behind (Yet): X in ${runtimeMinutes} Minutes"
+3. Time-for-value:      "Give Me ${runtimeMinutes} Minutes, I'll Give You X"
+4. Effort removal:      "The Laziest Way to X (For Beginners)"
+5. Contrarian:          "Everyone Is Wrong About X"
+
+Pick the ONE pattern that best fits this video and write a title in it. Additional rules:
+- Put a NUMBER in the title (minutes, steps, count). Numbers measurably lift click-through.
+- Front-load the payoff in the first 45 characters — mobile truncates the rest.
+- A parenthetical qualifier at the end works well: (For Beginners), (No Experience), (Step-by-Step).
+- Write for a human scanning a feed, never a keyword-stuffed string.
+- Never repeat a word ("How to How to"), and never exceed 70 characters.
+- Do not promise anything the script does not actually deliver.
+
+DESCRIPTION: open with 2-3 sentences that restate the hook's promise (this is what
+shows in search), then chapter timestamps, then a short channel line.
 
 Video title: ${script.title}
 Topic: ${strategy.topic}
@@ -113,7 +137,11 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
 
     try {
       const response = await this.aiTextService.generateText(prompt, {
-        maxTokens: 1400,
+        // The prompt asks for a description up to 5000 characters plus a full tag
+        // set; 1400 tokens cannot hold that, and thinking models spend part of the
+        // budget before emitting any text. Truncated JSON silently degrades to the
+        // template fallback, so give the response real headroom.
+        maxTokens: 4096,
         temperature: 0.6
       });
       const parsed = this.parseAIJsonResponse(response);

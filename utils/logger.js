@@ -67,8 +67,14 @@ class Logger {
       this.winston.error(message, ...args);
     }
     console.log(this.formatConsoleMessage('ERROR', message, chalk.red));
-    if (error && process.env.NODE_ENV !== 'production') {
-      console.error(chalk.red(error.stack));
+    if (error) {
+      // Always surface the reason. Gating this behind NODE_ENV !== 'production'
+      // meant every production failure logged as "... failed:" with nothing after
+      // it, hiding the one piece of information needed to diagnose it.
+      console.error(chalk.red(`  → ${error.message || error}`));
+      if (process.env.NODE_ENV !== 'production' && error.stack) {
+        console.error(chalk.red(error.stack));
+      }
     }
   }
 

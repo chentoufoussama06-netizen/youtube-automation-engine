@@ -283,7 +283,10 @@ Avoid fabricated claims and unsupported numbers.`;
 
     try {
       const response = await this.aiTextService.generateText(prompt, {
-        maxTokens: 1000,
+        // Small JSON payload, but thinking models (Gemini 3.x) consume part of the
+        // output budget reasoning before they emit any text. 1000 tokens left this
+        // one occasionally truncating into the template fallback.
+        maxTokens: 4096,
         temperature: 0.7
       });
       const parsed = this.parseAIJsonResponse(response);
