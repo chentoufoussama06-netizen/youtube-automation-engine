@@ -166,13 +166,16 @@ class ProductionManagementAgent {
     
     // Add main content
     if (script.mainContent && script.mainContent.sections) {
-      script.mainContent.sections.forEach((section, index) => {
-        ttsText += `Section ${index + 1}: ${section.title}\n`;
-        
+      script.mainContent.sections.forEach((section) => {
+        // Section titles are structural metadata for the editor, NOT narration.
+        // Speaking "Section 1: Les debuts prometteurs" aloud is the single most
+        // obvious tell that a video was machine-assembled.
+
         if (Array.isArray(section.content)) {
           section.content.forEach(line => {
-            if (typeof line === 'string' && !line.startsWith('[')) {
-              ttsText += `${line}\n`;
+            const spoken = this.toSpokenLine(line);
+            if (spoken) {
+              ttsText += `${spoken}\n`;
             }
           });
         } else if (section.steps) {
@@ -182,7 +185,9 @@ class ProductionManagementAgent {
           });
         } else if (section.items) {
           section.items.forEach(item => {
-            ttsText += `Number ${item.number}: ${item.title}. ${item.description}\n`;
+            // "Number 3:" is English scaffolding that breaks a non-English
+            // narration outright. The title and description already read as prose.
+            ttsText += `${this.toSpokenLine(item.title)} ${this.toSpokenLine(item.description)}\n`;
           });
         } else if (typeof section.content === 'string') {
           ttsText += `${section.content}\n`;
@@ -194,22 +199,49 @@ class ProductionManagementAgent {
     
     // Add conclusion
     if (script.conclusion) {
-      script.conclusion.recap.forEach(line => {
-        if (typeof line === 'string') {
-          ttsText += `${line}\n`;
+      (script.conclusion.recap || []).forEach(line => {
+        const spoken = this.toSpokenLine(line);
+        if (spoken) {
+          ttsText += `${spoken}\n`;
         }
       });
-      ttsText += `\n${script.conclusion.finalThought}\n\n`;
+      const finalThought = this.toSpokenLine(script.conclusion.finalThought);
+      if (finalThought) {
+        ttsText += `\n${finalThought}\n\n`;
+      }
     }
-    
+
     // Add CTA
     if (script.callToAction) {
-      ttsText += `${script.callToAction.subscribe}\n`;
-      ttsText += `${script.callToAction.like}\n`;
-      ttsText += `${script.callToAction.comment}\n`;
+      [script.callToAction.subscribe, script.callToAction.like, script.callToAction.comment]
+        .map(line => this.toSpokenLine(line))
+        .filter(Boolean)
+        .forEach(line => { ttsText += `${line}\n`; });
     }
-    
+
     return ttsText;
+  }
+
+  // Narration is read verbatim, so anything that is not a spoken sentence has to
+  // be dropped or repaired here. Bullet fragments ("- The fundamentals and why
+  // they matter") are read out with the dash as a pause and land as list-reading,
+  // and production notes in brackets get narrated as if they were dialogue.
+  toSpokenLine(line) {
+    if (typeof line !== 'string') return '';
+
+    let text = line.trim();
+    if (!text) return '';
+
+    // Production/stage directions: "[B-roll: stadium]", "(pause)".
+    if (text.startsWith('[')) return '';
+
+    // Leading list markers: "- item", "* item", "1. item", "2) item".
+    text = text.replace(/^\s*(?:[-*•–—]|\d+[.)])\s+/, '');
+
+    // Trailing bare colon means it was a label introducing a list, not a sentence.
+    if (/:$/.test(text)) return '';
+
+    return text.trim();
   }
 
   async processThumbnail(thumbnail, script) {

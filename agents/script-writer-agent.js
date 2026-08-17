@@ -105,17 +105,69 @@ class ScriptWriterAgent {
       return null;
     }
 
-    const prompt = `You are writing a YouTube script plan.
+    const targetLength = process.env.DEFAULT_VIDEO_LENGTH || '12-16 minutes';
+    const sectionTarget = process.env.SCRIPT_SECTION_TARGET || '10-14';
+
+    const prompt = `You are writing a long-form YouTube script for retention and watch time.
 Return only valid JSON with this exact shape:
 {
-  "title": "compelling title under 100 characters",
-  "hook": "opening hook in one sentence",
+  "title": "click-worthy title under 70 characters, containing a number",
+  "hook": "a 45-60 second spoken hook, 5-8 full sentences",
   "sections": [
-    { "title": "section title", "content": ["spoken script bullet"], "duration": 60 }
+    { "title": "section title", "content": ["spoken script sentence", "another spoken sentence"], "duration": 75 }
   ],
+  "outro": ["closing spoken sentence", "another closing sentence"],
   "cta": "clear call to action"
 }
 
+Every string above is narrated VERBATIM by a text-to-speech voice. Section titles
+are the one exception: they label the section for the editor and are never spoken.
+Never emit bullet fragments, list markers, headings, or stage directions such as
+"[B-roll]" anywhere in "hook", "content", "outro", or "cta".
+
+CRITICAL LENGTH REQUIREMENTS — the script is narrated verbatim, so length here IS video length:
+- Produce ${sectionTarget} sections. Fewer than 10 is a failure.
+- Each section needs 5-8 entries in "content". Each entry is a COMPLETE SPOKEN SENTENCE
+  of 20-40 words, written exactly as it will be read aloud. Never write bullet
+  fragments, labels, or note-form shorthand.
+- Total narration across hook + all sections must reach roughly ${targetLength}
+  of speech (about 150 words per minute, so aim for 1800-2400 words total).
+
+THE HOOK carries the whole video — most viewers leave in the first 30 seconds:
+- Open COLD, inside a specific moment: a place, a date, a person, something happening.
+  Never open by announcing the subject or greeting the audience.
+- Put the central unanswered question in the viewer's head early, and do not answer it.
+- Write it as flowing narration, 5-8 sentences, never one line.
+
+NARRATIVE, NOT LECTURE. This is a documentary told by a narrator, not an article
+read aloud. Facts only matter when they carry the story forward:
+- Move chronologically through scenes. Ground each one in a concrete detail —
+  a date, a place, a number, something a person actually said or did.
+- Show consequence: what changed because of this, and who it cost.
+- Withhold. Reveal the most striking fact as late as the structure allows.
+
+BANNED — these are the tells of machine-written narration:
+- Empty cliffhanger filler: "but what happened next?", "we'll explore that in a
+  moment", "before we get to that". A section ends when its scene ends.
+- Self-reference to the video's own structure: "in this section", "as I mentioned",
+  "in this video", "let's dive in".
+- Meta-narration about the research: "based on the latest research", "experts say"
+  without naming who.
+- Padding that restates the previous sentence in different words.
+
+Instead of a forward reference, end a section on an unresolved image or an
+unsettling fact and let the silence do the work.
+
+ACCURACY: every name, date, score, and figure must be one you are confident is
+correct. A story with three verifiable facts beats one with twenty invented ones.
+If you are unsure of a specific number, write the scene without it.
+
+${process.env.CONTENT_LANGUAGE && process.env.CONTENT_LANGUAGE !== 'en'
+    ? `LANGUAGE: Write the ENTIRE script — title, hook, every section, and the CTA — in
+${process.env.CONTENT_LANGUAGE_NAME || process.env.CONTENT_LANGUAGE}. Write as a native
+speaker would actually talk, not as a translation of English phrasing. Keep widely
+used English product names (ChatGPT, Zapier) in English.\n`
+    : ''}
 Topic: ${strategy.topic}
 Style/content type: ${strategy.contentType}
 Angle: ${strategy.angle}
@@ -128,7 +180,13 @@ Avoid fabricated statistics, unsupported claims, and fake urgency.`;
 
     try {
       const response = await this.aiTextService.generateText(prompt, {
-        maxTokens: 1800,
+        // An 8-12 minute script with full spoken bullets runs ~8k tokens of JSON.
+        // Thinking models (Gemini 3.x) also spend part of this budget reasoning
+        // before emitting text, so a tight cap truncates the JSON mid-array and
+        // silently drops the whole response to the template fallback below.
+        // A 1800-2400 word narration plus JSON scaffolding runs well past 8k
+        // tokens, and thinking models spend part of the budget before emitting.
+        maxTokens: Number(process.env.SCRIPT_MAX_TOKENS) || 32768,
         temperature: 0.7
       });
       const parsed = this.parseAIJsonResponse(response);
@@ -142,12 +200,20 @@ Avoid fabricated statistics, unsupported claims, and fake urgency.`;
       return {
         title: String(parsed.title).slice(0, 100),
         hook: this.normalizeAIHook(parsed.hook),
-        introduction: await this.generateIntroduction(strategy),
+        // No templated introduction on the AI path. generateIntroduction() emits
+        // hardcoded ENGLISH ("Hey everyone, welcome back to the channel!"), which
+        // was being spliced into non-English scripts and narrated verbatim.
+        // In a documentary the hook already IS the introduction.
+        introduction: null,
         mainContent: {
           sections,
           totalDuration: this.calculateSectionsDuration(sections)
         },
-        conclusion: await this.generateConclusion(strategy),
+        // Same reason as introduction: generateConclusion() is hardcoded English
+        // and emits literal bullet fragments ("- The fundamentals and why they
+        // matter") straight into the narration. Use the model's own outro, which
+        // is written in the configured language.
+        conclusion: this.normalizeAIOutro(parsed.outro),
         callToAction: this.normalizeAICTA(parsed.cta, strategy),
         duration: this.estimateDuration({ sections }),
         tone: template.tone,
@@ -186,10 +252,18 @@ Avoid fabricated statistics, unsupported claims, and fake urgency.`;
 
   normalizeAIHook(hook) {
     const text = typeof hook === 'object' && hook !== null ? hook.text : hook;
+    const spoken = String(text).trim();
+    // Derive the hook's timecode from its actual length (~150 wpm) instead of
+    // hardcoding 0:05, which mislabelled a 60-second hook as a 5-second one.
+    const words = spoken.split(/\s+/).filter(Boolean).length;
+    const seconds = Math.max(5, Math.round((words / 150) * 60));
+    const mm = String(Math.floor(seconds / 60)).padStart(1, '0');
+    const ss = String(seconds % 60).padStart(2, '0');
+
     return {
       type: 'ai',
-      text: String(text).trim(),
-      duration: '0:00-0:05'
+      text: spoken,
+      duration: `0:00-${mm}:${ss}`
     };
   }
 
@@ -199,7 +273,9 @@ Avoid fabricated statistics, unsupported claims, and fake urgency.`;
     }
 
     return sections
-      .slice(0, 8)
+      // Long-form scripts intentionally run 10-14 sections; an 8-section cap
+      // silently deleted the back half of every script the model wrote.
+      .slice(0, Number(process.env.SCRIPT_MAX_SECTIONS) || 18)
       .map((section, index) => {
         const rawContent = Array.isArray(section.content)
           ? section.content
@@ -219,24 +295,55 @@ Avoid fabricated statistics, unsupported claims, and fake urgency.`;
       .filter(section => section.title && section.content.length > 0);
   }
 
+  // True when the channel narrates in English, so English default copy is safe to
+  // fall back on. For any other language a default would be spoken in the wrong
+  // language, and an empty string is strictly better than that.
+  isEnglishChannel() {
+    const lang = process.env.CONTENT_LANGUAGE;
+    return !lang || lang.toLowerCase().startsWith('en');
+  }
+
+  englishDefault(text) {
+    return this.isEnglishChannel() ? text : '';
+  }
+
+  normalizeAIOutro(outro) {
+    const lines = (Array.isArray(outro) ? outro : [outro])
+      .filter(line => typeof line === 'string')
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    if (lines.length === 0) return null;
+
+    // formatScriptForTTS() reads `recap` then `finalThought`, so close on the
+    // last line rather than repeating it in both fields.
+    return {
+      type: 'conclusion',
+      title: 'Outro',
+      recap: lines.slice(0, -1),
+      finalThought: lines[lines.length - 1],
+      duration: '30 seconds'
+    };
+  }
+
   normalizeAICTA(cta, strategy) {
     if (cta && typeof cta === 'object') {
       return {
         type: 'call_to_action',
-        subscribe: String(cta.subscribe || cta.text || `Subscribe for more on ${strategy.topic}.`),
-        like: String(cta.like || 'Like this video if it helped.'),
-        comment: String(cta.comment || `Share your experience with ${strategy.topic} in the comments.`),
-        nextVideo: String(cta.nextVideo || 'Watch the next related video for more context.'),
+        subscribe: String(cta.subscribe || cta.text || this.englishDefault(`Subscribe for more on ${strategy.topic}.`)),
+        like: String(cta.like || this.englishDefault('Like this video if it helped.')),
+        comment: String(cta.comment || this.englishDefault(`Share your experience with ${strategy.topic} in the comments.`)),
+        nextVideo: String(cta.nextVideo || this.englishDefault('Watch the next related video for more context.')),
         duration: '15 seconds'
       };
     }
 
     return {
       type: 'call_to_action',
-      subscribe: String(cta || `Subscribe for more practical videos about ${strategy.topic}.`),
-      like: 'Like this video if it helped.',
-      comment: `Share your experience with ${strategy.topic} in the comments.`,
-      nextVideo: 'Watch the next related video for more context.',
+      subscribe: String(cta || this.englishDefault(`Subscribe for more practical videos about ${strategy.topic}.`)),
+      like: this.englishDefault('Like this video if it helped.'),
+      comment: this.englishDefault(`Share your experience with ${strategy.topic} in the comments.`),
+      nextVideo: this.englishDefault('Watch the next related video for more context.'),
       duration: '15 seconds'
     };
   }
@@ -665,12 +772,14 @@ Avoid fabricated statistics, unsupported claims, and fake urgency.`;
     fullScript += `[${script.hook.duration}] HOOK\n`;
     fullScript += `${script.hook.text}\n\n`;
     
-    // Introduction
-    fullScript += `[${script.introduction.duration}] INTRODUCTION\n`;
-    fullScript += `${script.introduction.greeting}\n`;
-    fullScript += `${script.introduction.topicIntro}\n`;
-    fullScript += `${script.introduction.valueProposition}\n`;
-    fullScript += `${script.introduction.credibility}\n\n`;
+    // Introduction — absent on the AI path, where the hook opens the video.
+    if (script.introduction) {
+      fullScript += `[${script.introduction.duration}] INTRODUCTION\n`;
+      fullScript += `${script.introduction.greeting}\n`;
+      fullScript += `${script.introduction.topicIntro}\n`;
+      fullScript += `${script.introduction.valueProposition}\n`;
+      fullScript += `${script.introduction.credibility}\n\n`;
+    }
     
     // Main Content
     fullScript += 'MAIN CONTENT\n';
@@ -710,12 +819,14 @@ Avoid fabricated statistics, unsupported claims, and fake urgency.`;
       fullScript += '\n';
     }
     
-    // Conclusion
-    fullScript += `[${script.conclusion.duration}] CONCLUSION\n`;
-    script.conclusion.recap.forEach(line => {
-      fullScript += `${line}\n`;
-    });
-    fullScript += `\n${script.conclusion.finalThought}\n\n`;
+    // Conclusion — null when the model returned no usable outro.
+    if (script.conclusion) {
+      fullScript += `[${script.conclusion.duration}] CONCLUSION\n`;
+      (script.conclusion.recap || []).forEach(line => {
+        fullScript += `${line}\n`;
+      });
+      fullScript += `\n${script.conclusion.finalThought}\n\n`;
+    }
     
     // Call to Action
     fullScript += `[${script.callToAction.duration}] CALL TO ACTION\n`;
