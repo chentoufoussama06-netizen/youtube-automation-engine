@@ -1,5 +1,6 @@
 const { Logger } = require('../utils/logger');
 const { AITextService } = require('../utils/ai-text-service');
+const { ResearchService } = require('../utils/research-service');
 
 class ScriptWriterAgent {
   constructor(db, credentials) {
@@ -8,6 +9,7 @@ class ScriptWriterAgent {
     this.logger = new Logger('ScriptWriter');
     this.templates = this.loadTemplates();
     this.aiTextService = new AITextService(credentials?.credentials || credentials || {});
+    this.research = new ResearchService();
   }
 
   async initialize() {
@@ -108,6 +110,38 @@ class ScriptWriterAgent {
     const targetLength = process.env.DEFAULT_VIDEO_LENGTH || '12-16 minutes';
     const sectionTarget = process.env.SCRIPT_SECTION_TARGET || '10-14';
 
+    // Pull sourced facts BEFORE writing. Without this the model narrates real
+    // events from memory, which is how a previous provider gave the pilot an RAF
+    // career he never had and another reversed the direction of the fatal flight.
+    const research = process.env.RESEARCH_ENABLED === 'false'
+      ? null
+      : await this.research.buildBrief(strategy.topic);
+
+    const researchBlock = research
+      ? `RESEARCH BRIEF — the ONLY source you may use for names, dates, places,
+scores and figures. Source: ${research.url}
+
+"""
+${research.text}
+"""
+
+RULES FOR THE BRIEF:
+- Every proper noun, date and number in your script must appear in the brief.
+- If the brief does not contain a detail, write the scene WITHOUT that detail.
+  Never fill a gap from memory — a missing number costs nothing, an invented one
+  destroys the channel's credibility.
+- The brief is reference material, not prose to copy. Retell it as narration.
+- Where the brief is uncertain or disputed, say so in the narration; "les
+  rapports divergent" is stronger than false precision.
+
+`
+      : `NO RESEARCH BRIEF was available for this topic. Write the narrative
+WITHOUT specific dates, ages, transfer fees, scorelines or named third parties
+unless they are certain. Favour what is structurally true about the story over
+invented precision.
+
+`;
+
     const prompt = `You are writing a long-form YouTube script for retention and watch time.
 Return only valid JSON with this exact shape:
 {
@@ -158,7 +192,7 @@ BANNED — these are the tells of machine-written narration:
 Instead of a forward reference, end a section on an unresolved image or an
 unsettling fact and let the silence do the work.
 
-ACCURACY: every name, date, score, and figure must be one you are confident is
+${researchBlock}ACCURACY: every name, date, score, and figure must be one you are confident is
 correct. A story with three verifiable facts beats one with twenty invented ones.
 If you are unsure of a specific number, write the scene without it.
 
