@@ -1,3 +1,7 @@
+/* global fetch, AbortSignal */
+// fetch and AbortSignal are Node globals from v18 onward; package.json already
+// pins engines.node to >=18. Declared here because the shared eslint config
+// predates them.
 const OpenAI = require('openai');
 const Replicate = require('replicate');
 const fs = require('fs').promises;
