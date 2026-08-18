@@ -587,6 +587,82 @@ Give exactly ${count} stock-footage search queries. Rules:
     return targetPath;
   }
 
+  // Shared clip library across every render.
+  //
+  // Clips used to be downloaded into a per-production directory and deleted at
+  // the end, so each video re-fetched ~30 files (about six minutes of wall clock)
+  // even though dark documentary topics reuse the same visual vocabulary
+  // constantly — night streets, storms, empty stadiums, archive paper. Keyed by
+  // orientation + query, a second video on a related subject pays almost nothing.
+  brollCacheDir() {
+    return process.env.BROLL_CACHE_DIR || path.join(__dirname, '..', 'data', 'broll-cache');
+  }
+
+  cacheKeyFor(query, orientation) {
+    const crypto = require('crypto');
+    const normalized = String(query).trim().toLowerCase().replace(/\s+/g, ' ');
+    const hash = crypto.createHash('sha1').update(`${orientation}:${normalized}`).digest('hex').slice(0, 16);
+    return `${orientation}_${hash}.mp4`;
+  }
+
+  async fetchPexelsClipCached(query, orientation = 'landscape') {
+    const dir = this.brollCacheDir();
+    await fs.mkdir(dir, { recursive: true });
+    const cached = path.join(dir, this.cacheKeyFor(query, orientation));
+
+    try {
+      const stat = await fs.stat(cached);
+      if (stat.size > 0) {
+        // Refresh mtime so the pruner treats reuse as recency, not age.
+        const now = new Date();
+        await fs.utimes(cached, now, now).catch(() => {});
+        return cached;
+      }
+    } catch {
+      // Not cached yet.
+    }
+
+    const saved = await this.fetchPexelsClip(query, cached, orientation);
+    if (!saved) {
+      // Pexels returned nothing usable; drop any zero-byte file it left behind so
+      // the next run retries instead of reusing an empty "hit".
+      await fs.unlink(cached).catch(() => {});
+      return null;
+    }
+    return saved;
+  }
+
+  // Keeps the library bounded. Evicts least-recently-used first, which maps
+  // directly onto "visual themes this channel has stopped covering".
+  async pruneBrollCache() {
+    const maxMb = Number(process.env.BROLL_CACHE_MAX_MB) || 4000;
+    const dir = this.brollCacheDir();
+
+    try {
+      const names = await fs.readdir(dir);
+      const files = [];
+      for (const name of names) {
+        if (!name.endsWith('.mp4')) continue;
+        const full = path.join(dir, name);
+        const stat = await fs.stat(full).catch(() => null);
+        if (stat) files.push({ full, size: stat.size, atime: stat.mtimeMs });
+      }
+
+      let totalMb = files.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+      if (totalMb <= maxMb) return;
+
+      files.sort((a, b) => a.atime - b.atime);
+      for (const file of files) {
+        if (totalMb <= maxMb) break;
+        await fs.unlink(file.full).catch(() => {});
+        totalMb -= file.size / (1024 * 1024);
+      }
+      this.logger.info(`B-roll cache pruned to ~${Math.round(totalMb)} MB`);
+    } catch {
+      // A missing cache directory is not an error worth failing a render over.
+    }
+  }
+
   // Vertical 9:16 Short built from the script's hook. The hook is already written
   // as a self-contained 45-60s promise, which is exactly the Shorts format.
   async generateShortVideo(script, outputPath) {
@@ -620,15 +696,13 @@ Give exactly ${count} stock-footage search queries. Rules:
     const totalSegments = Math.max(2, Math.ceil(seconds / segment));
     const segLen = seconds / totalSegments;
 
-    const brollDir = path.join(dir, 'short_broll');
-    await fs.mkdir(brollDir, { recursive: true });
 
     const queries = await this.generateVisualQueries(script, Math.min(totalSegments, 8));
     const clips = [];
     for (let i = 0; i < queries.length; i++) {
-      const target = path.join(brollDir, `s_${String(i).padStart(2, '0')}.mp4`);
       try {
-        const saved = await this.fetchPexelsClip(queries[i], target, 'portrait');
+        // Portrait clips share the same library, keyed separately by orientation.
+        const saved = await this.fetchPexelsClipCached(queries[i], 'portrait');
         if (saved) clips.push(saved);
       } catch (error) {
         this.logger.warn(`Short clip ${i + 1} failed: ${error.message}`);
@@ -668,7 +742,7 @@ Give exactly ${count} stock-footage search queries. Rules:
 
     await this.addAudioToVideo(silentPath, audioPath, outputPath);
     await fs.unlink(silentPath).catch(() => {});
-    await this.cleanupDirectory(brollDir);
+    await this.pruneBrollCache();
 
     this.logger.info('Short complete (1080x1920)');
     return outputPath;
@@ -689,18 +763,19 @@ Give exactly ${count} stock-footage search queries. Rules:
     const totalSegments = Math.max(3, Math.ceil(narrationSeconds / targetSegment));
     const clipCount = Math.min(totalSegments, Number(process.env.BROLL_MAX_CLIPS) || 30);
     const segment = narrationSeconds / totalSegments;
-    const brollDir = path.join(path.dirname(outputPath), 'broll');
-    await fs.mkdir(brollDir, { recursive: true });
-
     const queries = await this.generateVisualQueries(script, clipCount);
-    this.logger.info(`Fetching ${clipCount} clips for ${narrationSeconds.toFixed(0)}s of narration`);
+    this.logger.info(`Sourcing ${clipCount} clips for ${narrationSeconds.toFixed(0)}s of narration`);
 
     const clips = [];
+    let reused = 0;
     for (let i = 0; i < queries.length; i++) {
-      const target = path.join(brollDir, `clip_${String(i).padStart(2, '0')}.mp4`);
       try {
-        const saved = await this.fetchPexelsClip(queries[i], target);
-        if (saved) clips.push(saved);
+        const before = await fs.stat(path.join(this.brollCacheDir(), this.cacheKeyFor(queries[i], 'landscape'))).catch(() => null);
+        const saved = await this.fetchPexelsClipCached(queries[i]);
+        if (saved) {
+          clips.push(saved);
+          if (before) reused++;
+        }
       } catch (error) {
         this.logger.warn(`Clip ${i + 1} (“${queries[i]}”) failed: ${error.message}`);
       }
@@ -709,7 +784,7 @@ Give exactly ${count} stock-footage search queries. Rules:
     if (clips.length === 0) {
       throw new Error('no stock clips could be downloaded');
     }
-    this.logger.info(`Downloaded ${clips.length}/${clipCount} clips`);
+    this.logger.info(`Sourced ${clips.length}/${clipCount} clips (${reused} from cache, ${clips.length - reused} downloaded)`);
 
     // Lay every segment on the timeline, cycling through the downloaded clips.
     // Each revisit starts a little further into the source so a reused clip does
@@ -746,7 +821,9 @@ Give exactly ${count} stock-footage search queries. Rules:
 
     await this.addAudioToVideo(silentPath, audioPath, outputPath);
     await fs.unlink(silentPath).catch(() => {});
-    await this.cleanupDirectory(brollDir);
+    // The clips are NOT deleted — they are the shared library the next render
+    // draws from. Only the size cap removes anything.
+    await this.pruneBrollCache();
 
     this.logger.info('Stock footage video complete');
     return outputPath;
