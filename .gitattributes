@@ -1,0 +1,7 @@
+* text=auto
+
+# These are executed by Linux on the VPS. CRLF makes bash fail with
+# "bad interpreter: /usr/bin/env bash^M" and makes systemd reject the unit,
+# so they must stay LF regardless of the checkout platform.
+*.sh text eol=lf
+*.service text eol=lf
