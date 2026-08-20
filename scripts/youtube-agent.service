@@ -1,0 +1,30 @@
+[Unit]
+Description=YouTube automation content worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=youtube
+WorkingDirectory=/opt/youtube-automation-agent
+ExecStart=/usr/bin/node worker.js
+EnvironmentFile=/opt/youtube-automation-agent/.env
+
+# Renders are long. Give the current video time to finish on stop rather than
+# killing FFmpeg mid-write and leaving a corrupt mp4 behind.
+KillSignal=SIGTERM
+TimeoutStopSec=1800
+
+# The worker is meant to outlive provider outages, reboots and OOM kills.
+Restart=always
+RestartSec=30
+
+# FFmpeg is the memory-hungry stage; cap it so a runaway render cannot take the
+# whole box down with it.
+MemoryMax=6G
+
+StandardOutput=append:/opt/youtube-automation-agent/logs/worker.log
+StandardError=append:/opt/youtube-automation-agent/logs/worker.err
+
+[Install]
+WantedBy=multi-user.target

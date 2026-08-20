@@ -1,0 +1,215 @@
+{
+  "topics": [
+    {
+      "id": "sala",
+      "topic": "La disparition d'Emiliano Sala",
+      "angle": "Le transfert record termine au fond de la Manche, et ce que le rapport officiel a etabli sur ce vol.",
+      "keywords": [
+        "Sala",
+        "Nantes",
+        "Cardiff"
+      ],
+      "contentType": "Story",
+      "status": "running",
+      "attempts": 2,
+      "queuedAt": "2026-08-20T17:24:27.261Z",
+      "startedAt": "2026-08-20T17:29:03.444Z"
+    },
+    {
+      "id": "escobar",
+      "topic": "Le meurtre d'Andres Escobar",
+      "angle": "Dix jours apres son but contre son camp, le defenseur colombien est abattu a Medellin.",
+      "keywords": [
+        "Escobar",
+        "Colombie",
+        "1994"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "heysel",
+      "topic": "Le drame du Heysel",
+      "angle": "Trente-neuf morts avant la finale, et un match joue quand meme.",
+      "keywords": [
+        "Heysel",
+        "Bruxelles",
+        "1985"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "superga",
+      "topic": "La tragedie de Superga",
+      "angle": "L'avion du Grand Torino s'ecrase sur une colline en 1949.",
+      "keywords": [
+        "Superga",
+        "Torino",
+        "1949"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "munich",
+      "topic": "La catastrophe aerienne de Munich",
+      "angle": "Les Busby Babes de Manchester United decimes sur une piste enneigee en 1958.",
+      "keywords": [
+        "Munich",
+        "United",
+        "1958"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "foe",
+      "topic": "La mort de Marc-Vivien Foe",
+      "angle": "Le milieu camerounais s'effondre en plein match de Coupe des Confederations 2003.",
+      "keywords": [
+        "Foe",
+        "Cameroun",
+        "2003"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "puerta",
+      "topic": "La derniere titularisation d'Antonio Puerta",
+      "angle": "Le lateral du Sevilla FC s'effondre a trois reprises en 2007.",
+      "keywords": [
+        "Puerta",
+        "Sevilla",
+        "2007"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "chapecoense",
+      "topic": "Le vol de Chapecoense",
+      "angle": "Une equipe bresilienne entiere disparait en route vers la finale, 2016.",
+      "keywords": [
+        "Chapecoense",
+        "Bresil",
+        "2016"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "enke",
+      "topic": "Le silence de Robert Enke",
+      "angle": "Le gardien allemand cachait sa depression depuis des annees.",
+      "keywords": [
+        "Enke",
+        "Allemagne",
+        "depression"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "bochini",
+      "topic": "L'affaire des paris de Calciopoli",
+      "angle": "Le scandale qui a fait descendre la Juventus en Serie B.",
+      "keywords": [
+        "Calciopoli",
+        "Juventus",
+        "Serie B"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "hillsborough",
+      "topic": "Hillsborough et les 97 victimes",
+      "angle": "Comment la verite a mis vingt-sept ans a sortir.",
+      "keywords": [
+        "Hillsborough",
+        "Liverpool",
+        "1989"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "maradona-mort",
+      "topic": "Les derniers jours de Diego Maradona",
+      "angle": "L'enquete sur les soins recus avant sa mort en 2020.",
+      "keywords": [
+        "Maradona",
+        "Argentine",
+        "2020"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "bosman",
+      "topic": "L'arret Bosman",
+      "angle": "Comment un joueur belge inconnu a change le football europeen pour toujours.",
+      "keywords": [
+        "Bosman",
+        "transfert",
+        "CJUE"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "zamalek",
+      "topic": "Le drame de Port-Said",
+      "angle": "Soixante-quatorze morts dans un stade egyptien en 2012.",
+      "keywords": [
+        "Port-Said",
+        "Egypte",
+        "2012"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    },
+    {
+      "id": "garrincha",
+      "topic": "La chute de Garrincha",
+      "angle": "Le genie bresilien mort dans la misere a quarante-neuf ans.",
+      "keywords": [
+        "Garrincha",
+        "Bresil",
+        "alcool"
+      ],
+      "contentType": "Story",
+      "status": "pending",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z"
+    }
+  ]
+}
