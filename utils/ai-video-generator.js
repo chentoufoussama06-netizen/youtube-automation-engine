@@ -1208,6 +1208,24 @@ Give exactly ${count} stock-footage search queries. Rules:
     });
   }
 
+  // Optional backing track. A documentary narrated over pure silence reads as
+  // unfinished; a bed at roughly -22dB under the voice is what makes it sound
+  // produced. Drop licence-clear tracks into data/music/ and they are picked up
+  // automatically — nothing is bundled, since music licensing is the user's call.
+  async pickMusicBed() {
+    if (process.env.MUSIC_BED === 'off') return null;
+    const dir = process.env.MUSIC_DIR || path.join(__dirname, '..', 'data', 'music');
+    try {
+      const files = (await fs.readdir(dir)).filter(f => /\.(mp3|m4a|wav|ogg|flac)$/i.test(f));
+      if (files.length === 0) return null;
+      const pick = files[Math.floor(Math.random() * files.length)];
+      this.logger.info(`Music bed: ${pick}`);
+      return path.join(dir, pick);
+    } catch {
+      return null;
+    }
+  }
+
   async addAudioToVideo(videoPath, audioPath, outputPath) {
     const hasRealAudio = await this.isUsableAudioFile(audioPath);
 
@@ -1224,7 +1242,32 @@ Give exactly ${count} stock-footage search queries. Rules:
       ? outputPath.replace(/\.mp4$/i, '_muxed.mp4')
       : outputPath;
 
-    await runFFmpeg(['-y', '-i', videoPath, '-i', audioPath, '-c:v', 'copy', '-c:a', 'aac', '-shortest', muxPath]);
+    // Edge TTS only emits 24kHz MONO, and muxing it straight through shipped
+    // videos at 24kHz/74kbps against YouTube's 48kHz stereo spec — which is why
+    // the narration sounded thin regardless of which voice was used.
+    //
+    // loudnorm targets -14 LUFS, YouTube's normalisation point. Below it YouTube
+    // leaves the video quiet relative to every other channel; above it, YouTube
+    // turns it down anyway and the extra level is wasted.
+    const music = await this.pickMusicBed();
+    const args = ['-y', '-i', videoPath, '-i', audioPath];
+
+    if (music) {
+      args.push('-stream_loop', '-1', '-i', music);
+      args.push('-filter_complex',
+        // Narration is normalised first so the bed sits at a fixed distance
+        // beneath it rather than beneath whatever level the TTS happened to emit.
+        '[1:a]aresample=48000,loudnorm=I=-16:TP=-1.5:LRA=11[voice];'
+        + `[2:a]aresample=48000,volume=${process.env.MUSIC_BED_VOLUME || '0.08'}[bed];`
+        + '[voice][bed]amix=inputs=2:duration=first:dropout_transition=0,'
+        + 'loudnorm=I=-14:TP=-1.5:LRA=11,aformat=channel_layouts=stereo[aout]');
+      args.push('-map', '0:v', '-map', '[aout]');
+    } else {
+      args.push('-af', 'aresample=48000,loudnorm=I=-14:TP=-1.5:LRA=11,aformat=channel_layouts=stereo');
+    }
+
+    args.push('-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-ac', '2', '-shortest', muxPath);
+    await runFFmpeg(args);
 
     if (muxPath !== outputPath) {
       await fs.rename(muxPath, outputPath);
