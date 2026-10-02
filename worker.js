@@ -68,6 +68,21 @@ class Worker {
 
   async runJob(job, agents) {
     const { writer, production } = agents;
+
+    // Voice is cast per episode rather than set once for the channel: a story
+    // about a man's depression and one about a cartel execution should not be
+    // read in the same register. The TTS layer reads EDGE_TTS_VOICE from the
+    // environment, and jobs run strictly one at a time, so setting it here is
+    // the whole wiring. Falls back to the channel default when a job has no
+    // casting of its own.
+    if (job.voice) {
+      process.env.EDGE_TTS_VOICE = job.voice;
+    }
+    if (job.rate) {
+      process.env.EDGE_TTS_RATE = job.rate;
+    }
+    this.logger.info(`[${job.id}] voice ${process.env.EDGE_TTS_VOICE || 'default'} @ rate ${process.env.EDGE_TTS_RATE || 'default'}`);
+
     const strategy = {
       topic: job.topic,
       contentType: job.contentType || 'Story',

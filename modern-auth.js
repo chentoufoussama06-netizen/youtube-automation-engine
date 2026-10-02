@@ -7,8 +7,12 @@ const { URL } = require('url');
 
 class ModernAuth {
   constructor() {
+    // YT_TOKENS_FILE lets a second channel (e.g. AFTERCACHE) authorize into its
+    // own token file without touching the default channel's tokens.json —
+    // same convention as scripts/upload-shorts.js and friends.
+    const tokensFile = process.env.YT_TOKENS_FILE || 'tokens.json';
     this.credentialsPath = path.join(__dirname, 'config', 'credentials.json');
-    this.tokensPath = path.join(__dirname, 'config', 'tokens.json');
+    this.tokensPath = path.join(__dirname, 'config', tokensFile);
     this.server = null;
   }
 
@@ -37,6 +41,7 @@ class ModernAuth {
         'https://www.googleapis.com/auth/youtube.upload',
         'https://www.googleapis.com/auth/youtube',
         'https://www.googleapis.com/auth/youtube.readonly',
+        'https://www.googleapis.com/auth/youtube.force-ssl',
         'https://www.googleapis.com/auth/yt-analytics.readonly'
       ];
 

@@ -11,28 +11,54 @@ const PROVIDERS = {
   groq: {
     name: 'Groq (free tier)',
     baseURL: 'https://api.groq.com/openai/v1',
-    defaultModel: 'llama-3.3-70b-versatile',
-    models: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'openai/gpt-oss-120b', 'moonshotai/kimi-k2-instruct'],
+    // openai/gpt-oss-120b silently returns an EMPTY completion (not an error —
+    // Groq's own json_validate_failed on an empty string) for this channel's
+    // subject matter: real deaths, disasters, violence. It's a content-safety
+    // behaviour on that specific model, not a formatting bug — no amount of
+    // prompt rewording fixed it (tested 2026-09-04). groq/compound does not
+    // hit the same wall on the identical prompt.
+    defaultModel: 'groq/compound',
+    models: ['groq/compound', 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'],
     envKey: 'GROQ_API_KEY',
+    // groq/compound rejects any request above this outright (400). Clamping
+    // a big request down to fit made it worse, not better: a full documentary
+    // script silently truncates mid-JSON at 8192 tokens ("Unexpected end of
+    // JSON input") instead of failing loudly. largeModel below has no such
+    // cap and, tested 2026-09-04, does NOT hit the content-moderation wall
+    // that blocks openai/gpt-oss-120b specifically on the short visceral-hook
+    // prompt — that wall only showed up on the small, punchy-hook call, not
+    // the long neutral-toned script call. So: big requests route to
+    // largeModel at full size, small ones stay on compound.
+    maxOutputTokens: 8192,
+    largeModel: 'openai/gpt-oss-120b',
   },
   cerebras: {
     name: 'Cerebras (free tier)',
     baseURL: 'https://api.cerebras.ai/v1',
-    // Verified against GET https://api.cerebras.ai/v1/models on this account.
+    // 2026-08-29: every model on this key answers 402 "Payment required to
+    // access this resource", so Cerebras is unusable until billing is added.
+    // Kept here (rather than deleted) so it resumes working the moment it is
+    // funded — the fallback chain simply skips it while it fails.
     defaultModel: 'gpt-oss-120b',
-    models: ['gpt-oss-120b', 'zai-glm-4.7', 'gemma-4-31b'],
+    models: ['gpt-oss-120b', 'gemma-4-31b'],
     envKey: 'CEREBRAS_API_KEY',
   },
   mistral: {
     name: 'Mistral (free Experiment tier)',
     baseURL: 'https://api.mistral.ai/v1',
-    // Mistral Large 2 was trained predominantly on French text rather than
-    // English, so for a French-language channel it is the strongest free option
-    // available — and the free tier is metered in tokens per MONTH (~1B) rather
-    // than Gemini's 20 requests per DAY. Rate limiting is per-minute, which
-    // matters not at all at a few scripts a day.
-    defaultModel: 'mistral-large-latest',
-    models: ['mistral-large-latest', 'mistral-medium-latest', 'mistral-small-latest'],
+    // Mistral is trained predominantly on French text rather than English, so
+    // for a French-language channel it is the strongest free option available —
+    // and the free tier is metered in tokens per MONTH (~1B) rather than
+    // Gemini's 20 requests per DAY. Rate limiting is per-minute, which matters
+    // not at all at a few scripts a day.
+    //
+    // 2026-08-29: mistral-large-latest was dropped from the free Experiment
+    // tier and now answers 403 "This model is not available in your
+    // subscription tier". That single stale id failed every job in the queue.
+    // mistral-medium-latest is the strongest model the tier still serves and
+    // verified clean on a French documentary prompt.
+    defaultModel: 'mistral-medium-latest',
+    models: ['mistral-medium-latest', 'mistral-small-latest', 'magistral-small-latest', 'ministral-8b-latest'],
     envKey: 'MISTRAL_API_KEY',
   },
   openai: {
@@ -130,9 +156,22 @@ class AITextService {
   }
 
   _initOpenAICompatible(preset, apiKey, model) {
-    this.client = new OpenAI({ apiKey, baseURL: preset.baseURL });
+    // The SDK defaults to a 10-minute timeout AND 2 internal retries, which
+    // stack underneath generateText()'s own 3-attempt loop: one wedged socket
+    // could hold the worker for ~90 minutes emitting no log line at all. That
+    // is how the Sala render was lost - 17 minutes of silence with no way to
+    // tell a working call from a dead one. Retries belong to generateText, so
+    // the client gets none, and the timeout is an explicit budget.
+    this.client = new OpenAI({
+      apiKey,
+      baseURL: preset.baseURL,
+      timeout: Number(process.env.AI_TEXT_TIMEOUT_MS) || 480000,
+      maxRetries: 0
+    });
     this.model = model || preset.defaultModel;
     this.providerName = preset.name;
+    this.maxOutputTokens = preset.maxOutputTokens || null;
+    this.largeModel = preset.largeModel || null;
     this.logger.info(`${preset.name} initialized (model: ${this.model})`);
   }
 
@@ -238,7 +277,14 @@ class AITextService {
         return await this._generateTextPrimary(prompt, options);
       } catch (error) {
         lastPrimaryError = error;
-        const retriable = /403|429|500|502|503|504|timeout|fetch failed|network/i.test(String(error.message));
+        // The SDK is constructed with maxRetries:0 above, so its own retry of
+                // transient socket failures is gone and this regex is the only thing
+                // left covering them. It did not match the OpenAI SDK's
+                // APIConnectionError, whose message is the bare string "Connection
+                // error." - so a dropped socket fell straight through to the weaker
+                // fallback provider and, when that was also down, killed the job.
+                const retriable = /403|429|500|502|503|504|timeout|timed out|fetch failed|network|connection|socket|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EPIPE|aborted/i
+                  .test(String(error.message));
         if (!retriable || attempt === 3) break;
         this.logger.warn(`${this.providerName || 'Primary'} attempt ${attempt} failed (${String(error.message).slice(0, 60)}); retrying`);
         await new Promise(r => setTimeout(r, 1500 * attempt));
@@ -249,14 +295,65 @@ class AITextService {
       throw lastPrimaryError;
     } catch (error) {
       // Gemini's free tier allows 20 text requests per DAY. Rather than letting
-      // that collapse the whole pipeline into template output, fall back to
-      // Pollinations, which is free and needs no API key at all.
+      // that collapse the whole pipeline into template output, fall back.
       if (process.env.TEXT_FALLBACK === 'off') {
         throw error;
       }
+
+      // Before dropping to the keyless endpoint, spend the keys already in
+      // .env. The chain used to be primary -> Pollinations and nothing else,
+      // so on 2026-08-29 a stale Mistral model id (403) plus Pollinations
+      // retiring its free text API (402) failed every job in the queue while
+      // working Groq credentials sat unused in the same file.
+      const recovered = await this._generateWithBackupProviders(prompt, options);
+      if (recovered !== null) {
+        return recovered;
+      }
+
       this.logger.warn(`${this.providerName || 'Primary'} text generation failed (${String(error.message).slice(0, 70)}); falling back to Pollinations`);
       return await this._generatePollinationsText(prompt, options);
     }
+  }
+
+  // Try every other configured OpenAI-compatible provider in turn. Returns the
+  // generated text, or null if none of them could produce any.
+  async _generateWithBackupProviders(prompt, options = {}) {
+    const saved = {
+      client: this.client,
+      model: this.model,
+      providerName: this.providerName,
+      gemini: this.gemini,
+      agentRouter: this.agentRouter
+    };
+
+    try {
+      for (const [id, preset] of Object.entries(PROVIDERS)) {
+        const key = process.env[preset.envKey];
+        if (!key || preset.name === saved.providerName) {
+          continue;
+        }
+
+        // _generateTextPrimary dispatches on these, so they must be cleared or
+        // the backup client is never reached.
+        this.gemini = null;
+        this.agentRouter = null;
+        this._initOpenAICompatible(preset, key);
+
+        try {
+          const text = await this._generateTextPrimary(prompt, options);
+          this.logger.warn(`Recovered on backup provider ${preset.name} (${id})`);
+          return text;
+        } catch (backupError) {
+          this.logger.warn(`Backup provider ${preset.name} failed (${String(backupError.message).slice(0, 70)})`);
+        }
+      }
+    } finally {
+      // The primary stays the primary — a one-off outage must not silently
+      // re-point the channel's writer at a weaker model for the rest of the run.
+      Object.assign(this, saved);
+    }
+
+    return null;
   }
 
   // Free, keyless, OpenAI-compatible endpoint.
@@ -288,8 +385,13 @@ class AITextService {
   }
 
   async _generateTextPrimary(prompt, options = {}) {
-    const model = options.model || this.model;
-    const maxTokens = options.maxTokens || 2048;
+    const requested = options.maxTokens || 2048;
+    // A request too big for the default model's cap switches models instead
+    // of getting clamped — clamping silently truncated a full script mid-JSON
+    // rather than failing loudly. See the groq preset's largeModel comment.
+    const overCap = this.maxOutputTokens && requested > this.maxOutputTokens;
+    const model = options.model || (overCap && this.largeModel ? this.largeModel : this.model);
+    const maxTokens = overCap && !this.largeModel ? this.maxOutputTokens : requested;
     const temperature = options.temperature ?? 0.7;
 
     if (this.agentRouter) {
@@ -298,12 +400,31 @@ class AITextService {
     }
 
     if (this.gemini) {
+      // gemini-3.5-flash reasons before it answers, and `response.text`
+      // concatenates the reasoning with the answer: asked for documentary
+      // narration it came back "thought\nLet me recount carefully. MS Word
+      // style word count..." as though that were the script. Turning the
+      // thinking budget off is the fix; filtering parts marked `thought`
+      // covers a model that reasons anyway despite being asked not to.
       const response = await this.gemini.models.generateContent({
         model,
         contents: prompt,
-        config: { maxOutputTokens: maxTokens, temperature },
+        config: {
+          maxOutputTokens: maxTokens,
+          temperature,
+          thinkingConfig: { thinkingBudget: 0 }
+        },
       });
-      return response.text;
+
+      const parts = response.candidates?.[0]?.content?.parts || [];
+      const answer = parts.filter(p => !p.thought && p.text).map(p => p.text).join('').trim();
+      if (answer) return answer;
+
+      // Nothing usable in the parts — fall back to .text rather than returning
+      // empty, but never hand back something that is only thinking out loud.
+      const raw = String(response.text || '').trim();
+      if (/^thought\b/i.test(raw)) throw new Error('Gemini returned reasoning instead of an answer');
+      return raw;
     }
 
     if (!this.client) {
@@ -316,6 +437,13 @@ class AITextService {
     // hope, so the callers stop falling back to templates.
     const wantsJson = options.json ?? /only valid JSON/i.test(prompt);
 
+    // Logged BEFORE the call, not after. Every other log line on this path
+    // fires on success, so a hung request produced total silence and looked
+    // identical to a dead process. A long script is minutes of legitimate
+    // waiting; the operator needs to see that it started.
+    const startedAt = Date.now();
+    this.logger.info(`${this.providerName} generating (model: ${model}, max_tokens: ${maxTokens})`);
+
     const response = await this.client.chat.completions.create({
       model,
       messages: [{ role: 'user', content: prompt }],
@@ -324,6 +452,7 @@ class AITextService {
       ...(wantsJson ? { response_format: { type: 'json_object' } } : {})
     });
 
+    this.logger.info(`${this.providerName} responded in ${Math.round((Date.now() - startedAt) / 1000)}s`);
     return response.choices[0].message.content;
   }
 

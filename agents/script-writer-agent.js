@@ -60,7 +60,27 @@ class ScriptWriterAgent {
         return aiScript;
       }
       
-      this.logger.info('Using template script generation');
+      // A 60-second network blip once took out research, Mistral and the
+      // Pollinations fallback at the same moment, and this line quietly
+      // produced "Le meurtre d'Andres Escobar: Beginner to Expert Guide" -
+      // six sections of English tutorial boilerplate about a murder - which
+      // the worker then rendered in full and marked done. A template is a
+      // reasonable floor for a generic content tool; for a documentary about
+      // a real person it is worse than no video, because nothing downstream
+      // ever flags it and the job is never retried.
+      //
+      // Throwing instead hands the job back to the worker, which marks it
+      // pending, waits 30s and retries - which is exactly the right response
+      // to a transient outage. Set SCRIPT_ALLOW_TEMPLATE=true to restore the
+      // old behaviour for generic non-documentary channels.
+      if (process.env.SCRIPT_ALLOW_TEMPLATE !== 'true') {
+        throw new Error(
+          'every AI text provider failed; refusing to emit a template script ' +
+          '(set SCRIPT_ALLOW_TEMPLATE=true to allow it)'
+        );
+      }
+
+      this.logger.warn('Using template script generation - NOT documentary quality');
       // Generate script components
       const hook = await this.generateHook(strategy);
       const introduction = await this.generateIntroduction(strategy);
@@ -201,7 +221,15 @@ ${process.env.CONTENT_LANGUAGE && process.env.CONTENT_LANGUAGE !== 'en'
 ${process.env.CONTENT_LANGUAGE_NAME || process.env.CONTENT_LANGUAGE}. Write as a native
 speaker would actually talk, not as a translation of English phrasing. Keep widely
 used English product names (ChatGPT, Zapier) in English.\n`
-    : ''}
+    // Saying nothing about English is not the same as asking for English. The
+    // queue still holds French topics from the channel's French era, and with
+    // no instruction the model simply matched the topic's language — producing
+    // a French script that was about to be read aloud by an American voice.
+    : `LANGUAGE: Write the ENTIRE script — title, hook, every section, and the CTA — in
+ENGLISH, even if the topic, angle or keywords below are written in another
+language. Treat those as source material to translate from, never as a cue for
+which language to write in. Keep foreign proper nouns (people, clubs, places) in
+their original spelling.\n`}
 Topic: ${strategy.topic}
 Style/content type: ${strategy.contentType}
 Angle: ${strategy.angle}

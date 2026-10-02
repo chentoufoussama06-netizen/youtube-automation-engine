@@ -248,7 +248,7 @@ class ProductionManagementAgent {
     try {
       // Try to generate AI thumbnail first
       const thumbnailScript = thumbnail.script || script || { title: thumbnail.title || 'Untitled Video' };
-      const aiThumbnail = await this.aiVideoGenerator.generateThumbnail(thumbnailScript, 'ethereal');
+      const aiThumbnail = await this.aiVideoGenerator.generateThumbnail(thumbnailScript, 'documentary');
       
       return {
         path: aiThumbnail.path,
@@ -330,7 +330,7 @@ class ProductionManagementAgent {
       const visualAssets = [];
       
       for (const prompt of visualPrompts) {
-        const assets = await this.aiVideoGenerator.generateVisualAssets(prompt, 'ethereal', 1);
+        const assets = await this.aiVideoGenerator.generateVisualAssets(prompt, 'documentary', 1);
         visualAssets.push(...assets);
       }
       
@@ -612,9 +612,17 @@ class ProductionManagementAgent {
         format: 'mp4'
       };
       
-      this.logger.info('AI video assembly complete');
+      this.logger.info(`AI video assembly complete (${this.aiVideoGenerator.lastRenderMode || 'unknown'})`);
       return finalVideoPath;
     } catch (error) {
+      // The generator marks a deliberate refusal (b-roll failed and downgrading
+      // was not permitted) as fatal. Simulating past it would hand the worker a
+      // "ready" production built from a placeholder, which is the outcome the
+      // refusal exists to prevent — let it reach worker.js so the job retries.
+      if (error && error.fatal) {
+        this.logger.error(`AI video assembly refused: ${error.message}`);
+        throw error;
+      }
       this.logger.error('AI video assembly failed:', error);
       // Fallback to simulation
       return await this.simulateVideoAssembly(productionData);
@@ -662,20 +670,20 @@ class ProductionManagementAgent {
     const prompts = [];
     
     // Title prompt
-    prompts.push(`${script.title}, ethereal storytelling, mystical background`);
+    prompts.push(`${script.title}, documentary still, archival photograph, somber`);
     
     // Content-based prompts
     if (script.mainContent && script.mainContent.sections) {
       script.mainContent.sections.forEach(section => {
         if (section.title) {
-          prompts.push(`${section.title}, ethereal dreamscape, creative visualization`);
+          prompts.push(`${section.title}, documentary still, naturalistic, restrained`);
         }
       });
     }
     
     // Ensure we have at least 3 prompts
     while (prompts.length < 3) {
-      prompts.push('ethereal dreamscape, mystical storytelling, creative visualization');
+      prompts.push('documentary still, archival photograph, muted colour, somber mood');
     }
     
     return prompts.slice(0, 5); // Limit to 5 for cost control

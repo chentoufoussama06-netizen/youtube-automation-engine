@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "worker": "node worker.js",
+    "auth": "node modern-auth.js",
+    "healthcheck": "node scripts/maintenance/login-healthcheck.js",
     "setup": "node setup.js",
     "walkthrough": "node walkthrough.js",
     "scheduler": "node schedules/daily-automation.js",
@@ -20,21 +23,18 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@google-cloud/local-auth": "^3.0.0",
     "@google/genai": "^2.9.0",
     "axios": "^1.7.0",
     "chalk": "^4.1.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "form-data": "^4.0.4",
     "googleapis": "^173.0.0",
     "inquirer": "^8.2.6",
-    "microsoft-cognitiveservices-speech-sdk": "^1.45.0",
-    "moment": "^2.29.4",
     "msedge-tts": "^2.0.7",
     "node-cron": "^3.0.2",
     "openai": "^6.0.0",
     "playwright": "^1.54.2",
+    "postgres": "^3.4.9",
     "replicate": "^1.4.0",
     "sharp": "^0.33.0",
     "sqlite3": "^5.1.6",
@@ -45,8 +45,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
-    "eslint": "9.39.4",
-    "nodemon": "^3.0.2"
+    "eslint": "9.39.4"
   },
   "engines": {
     "node": ">=18.0.0"

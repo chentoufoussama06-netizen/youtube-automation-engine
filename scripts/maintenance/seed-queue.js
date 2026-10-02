@@ -6,7 +6,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') }
 const fs = require('fs');
 const path = require('path');
 
-const QUEUE_PATH = process.env.QUEUE_PATH || path.join(__dirname, '..', 'data', 'queue.json');
+const QUEUE_PATH = process.env.QUEUE_PATH || path.join(__dirname, '..', '..', 'data', 'queue.json');
 
 // Deliberately weighted away from the most-covered tragedies. Research on the
 // niche is explicit that growth comes from underreported stories told well, not

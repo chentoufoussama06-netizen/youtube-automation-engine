@@ -184,7 +184,8 @@ class YouTubeAutomationAgent {
         'informative',
         'engaging',
         'professional',
-        'ethereal'
+        'ethereal',
+        'documentary'
       ]);
       const style = body.style.trim();
 

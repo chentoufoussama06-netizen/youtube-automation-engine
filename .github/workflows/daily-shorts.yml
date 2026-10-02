@@ -1,0 +1,97 @@
+# Make and post the day's shorts on all three channels, in the cloud.
+#
+# Runs just after YouTube's daily quota resets (midnight Pacific = 07:00 UTC),
+# so the run always has the full 10,000 units — 6 uploads.
+#
+# Secrets (repo Settings -> Secrets and variables -> Actions):
+#   ENV_FILE             the whole engine .env, verbatim
+#   YT_CREDENTIALS       config/credentials.json, base64
+#   YT_TOKENS            config/tokens.json, base64            (Football Files)
+#   YT_TOKENS_AFTERCACHE config/tokens.aftercache.json, base64
+#   YT_TOKENS_CLIPS      config/tokens.clips.json, base64      (Viral Vault Clip)
+#
+# Large binaries (gameplay footage, renders made elsewhere) live as assets on
+# the `media` and `pending` releases, not in git.
+
+name: daily-shorts
+
+on:
+  schedule:
+    - cron: "30 7 * * *"
+  workflow_dispatch:
+    inputs:
+      per:
+        description: "Shorts per channel"
+        default: "2"
+
+concurrency:
+  group: daily-shorts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  shorts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: |
+          npm ci --no-audit --no-fund
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core > /dev/null
+          ffmpeg -version | head -1
+
+      - name: Credentials
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          YT_CREDENTIALS: ${{ secrets.YT_CREDENTIALS }}
+          YT_TOKENS: ${{ secrets.YT_TOKENS }}
+          YT_TOKENS_AFTERCACHE: ${{ secrets.YT_TOKENS_AFTERCACHE }}
+          YT_TOKENS_CLIPS: ${{ secrets.YT_TOKENS_CLIPS }}
+        run: |
+          printf '%s\n' "$ENV_FILE" > .env
+          mkdir -p config
+          echo "$YT_CREDENTIALS" | base64 -d > config/credentials.json
+          echo "$YT_TOKENS" | base64 -d > config/tokens.json
+          echo "$YT_TOKENS_AFTERCACHE" | base64 -d > config/tokens.aftercache.json
+          echo "$YT_TOKENS_CLIPS" | base64 -d > config/tokens.clips.json
+
+      - name: Media
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p data/gameplay
+          gh release download media -p 'gameplay-1080p.mp4' -D data/gameplay
+          # Renders made off-runner, named <channel>__<file>.mp4
+          mkdir -p /tmp/pending
+          if gh release download pending -D /tmp/pending 2>/dev/null; then
+            for f in /tmp/pending/*__*.mp4; do
+              [ -e "$f" ] || continue
+              base="$(basename "$f")"; ch="${base%%__*}"; name="${base#*__}"
+              mkdir -p "state/$ch/shorts/video" && mv "$f" "state/$ch/shorts/video/$name"
+            done
+          fi
+
+      - name: Make and post
+        run: node scripts/daily.js --per "${{ github.event.inputs.per || '2' }}"
+
+      - name: Update WHOP OS brain
+        if: always()
+        run: node scripts/youtube/push-brain.js || true
+
+      - name: Save state
+        if: always()
+        run: |
+          git config user.name "daily-shorts"
+          git config user.email "actions@users.noreply.github.com"
+          git add state
+          git diff --cached --quiet || git commit -m "state: daily shorts $(date -u +%F)"
+          git push

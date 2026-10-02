@@ -54,7 +54,7 @@ chown -R "$APP_USER:$APP_USER" "$APP_DIR"
 chmod 600 "$APP_DIR/.env"
 
 echo "==> Seeding the topic queue"
-sudo -u "$APP_USER" node scripts/seed-queue.js || true
+sudo -u "$APP_USER" node scripts/maintenance/seed-queue.js || true
 
 echo "==> Installing systemd service"
 install -m 644 "$APP_DIR/scripts/youtube-agent.service" /etc/systemd/system/youtube-agent.service

@@ -1,4 +1,4 @@
-/* global fetch, AbortSignal */
+/* global fetch, AbortSignal, clearTimeout */
 // fetch and AbortSignal are Node globals from v18 onward; package.json already
 // pins engines.node to >=18. Declared here because the shared eslint config
 // predates them.
@@ -194,6 +194,24 @@ class AIVideoGenerator {
       let buffer = null;
       let lastError = null;
 
+      // Neither the websocket connect nor the stream read carries a deadline of
+      // its own. On 2026-08-30 a DNS failure left one attempt hanging for 42
+      // minutes and an unattended batch spent its whole hour on a single chunk.
+      // Every wait here is now bounded, so a dead network costs seconds.
+      const ttsTimeoutMs = Number(process.env.EDGE_TTS_TIMEOUT_MS) || 90000;
+      const withTimeout = (promise, label) => {
+        let timer;
+        return Promise.race([
+          promise,
+          new Promise((_, reject) => {
+            timer = setTimeout(
+              () => reject(new Error(`${label} timed out after ${ttsTimeoutMs / 1000}s`)),
+              ttsTimeoutMs
+            );
+          })
+        ]).finally(() => clearTimeout(timer));
+      };
+
       // Transient socket drops are common; retry before failing the whole run.
       for (let attempt = 1; attempt <= 3 && !buffer; attempt++) {
         try {
@@ -201,16 +219,17 @@ class AIVideoGenerator {
           // 96kbit is the highest MP3 Edge offers and costs nothing extra. The
           // narration is the only audio in the video, so it carries the whole mix.
           await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
-          const { audioStream } = hasProsody
-            ? await tts.toStream(chunks[i], prosody)
-            : await tts.toStream(chunks[i]);
+          const { audioStream } = await withTimeout(
+            hasProsody ? tts.toStream(chunks[i], prosody) : tts.toStream(chunks[i]),
+            'Edge TTS connect'
+          );
 
           const buffers = [];
-          const collected = await new Promise((resolve, reject) => {
+          const collected = await withTimeout(new Promise((resolve, reject) => {
             audioStream.on('data', (c) => buffers.push(c));
             audioStream.on('end', () => resolve(Buffer.concat(buffers)));
             audioStream.on('error', reject);
-          });
+          }), 'Edge TTS stream');
 
           if (collected.length === 0) {
             throw new Error('empty audio stream');
@@ -297,7 +316,7 @@ class AIVideoGenerator {
     return outputPath;
   }
 
-  async generateVisualAssets(prompt, style = "ethereal", count = 1) {
+  async generateVisualAssets(prompt, style = "documentary", count = 1) {
     this.logger.info(`Generating ${count} visual assets with style: ${style}`);
 
     try {
@@ -329,6 +348,19 @@ class AIVideoGenerator {
       return await this.generateOpenAIImage(prompt, imagePath);
     }
 
+    // Tried ahead of Gemini on purpose: the Gemini free tier allows zero
+    // image generations, so that branch 429s on every single call and only
+    // costs a round trip per image. HuggingFace renders 1920x1080 in ~6s
+    // against Pollinations' ~45s, which is the difference between a 13-image
+    // documentary taking one minute of image time and taking ten.
+    if (process.env.HUGGINGFACE_API_KEY) {
+      try {
+        return await this.generateHuggingFaceImage(prompt, imagePath);
+      } catch (hfError) {
+        this.logger.warn(`HuggingFace image generation failed (${String(hfError.message).slice(0, 90)}); falling through`);
+      }
+    }
+
     if (this.gemini) {
       try {
         return await this.generateGeminiImage(prompt, imagePath);
@@ -339,6 +371,53 @@ class AIVideoGenerator {
     }
 
     return await this.generatePollinationsImage(prompt, imagePath);
+  }
+
+  // HuggingFace Inference Providers. The account carries no payment method
+  // (canPay:false), so once the monthly free credit is spent this returns 402
+  // and the chain drops to Pollinations - it cannot silently run up a bill.
+  // That is the whole reason Pollinations stays underneath rather than being
+  // replaced: it is slow, but it is the floor that always answers.
+  async generateHuggingFaceImage(prompt, imagePath) {
+    const provider = process.env.HUGGINGFACE_IMAGE_PROVIDER || 'nscale';
+    const model = process.env.HUGGINGFACE_IMAGE_MODEL || 'black-forest-labs/FLUX.1-schnell';
+    const size = process.env.HUGGINGFACE_IMAGE_SIZE || '1920x1080';
+
+    // enhanceVisualPrompt() asks for "16:9 aspect ratio" in words, which makes
+    // FLUX paint letterbox bars INTO the frame - and the renderer then pastes
+    // that already-barred image into a 1080p timeline. Here the dimensions are
+    // a real API parameter, so the phrase is both redundant and harmful.
+    const cleaned = prompt.replace(/,?\s*16:9 aspect ratio/gi, '');
+
+    const response = await fetch(`https://router.huggingface.co/${provider}/v1/images/generations`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ model, prompt: cleaned, n: 1, size }),
+      signal: AbortSignal.timeout(Number(process.env.HUGGINGFACE_IMAGE_TIMEOUT_MS) || 90000)
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      throw new Error(`HuggingFace HTTP ${response.status} ${detail.slice(0, 120)}`);
+    }
+
+    const payload = await response.json();
+    const b64 = payload?.data?.[0]?.b64_json;
+    if (!b64) {
+      throw new Error('HuggingFace response carried no image data');
+    }
+
+    const buffer = Buffer.from(b64, 'base64');
+    if (buffer.length < 1024) {
+      throw new Error(`HuggingFace returned ${buffer.length} bytes (not a usable image)`);
+    }
+
+    await fs.writeFile(imagePath, buffer);
+    this.logger.info(`HuggingFace image saved (${model} via ${provider}, ${size}, ${Math.round(buffer.length / 1024)} KB)`);
+    return imagePath;
   }
 
   // Pollinations.ai: free image generation, no API key, no quota.
@@ -401,6 +480,12 @@ class AIVideoGenerator {
 
   enhanceVisualPrompt(prompt, style) {
     const styleEnhancements = {
+      // The channel narrates real deaths - a plane in the Channel, a murder in
+      // Medellin. "Floating particles, cosmic background" is the register of a
+      // meditation app, and it was the default on every frame. Documentary is
+      // the honest register for the subject and is now the fallback below.
+      documentary: "documentary photography, naturalistic light, muted desaturated palette, "
+        + "35mm archival film grain, overcast and somber, restrained photojournalistic composition",
       ethereal: "ethereal, dreamy, mystical, soft lighting, floating particles, cosmic background",
       modern: "modern, clean, minimalist, professional, sleek design, contemporary",
       animated: "animated style, cartoon, vibrant colors, expressive, dynamic",
@@ -408,8 +493,16 @@ class AIVideoGenerator {
       abstract: "abstract art, geometric shapes, gradient colors, artistic composition"
     };
 
-    const enhancement = styleEnhancements[style] || styleEnhancements.ethereal;
-    return `${prompt}, ${enhancement}, high quality, 16:9 aspect ratio, digital art`;
+    const enhancement = styleEnhancements[style] || styleEnhancements.documentary;
+    // "digital art" was appended to every prompt including the documentary
+    // style, which told the model to illustrate a plane crash rather than
+    // photograph one. Dimensions are a real API parameter on the HuggingFace
+    // path, so the literal "16:9 aspect ratio" only ever painted letterbox
+    // bars into the frame - it is dropped here rather than stripped later.
+    const medium = style === 'documentary'
+      ? 'photoreal, not an illustration'
+      : 'digital art';
+    return `${prompt}, ${enhancement}, high quality, ${medium}`;
   }
 
   async downloadImage(url, outputPath) {
@@ -430,27 +523,54 @@ class AIVideoGenerator {
 
   async generateVideo(script, visualAssets, audioPath, outputPath) {
     this.logger.info('Generating video from assets...');
-    
+    this.lastRenderMode = null;
+
     try {
       // Try Replicate for video generation first
       if (this.replicate && this.replicate.auth) {
-        return await this.generateReplicateVideo(script, visualAssets, audioPath, outputPath);
+        const replicated = await this.generateReplicateVideo(script, visualAssets, audioPath, outputPath);
+        this.lastRenderMode = 'replicate';
+        return replicated;
       }
-      
+
       // Real stock footage beats static slides. Static gradient slideshows are
       // exactly the profile YouTube's 2026 inauthentic-content policy targets.
       if (process.env.USE_STOCK_BROLL === 'true' && process.env.PEXELS_API_KEY) {
         try {
-          return await this.generateStockFootageVideo(script, audioPath, outputPath);
+          const broll = await this.generateStockFootageVideo(script, audioPath, outputPath);
+          this.lastRenderMode = 'stock-broll';
+          return broll;
         } catch (brollError) {
-          this.logger.warn(`Stock footage assembly failed (${brollError.message}); falling back to slideshow`);
+          // A slideshow is not a cheaper version of a b-roll episode, it is a
+          // weaker product: on 2026-08-25 a single transient spawn EPERM turned
+          // 13 minutes of narration into five stills, and the only trace was
+          // one warn line. Refuse by default, the way the script writer already
+          // refuses to emit a template script, so the worker retries the job
+          // instead of quietly shipping the downgrade.
+          if (process.env.BROLL_ALLOW_SLIDESHOW_FALLBACK !== 'true') {
+            const refusal = new Error(
+              `stock footage assembly failed (${brollError.message}); refusing to `
+              + 'downgrade to a slideshow (set BROLL_ALLOW_SLIDESHOW_FALLBACK=true to allow it)'
+            );
+            refusal.fatal = true;
+            throw refusal;
+          }
+          this.logger.error(`Stock footage assembly failed (${brollError.message}); DOWNGRADING to slideshow`);
         }
       }
 
       // Fallback to simple slideshow with Playwright
-      return await this.generateSlideshowVideo(script, visualAssets, audioPath, outputPath);
+      const slideshow = await this.generateSlideshowVideo(script, visualAssets, audioPath, outputPath);
+      this.lastRenderMode = 'slideshow';
+      return slideshow;
     } catch (error) {
+      // A refusal must not be laundered into a placeholder by this catch — that
+      // would restore exactly the silent downgrade it exists to prevent.
+      if (error && error.fatal) {
+        throw error;
+      }
       this.logger.error('Video generation failed:', error);
+      this.lastRenderMode = 'simulated';
       return await this.simulateVideoGeneration(script, visualAssets, audioPath, outputPath);
     }
   }
@@ -516,42 +636,93 @@ class AIVideoGenerator {
   // English, so a French script searched Pexels for "La descente aux enfers" and
   // got unrelated clips. Abstract phrases have no footage in any language, so the
   // model is asked for physical, visible scenes instead.
-  async generateVisualQueries(script, count) {
-    const sections = (script.mainContent?.sections || []).map(s => s.title).filter(Boolean);
-    const prompt = `You are choosing stock footage for a video titled "${script.title}".
+  /**
+   * One set of queries per script section, so footage tracks what is being said.
+   *
+   * The previous version asked for N queries against the section TITLES and
+   * handed them out with `queries[i % queries.length]`, while the timeline
+   * independently cycled clips with `seg % clips.length`. Two unrelated loops
+   * meant the picture at minute seven had no relationship to the sentence at
+   * minute seven — exactly the "b-roll doesn't follow the story, time and space
+   * and characters" problem.
+   *
+   * Returns an array parallel to sections: entry k holds section k's queries.
+   */
+  async generateSectionQueries(script, perSection = 2) {
+    const sections = script.mainContent?.sections || [];
+    if (!sections.length) return [];
 
-Its sections are:
-${sections.map((s, i) => `${i + 1}. ${s}`).join('\n')}
+    const outline = sections.map((s, i) => {
+      // A little of the narration itself beats the heading alone: a title like
+      // "The national team" says nothing filmable; its first sentences do.
+      const body = String(s.content || '').replace(/\s+/g, ' ').slice(0, 200);
+      return `${i + 1}. ${s.title}\n   ${body}`;
+    }).join('\n');
 
-Return only valid JSON: { "queries": ["...", "..."] }
+    const prompt = `You are choosing stock footage for a documentary titled "${script.title}".
 
-Give exactly ${count} stock-footage search queries. Rules:
+First infer from the material below WHEN and WHERE it takes place (decade and
+country or region). Every query must be consistent with that setting — footage
+that looks like the wrong decade or the wrong part of the world is the single
+most common way this goes wrong.
+
+Sections:
+${outline}
+
+Return only valid JSON: { "sections": [ { "n": 1, "queries": ["...", "..."] } ] }
+
+Give exactly ${perSection} queries for EACH of the ${sections.length} sections,
+in order. A section's queries must depict what THAT section describes. Rules:
 - ENGLISH ONLY, whatever language the video is in. Stock libraries index in English.
 - Each query is a PHYSICAL, FILMABLE SCENE: "empty football stadium at night",
   "close up hands counting money", "rain on a car window at night".
 - 2-5 words. No abstractions ("decline", "genius", "downfall") — those have no footage.
 - No named people, teams, or logos. Stock libraries have none, and it is a rights risk.
-- Match the subject matter and mood of the sections, and vary the shots.`;
+- Match the subject matter and mood of the sections, and vary the shots.
+- This is a somber documentary about real events, several of them fatal. Nothing
+  bright, cheerful, promotional or stock-advert looking. Prefer restrained,
+  atmospheric footage: overcast skies, empty stadiums, rain on glass, dim
+  corridors, cold open water, still floodlights. Without this the model returns
+  "young boy kicking soccer ball" for a fatal plane crash.`;
 
     try {
       const { AITextService } = require('./ai-text-service');
       const service = new AITextService(this.credentials || {});
       if (!service.isAvailable()) throw new Error('no text provider');
 
-      const raw = await service.generateText(prompt, { maxTokens: 1024, temperature: 0.8, json: true });
+      const raw = await service.generateText(prompt, { maxTokens: 2048, temperature: 0.8, json: true });
       const text = String(raw).replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
       const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || text);
-      const queries = (parsed.queries || [])
-        .map(q => String(q).trim())
-        .filter(q => q.length > 2);
 
-      if (queries.length === 0) throw new Error('no queries returned');
+      // Index by the model's own section number rather than array position, so
+      // a skipped or reordered entry lands on the right section instead of
+      // silently shifting every later section's footage by one.
+      const byNumber = new Map();
+      for (const entry of parsed.sections || []) {
+        const n = Number(entry.n);
+        const queries = (entry.queries || [])
+          .map(q => String(q).trim())
+          .filter(q => q.length > 2);
+        if (Number.isInteger(n) && queries.length) byNumber.set(n - 1, queries);
+      }
 
-      this.logger.info(`Visual queries: ${queries.slice(0, 4).join(' | ')}${queries.length > 4 ? ' | ...' : ''}`);
-      return Array.from({ length: count }, (_, i) => queries[i % queries.length]);
+      if (byNumber.size === 0) throw new Error('no section queries returned');
+
+      // Any section the model skipped borrows from its neighbour, which is far
+      // closer in subject than a generic fallback would be.
+      const fallback = this.buildBrollQueries(script, 3);
+      const result = sections.map((_, i) =>
+        byNumber.get(i) || byNumber.get(i - 1) || byNumber.get(i + 1) || fallback);
+
+      this.logger.info(
+        `Section queries: ${byNumber.size}/${sections.length} sections covered — `
+        + result.slice(0, 3).map((q, i) => `[${i + 1}] ${q[0]}`).join('  ')
+      );
+      return result;
     } catch (error) {
-      this.logger.warn(`Visual query generation failed (${error.message}); using title-derived terms`);
-      return this.buildBrollQueries(script, count);
+      this.logger.warn(`Section query generation failed (${error.message}); using title-derived terms`);
+      const generic = this.buildBrollQueries(script, Math.max(3, sections.length));
+      return sections.map((_, i) => [generic[i % generic.length]]);
     }
   }
 
@@ -697,7 +868,10 @@ Give exactly ${count} stock-footage search queries. Rules:
     const segLen = seconds / totalSegments;
 
 
-    const queries = await this.generateVisualQueries(script, Math.min(totalSegments, 8));
+    // A short is one beat, not a whole arc, so the per-section grouping the
+    // long-form path needs is flattened here into a simple ordered list.
+    const sectionQueries = await this.generateSectionQueries(script, 2);
+    const queries = sectionQueries.flat().slice(0, Math.min(totalSegments, 8));
     const clips = [];
     for (let i = 0; i < queries.length; i++) {
       try {
@@ -761,38 +935,91 @@ Give exactly ${count} stock-footage search queries. Rules:
     // bounded set of unique clips and revisit them at different offsets.
     const targetSegment = Number(process.env.BROLL_SEGMENT_SECONDS) || 8;
     const totalSegments = Math.max(3, Math.ceil(narrationSeconds / targetSegment));
-    const clipCount = Math.min(totalSegments, Number(process.env.BROLL_MAX_CLIPS) || 30);
+    const maxClips = Number(process.env.BROLL_MAX_CLIPS) || 30;
     const segment = narrationSeconds / totalSegments;
-    const queries = await this.generateVisualQueries(script, clipCount);
-    this.logger.info(`Sourcing ${clipCount} clips for ${narrationSeconds.toFixed(0)}s of narration`);
 
+    const sections = script.mainContent?.sections || [];
+    const perSection = Math.max(1, Math.min(3, Math.floor(maxClips / Math.max(1, sections.length))));
+    const sectionQueries = await this.generateSectionQueries(script, perSection);
+
+    // The script carries no timestamps, so narration time per section is
+    // apportioned by word count — words spoken is a close proxy for seconds,
+    // and it is the only signal available without re-timing the audio.
+    const weights = sections.map(s => Math.max(1, String(s.content || '').trim().split(/\s+/).length));
+    const totalWeight = weights.reduce((a, b) => a + b, 0) || 1;
+    const bounds = [];
+    let running = 0;
+    for (const w of weights) {
+      running += w;
+      bounds.push(running / totalWeight);
+    }
+
+    // Which section is being narrated during this segment?
+    const sectionForSegment = (seg) => {
+      const t = (seg + 0.5) / totalSegments;
+      for (let k = 0; k < bounds.length; k++) {
+        if (t <= bounds[k]) return k;
+      }
+      return Math.max(0, bounds.length - 1);
+    };
+
+    this.logger.info(
+      `Sourcing up to ${maxClips} clips across ${sections.length} sections `
+      + `for ${narrationSeconds.toFixed(0)}s of narration`
+    );
+
+    // Clips are kept grouped BY SECTION. That grouping is the whole point: a
+    // segment may only draw from the section it belongs to, so the picture
+    // changes when the story does.
+    const clipsBySection = [];
     const clips = [];
     let reused = 0;
-    for (let i = 0; i < queries.length; i++) {
-      try {
-        const before = await fs.stat(path.join(this.brollCacheDir(), this.cacheKeyFor(queries[i], 'landscape'))).catch(() => null);
-        const saved = await this.fetchPexelsClipCached(queries[i]);
-        if (saved) {
-          clips.push(saved);
-          if (before) reused++;
+    for (let k = 0; k < sections.length; k++) {
+      const pool = [];
+      for (const query of (sectionQueries[k] || [])) {
+        if (clips.length >= maxClips) break;
+        try {
+          const before = await fs.stat(path.join(this.brollCacheDir(), this.cacheKeyFor(query, 'landscape'))).catch(() => null);
+          const saved = await this.fetchPexelsClipCached(query);
+          if (saved) {
+            pool.push(saved);
+            clips.push(saved);
+            if (before) reused++;
+          }
+        } catch (error) {
+          this.logger.warn(`Section ${k + 1} clip (“${query}”) failed: ${error.message}`);
         }
-      } catch (error) {
-        this.logger.warn(`Clip ${i + 1} (“${queries[i]}”) failed: ${error.message}`);
       }
+      clipsBySection.push(pool);
     }
 
     if (clips.length === 0) {
       throw new Error('no stock clips could be downloaded');
     }
-    this.logger.info(`Sourced ${clips.length}/${clipCount} clips (${reused} from cache, ${clips.length - reused} downloaded)`);
+    this.logger.info(
+      `Sourced ${clips.length} clips (${reused} from cache, ${clips.length - reused} downloaded) `
+      + `across ${clipsBySection.filter(p => p.length).length}/${sections.length} sections`
+    );
 
-    // Lay every segment on the timeline, cycling through the downloaded clips.
-    // Each revisit starts a little further into the source so a reused clip does
-    // not show the identical frames twice.
+    // Lay every segment on the timeline, drawing ONLY from the section being
+    // narrated at that moment. Within a section its clips rotate, and each
+    // revisit starts further into the source so a reused clip never shows the
+    // identical frames twice. A section whose queries all failed falls back to
+    // the full pool rather than leaving a hole.
     const timeline = [];
+    let sectionStart = 0;
+    let previousSection = -1;
     for (let seg = 0; seg < totalSegments; seg++) {
-      const clip = clips[seg % clips.length];
-      const pass = Math.floor(seg / clips.length);
+      const k = sectionForSegment(seg);
+      if (k !== previousSection) {
+        sectionStart = seg;
+        previousSection = k;
+      }
+
+      const pool = (clipsBySection[k] && clipsBySection[k].length) ? clipsBySection[k] : clips;
+      const within = seg - sectionStart;
+      const clip = pool[within % pool.length];
+      const pass = Math.floor(within / pool.length);
       timeline.push({ clip, startOffset: pass * segment });
     }
 
@@ -810,14 +1037,29 @@ Give exactly ${count} stock-footage search queries. Rules:
     filters.push(timeline.map((_, i) => `[v${i}]`).join('') + `concat=n=${timeline.length}:v=1:a=0[vout]`);
 
     const silentPath = outputPath.replace('.mp4', '_broll.mp4');
+
+    // Windows caps a process command line at 32767 characters and the filter
+    // graph grows with segment count, so length alone decided whether a render
+    // worked: 879s of narration built a 29898-character command and passed,
+    // 961s built 32901 and spawn rejected it with ENAMETOOLONG. The catch
+    // above then swallowed that into a silent downgrade to slideshow, so a
+    // 16-minute episode quietly lost all 30 of its stock clips. Handing the
+    // graph over as a file keeps the command line flat at any video length.
+    const filterScript = silentPath.replace('.mp4', '.filters.txt');
+    await fs.writeFile(filterScript, filters.join(';'));
+
     args.push(
-      '-filter_complex', filters.join(';'),
+      '-filter_complex_script', filterScript,
       '-map', '[vout]',
       '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '23',
       '-r', '30', '-pix_fmt', 'yuv420p',
       silentPath
     );
-    await runFFmpeg(['-y', ...args]);
+    try {
+      await runFFmpeg(['-y', ...args]);
+    } finally {
+      await fs.unlink(filterScript).catch(() => {});
+    }
 
     await this.addAudioToVideo(silentPath, audioPath, outputPath);
     await fs.unlink(silentPath).catch(() => {});
@@ -1318,7 +1560,7 @@ Give exactly ${count} stock-footage search queries. Rules:
     }
   }
 
-  async generateThumbnail(script, style = "ethereal") {
+  async generateThumbnail(script, style = "documentary") {
     this.logger.info('Generating custom thumbnail...');
 
     try {
