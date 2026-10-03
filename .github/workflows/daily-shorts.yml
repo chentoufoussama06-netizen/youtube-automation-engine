@@ -23,6 +23,10 @@ on:
       per:
         description: "Shorts per channel"
         default: "2"
+      dry_run:
+        description: "Plan only: render and post nothing"
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-shorts
@@ -81,7 +85,7 @@ jobs:
           fi
 
       - name: Make and post
-        run: node scripts/daily.js --per "${{ github.event.inputs.per || '2' }}"
+        run: node scripts/daily.js --per "${{ github.event.inputs.per || '2' }}" ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
 
       - name: Update WHOP OS brain
         if: always()
