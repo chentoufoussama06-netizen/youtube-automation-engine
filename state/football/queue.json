@@ -1,0 +1,874 @@
+{
+  "topics": [
+    {
+      "id": "klinsmann",
+      "topic": "How Jurgen Klinsmann turned his own reputation into a joke",
+      "angle": "Jurgen Klinsmann arrived in England in 1994 branded a serial diver by the tabloids. His first goal, he threw himself into a diving celebration on the grass — mocking the reputation himself, and winning the country over in one move.",
+      "keywords": [
+        "Jurgen Klinsmann",
+        "Tottenham",
+        "1994",
+        "diving celebration"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "light and playful — first comedic-tone test, not a tragedy",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788553945269_script.json",
+      "lane": "football",
+      "entity_qid": "Q57079",
+      "topic_type": "thing"
+    },
+    {
+      "id": "eriksen",
+      "topic": "The collapse of Christian Eriksen at Euro 2020",
+      "angle": "During Denmark's opening match at Euro 2020, Christian Eriksen's heart stopped on the pitch in front of a full stadium and a global TV audience. His teammates formed a human wall around him. He survived.",
+      "keywords": [
+        "Christian Eriksen",
+        "Euro 2020",
+        "Denmark",
+        "cardiac arrest"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — survival story, extensively documented",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788553717888_script.json",
+      "lane": "football",
+      "entity_qid": "Q294951",
+      "topic_type": "person"
+    },
+    {
+      "id": "vichai",
+      "topic": "The helicopter crash that killed Leicester City's owner",
+      "angle": "Minutes after a Leicester City match in October 2018, the helicopter carrying owner Vichai Srivaddhanaprabha spun out of control and came down in the stadium car park, filmed by fans still leaving.",
+      "keywords": [
+        "Vichai Srivaddhanaprabha",
+        "Leicester City",
+        "2018",
+        "helicopter crash"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — recent, heavily documented, filmed footage exists",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788894797020_script.json",
+      "lane": "football",
+      "entity_qid": "Q57896166",
+      "topic_type": "event"
+    },
+    {
+      "id": "sala2",
+      "topic": "The disappearance of Emiliano Sala",
+      "angle": "Two days after signing for Cardiff City in January 2019, the small plane carrying footballer Emiliano Sala vanished over the English Channel. The pilot had no license to fly at night.",
+      "keywords": [
+        "Emiliano Sala",
+        "Cardiff City",
+        "2019",
+        "plane disappearance"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — heavy contemporary press coverage, research already exists in this project",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788894908911_script.json",
+      "lane": "football",
+      "entity_qid": "Q31442",
+      "topic_type": "person"
+    },
+    {
+      "id": "limanacional",
+      "topic": "The 1964 Estadio Nacional disaster in Lima",
+      "angle": "A disputed goal is disallowed at Estadio Nacional in Lima in 1964, and the crowd riots. Police fire tear gas into a locked exit tunnel. Three hundred twenty-eight people never make it out — the deadliest stadium disaster in football history.",
+      "keywords": [
+        "Estadio Nacional",
+        "Lima",
+        "1964",
+        "Peru",
+        "tear gas"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same proven register",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788495710433_script.json",
+      "lane": "football",
+      "entity_qid": "Q3271716",
+      "topic_type": "event"
+    },
+    {
+      "id": "ellispark",
+      "topic": "The Ellis Park stadium disaster",
+      "angle": "In April 2001, a locked gate at Ellis Park in Johannesburg turns a football derby into a crush. Forty-three fans are pressed to death against the fence, trying to force their way into a stadium already full.",
+      "keywords": [
+        "Ellis Park",
+        "Johannesburg",
+        "2001",
+        "South Africa",
+        "crush"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same proven register",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788526953046_script.json",
+      "lane": "football",
+      "entity_qid": "Q4461749",
+      "topic_type": "event"
+    },
+    {
+      "id": "guatemala96",
+      "topic": "The 1996 Mateo Flores Stadium disaster",
+      "angle": "Thousands of fans without tickets force their way into Guatemala's Mateo Flores Stadium before a World Cup qualifier in 1996. Eighty-four people are crushed to death against a wall that was never meant to hold that much weight.",
+      "keywords": [
+        "Mateo Flores",
+        "Guatemala",
+        "1996",
+        "World Cup qualifier",
+        "crush"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same proven register",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788531388731_script.json",
+      "lane": "football",
+      "entity_qid": "Q118901335",
+      "topic_type": "event"
+    },
+    {
+      "id": "furiani",
+      "topic": "The Furiani stadium disaster",
+      "angle": "A temporary stand packed with fans collapses minutes before a French Cup semi-final in Bastia in 1992. Eighteen people are killed as the structure gives way beneath them, live in front of the rest of the crowd.",
+      "keywords": [
+        "Furiani",
+        "Bastia",
+        "1992",
+        "France",
+        "stand collapse"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same proven register",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788531545174_script.json",
+      "lane": "football",
+      "entity_qid": "Q2362368",
+      "topic_type": "event"
+    },
+    {
+      "id": "bradford",
+      "topic": "The Bradford City stadium fire",
+      "angle": "In May 1985, a wooden stand at Bradford City's Valley Parade catches fire, and in under five minutes fifty-six people are dead. A dropped cigarette, decades of rubbish under old timber, and one exit chained shut.",
+      "keywords": [
+        "Bradford City",
+        "1985",
+        "stadium fire",
+        "Valley Parade"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same proven register",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788469663107_script.json",
+      "lane": "football",
+      "entity_qid": "Q2116681",
+      "topic_type": "event"
+    },
+    {
+      "id": "ibrox",
+      "topic": "The Ibrox disaster of 1971",
+      "angle": "A stairway at Ibrox Stadium collapses under the weight of fans leaving an Old Firm match, and sixty-six people are crushed to death in minutes. Not the first time it had happened at that exact stairway.",
+      "keywords": [
+        "Ibrox",
+        "1971",
+        "Rangers",
+        "stairway",
+        "crush"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same proven register",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788470060027_script.json",
+      "entity_qid": "Q14756553",
+      "topic_type": "event",
+      "lane": "football",
+      "anniversary": "01-02",
+      "anniversaryYear": "1971",
+      "anniversarySource": "P585 on Q14756553"
+    },
+    {
+      "id": "ibrox1902",
+      "topic": "The 1902 Ibrox disaster",
+      "angle": "A structural failure at Ibrox on 5 April 1902 killed 25 people. Sixty-nine years before the crush that killed 66 at the same ground.",
+      "keywords": [
+        "1902 Ibrox disaster",
+        "Ibrox Stadium",
+        "1902"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-09-21T12:20:42.271Z",
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm - same register as the 1971 file",
+      "entity_qid": "Q1656048",
+      "topic_type": "event",
+      "sourcedFrom": "cross-check flag on ibrox: brief death_count 25 vs P1120 66",
+      "compilationHook": "Two disasters, one stadium - 91 dead, 69 years apart.",
+      "lane": "football",
+      "anniversary": "04-05",
+      "anniversaryYear": "1902",
+      "anniversarySource": "P585 on Q1656048"
+    },
+    {
+      "id": "luzhniki",
+      "topic": "The Luzhniki disaster",
+      "angle": "In 1982, sixty-six fans are crushed to death on an icy stairway at a Moscow football match, and the Soviet Union hides it for years. A single newspaper paragraph was all that was ever published.",
+      "keywords": [
+        "Luzhniki",
+        "1982",
+        "Moscow",
+        "Soviet Union",
+        "crush"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same proven register",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788470556572_script.json",
+      "lane": "football",
+      "entity_qid": "Q2735551",
+      "topic_type": "event"
+    },
+    {
+      "id": "earnhardt",
+      "topic": "The death of Dale Earnhardt",
+      "angle": "On the final lap of the 2001 Daytona 500, NASCAR legend Dale Earnhardt crashed into the wall at Turn 4 and died on impact, live on national television.",
+      "keywords": [
+        "Dale Earnhardt",
+        "NASCAR",
+        "2001",
+        "Daytona 500"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same register, motorsport instead of football for catalog variety",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788449246852_script.json",
+      "lane": "sport_wide",
+      "entity_qid": "Q355420",
+      "topic_type": "person"
+    },
+    {
+      "id": "muamba",
+      "topic": "The collapse of Fabrice Muamba",
+      "angle": "In March 2012, Bolton midfielder Fabrice Muamba's heart stopped for over an hour during an FA Cup match at Tottenham. He survived against the odds.",
+      "keywords": [
+        "Fabrice Muamba",
+        "Bolton",
+        "2012",
+        "cardiac arrest",
+        "FA Cup"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same register, but this one is a survival story, not a death",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788449081476_script.json",
+      "lane": "football",
+      "entity_qid": "Q313677",
+      "topic_type": "person"
+    },
+    {
+      "id": "morosini",
+      "topic": "The death of Piermario Morosini",
+      "angle": "In April 2012, Livorno midfielder Piermario Morosini collapsed and died of a cardiac arrest during a live Serie B match, having lost both parents as a teenager.",
+      "keywords": [
+        "Piermario Morosini",
+        "Livorno",
+        "2012",
+        "Serie B"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same register as foe and nouri",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788448920055_script.json",
+      "lane": "football",
+      "entity_qid": "Q316299",
+      "topic_type": "person"
+    },
+    {
+      "id": "feher",
+      "topic": "The death of Miklos Feher",
+      "angle": "In January 2004, Benfica forward Miklos Feher collapsed and died of a cardiac arrhythmia during a live televised match, moments after scoring.",
+      "keywords": [
+        "Miklos Feher",
+        "Benfica",
+        "2004",
+        "cardiac arrhythmia"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same register as foe and nouri",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788416234521_script.json",
+      "lane": "football",
+      "entity_qid": "Q185649",
+      "topic_type": "person"
+    },
+    {
+      "id": "nouri",
+      "topic": "The collapse of Abdelhak Nouri",
+      "angle": "During a 2017 preseason friendly, Ajax's Abdelhak Nouri collapsed from a cardiac arrhythmia. A delayed response to his oxygen levels left him with severe, permanent brain damage. He never played again.",
+      "keywords": [
+        "Abdelhak Nouri",
+        "Ajax",
+        "2017",
+        "cardiac arrest"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — the same register as foe, the best-performing short so far",
+      "realImages": [
+        "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\shorts\\real-images\\nouri\\Abdelhak_Nouri.jpg"
+      ],
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788391266642_script.json",
+      "lane": "football",
+      "entity_qid": "Q19655019",
+      "topic_type": "person"
+    },
+    {
+      "id": "calciopoli",
+      "topic": "The Calciopoli match-fixing scandal",
+      "angle": "In 2006 Juventus were stripped of two league titles and relegated to Serie B over a wiretap scandal. The sporting case closed in weeks. The criminal case took nine more years, and ended not in a conviction but in the statute of limitations.",
+      "keywords": [
+        "Calciopoli",
+        "Juventus",
+        "Serie A",
+        "2006",
+        "match-fixing",
+        "Italian football"
+      ],
+      "contentType": "Documentary",
+      "status": "done",
+      "title": "Calciopoli: How a Wiretap Ended Juventus' Reign in 2006",
+      "finishedAt": "2026-09-01T15:49:00.000Z",
+      "videoPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\documentaries\\calciopoli\\documentary-calciopoli.mp4",
+      "youtubeId": "WdkcX_uUCfE",
+      "youtubeUrl": "https://www.youtube.com/watch?v=WdkcX_uUCfE",
+      "uploadedAt": "2026-09-02T17:11:11.494Z",
+      "privacyStatus": "public",
+      "publishedAt": "2026-09-02T18:20:00.000Z",
+      "lane": "football",
+      "entity_qid": "Q719305",
+      "topic_type": "event"
+    },
+    {
+      "id": "owenhart",
+      "topic": "The death of Owen Hart",
+      "angle": "He fell seventy-eight feet in front of sixteen thousand people during a live event in 1999 — and the show continued. The final 48 hours, the equipment, and the decisions that led there.",
+      "keywords": [
+        "Owen Hart",
+        "wrestling",
+        "1999",
+        "Kansas City",
+        "Over the Edge"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-09-01T02:13:30.272Z",
+      "voice": "en-US-BrianMultilingualNeural",
+      "voiceNote": "sober and weighty — a preventable death, told carefully",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788294790350_script.json",
+      "lane": "football",
+      "entity_qid": "Q317365",
+      "topic_type": "person"
+    },
+    {
+      "id": "senna",
+      "topic": "The last weekend of Ayrton Senna",
+      "angle": "A driver died the day before. Senna was reportedly shaken all weekend, and raced anyway. Imola, 1 May 1994, and the years of investigation that followed.",
+      "keywords": [
+        "Ayrton Senna",
+        "Formula One",
+        "1994",
+        "Imola"
+      ],
+      "contentType": "Story",
+      "status": "done",
+      "attempts": 3,
+      "queuedAt": "2026-09-01T02:17:04.726Z",
+      "voice": "en-US-EmmaNeural",
+      "voiceNote": "weighty and cinematic - a national mourning",
+      "researchPath": "data/research/senna.md",
+      "priority": "long-form",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788294589541_script.json",
+      "startedAt": "2026-09-03T15:37:55.062Z",
+      "finishedAt": "2026-09-03T16:05:47.614Z",
+      "minutes": 28,
+      "productionId": "prod_1788449914277_p3svfze98tg_rug9ak0he08",
+      "productionStatus": "ready",
+      "title": "Ayrton Senna: The Last 72 Hours That Shook Formula One",
+      "videoPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\videos\\prod_1788449914277_p3svfze98tg_rug9ak0he08_final.mp4",
+      "youtubeId": "HuYusIaex-E",
+      "youtubeUrl": "https://www.youtube.com/watch?v=HuYusIaex-E",
+      "uploadedAt": "2026-09-03T16:08:47.722Z",
+      "lane": "football",
+      "entity_qid": "Q10490",
+      "topic_type": "person"
+    },
+    {
+      "id": "mh370",
+      "topic": "The disappearance of Flight MH370",
+      "angle": "A Boeing 777 with 239 people aboard turned off course and vanished. What the radar, the satellite handshakes and the debris actually established.",
+      "keywords": [
+        "MH370",
+        "Malaysia Airlines",
+        "2014",
+        "aviation"
+      ],
+      "contentType": "Story",
+      "status": "cut",
+      "attempts": 0,
+      "queuedAt": "2026-09-01T02:17:04.727Z",
+      "voice": "en-GB-MaisieNeural",
+      "voiceNote": "cold and procedural - a mystery with no ending",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788294933026_script.json",
+      "lane": "football",
+      "cutReason": "belongs to neither channel — decided by the user",
+      "cutAt": "2026-09-22T02:45:14.092Z"
+    },
+    {
+      "id": "estonia",
+      "topic": "The sinking of the Estonia",
+      "angle": "Eight hundred and fifty-two people died in the Baltic in under an hour in 1994. The bow visor, the inquiry, and what was never settled.",
+      "keywords": [
+        "Estonia ferry",
+        "Baltic",
+        "1994",
+        "maritime"
+      ],
+      "contentType": "Story",
+      "status": "parked",
+      "attempts": 0,
+      "queuedAt": "2026-09-01T02:17:04.727Z",
+      "voice": "en-AU-NatashaNeural",
+      "voiceNote": "bleak and restrained - cold water, fast",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788295109627_script.json",
+      "parkedReason": "ferry sinking — not a sport subject; preserved for a possible future disasters channel",
+      "parkedAt": "2026-09-21T12:34:15.377Z"
+    },
+    {
+      "id": "charkhidadri",
+      "topic": "The Charkhi Dadri mid-air collision",
+      "angle": "Two aircraft met head-on over India in 1996 in the deadliest mid-air collision ever recorded. A single misread altitude instruction.",
+      "keywords": [
+        "Charkhi Dadri",
+        "India",
+        "1996",
+        "mid-air collision"
+      ],
+      "contentType": "Story",
+      "status": "parked",
+      "attempts": 0,
+      "queuedAt": "2026-09-01T02:17:04.727Z",
+      "voice": "en-US-AvaNeural",
+      "voiceNote": "factual and grave - a preventable failure",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788295265790_script.json",
+      "parkedReason": "mid-air collision — not a sport subject; preserved for a possible future disasters channel",
+      "parkedAt": "2026-09-21T12:34:15.745Z"
+    },
+    {
+      "id": "escobar",
+      "topic": "The murder of Andres Escobar",
+      "angle": "Ten days after an own goal knocked Colombia out of the 1994 World Cup, their defender was shot dead in Medellin.",
+      "keywords": [
+        "Andres Escobar",
+        "Colombia",
+        "1994",
+        "World Cup"
+      ],
+      "contentType": "Story",
+      "status": "done",
+      "attempts": 1,
+      "queuedAt": "2026-08-20T17:24:27.262Z",
+      "voice": "en-US-ChristopherNeural",
+      "voiceNote": "grave, deep — an execution",
+      "startedAt": "2026-08-29T19:08:35.882Z",
+      "finishedAt": "2026-08-29T19:33:11.788Z",
+      "minutes": 25,
+      "productionId": "prod_1788030541673_726kmn24aoo_l101dx4w7e9",
+      "productionStatus": "ready",
+      "title": "10 Days After: The Murder of Andres Escobar in 1994",
+      "videoPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\videos\\escobar_10-days-after-the-murder-of-andres-escobar.mp4",
+      "youtubeId": "8v54CpYHAnE",
+      "youtubeUrl": "https://www.youtube.com/watch?v=8v54CpYHAnE",
+      "uploadedAt": "2026-08-31T11:57:37.348Z",
+      "privacyStatus": "public",
+      "publishedAt": "2026-08-31T12:42:47.412Z",
+      "lane": "football",
+      "entity_qid": "Q210616",
+      "topic_type": "person"
+    },
+    {
+      "id": "foe",
+      "topic": "The death of Marc-Vivien Foe",
+      "angle": "The Cameroon midfielder collapsed in the centre circle during a Confederations Cup semi-final in 2003, untouched.",
+      "keywords": [
+        "Marc-Vivien Foe",
+        "Cameroon",
+        "2003",
+        "Lyon"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z",
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — a sudden, intimate death",
+      "lane": "football",
+      "entity_qid": "Q223843",
+      "topic_type": "person"
+    },
+    {
+      "id": "narco",
+      "topic": "Pablo Escobar and the cartel takeover of Colombian football",
+      "angle": "How Medellin cartel money bought Atletico Nacional, won the 1989 Copa Libertadores, and turned a national league into a war between drug lords.",
+      "keywords": [
+        "Pablo Escobar",
+        "Atletico Nacional",
+        "Colombia",
+        "1989"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-08-29T17:13:26.106Z",
+      "voice": "en-US-RogerNeural",
+      "voiceNote": "cold and dry — cartel money",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788295575365_script.json",
+      "lane": "football",
+      "entity_qid": "Q187447",
+      "topic_type": "thing"
+    },
+    {
+      "id": "superga",
+      "topic": "The Superga air disaster",
+      "angle": "In 1949 the plane carrying the greatest team in Italy flew into a hillside behind a basilica.",
+      "keywords": [
+        "Superga",
+        "Grande Torino",
+        "1949",
+        "air disaster"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z",
+      "voice": "en-US-SteffanNeural",
+      "voiceNote": "elegiac — a 1949 requiem",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788295711858_script.json",
+      "lane": "football",
+      "entity_qid": "Q858734",
+      "topic_type": "event"
+    },
+    {
+      "id": "puerta",
+      "topic": "The last match of Antonio Puerta",
+      "angle": "The Sevilla full-back collapsed three times in a single afternoon in 2007. He was twenty-two.",
+      "keywords": [
+        "Antonio Puerta",
+        "Sevilla",
+        "2007"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z",
+      "voice": "en-GB-LibbyNeural",
+      "voiceNote": "tender — a young man who collapsed three times",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788295876400_script.json",
+      "lane": "football",
+      "entity_qid": "Q207586",
+      "topic_type": "person"
+    },
+    {
+      "id": "bosman",
+      "topic": "The Bosman ruling",
+      "angle": "An unknown Belgian midfielder took his club to the European Court of Justice and rewrote football forever.",
+      "keywords": [
+        "Bosman",
+        "transfer",
+        "European Court",
+        "free agency"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z",
+      "voice": "en-US-AriaNeural",
+      "voiceNote": "clear and analytical — a court case",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788296002365_script.json",
+      "lane": "football",
+      "entity_qid": "Q465550",
+      "topic_type": "event"
+    },
+    {
+      "id": "zamalek",
+      "topic": "The Port Said stadium disaster",
+      "angle": "Seventy-four people died in an Egyptian stadium in 2012, in violence many believed was allowed to happen.",
+      "keywords": [
+        "Port Said",
+        "Egypt",
+        "2012",
+        "Al Masry"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "queuedAt": "2026-08-20T17:24:27.262Z",
+      "voice": "en-AU-WilliamMultilingualNeural",
+      "voiceNote": "detached — political violence",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788296145784_script.json",
+      "lane": "football",
+      "entity_qid": "Q685746",
+      "topic_type": "event"
+    },
+    {
+      "id": "kobe",
+      "topic": "The helicopter crash that killed Kobe Bryant",
+      "angle": "On January 26, 2020, a helicopter carrying Kobe Bryant, his daughter Gianna, and seven others crashed into a hillside in Calabasas in thick fog, killing everyone aboard.",
+      "keywords": [
+        "Kobe Bryant",
+        "Gianna Bryant",
+        "2020",
+        "helicopter crash"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-ChristopherNeural",
+      "voiceNote": "grave, deep — the most widely known story on this channel",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788898850844_script.json",
+      "videoPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\videos\\kobe_documentary.mp4",
+      "title": "Kobe Bryant: The Man Who Never Stopped Working",
+      "finishedAt": "2026-09-08T20:56:45.344Z",
+      "youtubeId": "cSMmQcj8Llo",
+      "youtubeUrl": "https://www.youtube.com/watch?v=cSMmQcj8Llo",
+      "uploadedAt": "2026-09-08T20:58:28.909Z",
+      "entity_qid": "Q25369",
+      "topic_type": "person",
+      "lane": "sport_wide",
+      "anniversary": "01-26",
+      "saturation": "high",
+      "saturationNote": "Most competitive topic in the queue. Schedule to the anniversary and require a specific forgotten-detail angle — generic packaging dies in review.",
+      "eventContext": "The crash itself (2020-01-26) is brief context, not the pinned subject.",
+      "anniversaryYear": "2020",
+      "anniversarySource": "P570 on Q25369"
+    },
+    {
+      "id": "gathers",
+      "topic": "The collapse of Hank Gathers",
+      "angle": "On March 4, 1990, Loyola Marymount star Hank Gathers collapsed on the court from a heart condition doctors had already tried to treat, and died shortly after — an eerily exact echo of the Nouri and Feher stories.",
+      "keywords": [
+        "Hank Gathers",
+        "Loyola Marymount",
+        "1990",
+        "cardiac arrhythmia"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same register as nouri and feher",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1788899003325_script.json",
+      "lane": "sport_wide",
+      "entity_qid": "Q3301468",
+      "topic_type": "person"
+    },
+    {
+      "id": "reggielewis",
+      "topic": "The death of Reggie Lewis",
+      "angle": "Boston Celtics captain Reggie Lewis collapsed on the court in the 1993 playoffs. One panel of doctors said his heart could stop at any moment; a second doctor cleared him to play again. Three months later he died during a solo practice.",
+      "keywords": [
+        "Reggie Lewis",
+        "Boston Celtics",
+        "1993",
+        "cardiac arrhythmia"
+      ],
+      "contentType": "Story",
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "voiceNote": "warm — same register as nouri, feher, gathers",
+      "scriptPath": "C:\\Users\\OUSSAMA\\Desktop\\youtube automation\\youtube-automation-agent\\data\\scripts\\1789041209851_script.json",
+      "lane": "sport_wide",
+      "entity_qid": "Q555411",
+      "topic_type": "person"
+    },
+    {
+      "id": "doc-foe",
+      "topic": "The death of Marc-Vivien Foe",
+      "keywords": [
+        "Marc-Vivien Foe",
+        "Cameroon",
+        "2003",
+        "Lyon"
+      ],
+      "status": "short",
+      "sourceCompilation": "pitch-deaths",
+      "sourceSegment": "foe"
+    },
+    {
+      "id": "doc-muamba",
+      "topic": "The collapse of Fabrice Muamba",
+      "keywords": [
+        "Fabrice Muamba",
+        "Bolton",
+        "2012",
+        "cardiac arrest",
+        "FA Cup"
+      ],
+      "status": "short",
+      "sourceCompilation": "pitch-deaths",
+      "sourceSegment": "muamba"
+    },
+    {
+      "id": "doc-eriksen",
+      "topic": "The collapse of Christian Eriksen at Euro 2020",
+      "keywords": [
+        "Christian Eriksen",
+        "Euro 2020",
+        "Denmark",
+        "cardiac arrest"
+      ],
+      "status": "short",
+      "sourceCompilation": "pitch-deaths",
+      "sourceSegment": "eriksen"
+    },
+    {
+      "id": "doc-vichai",
+      "topic": "The helicopter crash that killed Leicester City's owner",
+      "keywords": [
+        "Vichai Srivaddhanaprabha",
+        "Leicester City",
+        "2018",
+        "helicopter crash"
+      ],
+      "status": "short",
+      "sourceCompilation": "air-disasters",
+      "sourceSegment": "vichai"
+    },
+    {
+      "id": "doc-feher",
+      "topic": "The death of Miklos Feher",
+      "keywords": [
+        "Miklos Feher",
+        "Benfica",
+        "2004",
+        "cardiac arrhythmia"
+      ],
+      "status": "short",
+      "sourceCompilation": "pitch-deaths",
+      "sourceSegment": "feher"
+    },
+    {
+      "id": "doc-morosini",
+      "topic": "The death of Piermario Morosini",
+      "keywords": [
+        "Piermario Morosini",
+        "Livorno",
+        "2012",
+        "Serie B"
+      ],
+      "status": "short",
+      "sourceCompilation": "pitch-deaths",
+      "sourceSegment": "morosini"
+    },
+    {
+      "id": "doc-nouri",
+      "topic": "The collapse of Abdelhak Nouri",
+      "keywords": [
+        "Abdelhak Nouri",
+        "Ajax",
+        "2017",
+        "cardiac arrest"
+      ],
+      "status": "short",
+      "sourceCompilation": "pitch-deaths",
+      "sourceSegment": "nouri"
+    },
+    {
+      "id": "doc-puerta",
+      "topic": "The last match of Antonio Puerta",
+      "keywords": [
+        "Antonio Puerta",
+        "Sevilla",
+        "2007"
+      ],
+      "status": "short",
+      "sourceCompilation": "pitch-deaths",
+      "sourceSegment": "puerta"
+    },
+    {
+      "id": "doc-superga",
+      "topic": "The Superga air disaster",
+      "keywords": [
+        "Superga",
+        "Grande Torino",
+        "1949",
+        "air disaster"
+      ],
+      "status": "short",
+      "sourceCompilation": "air-disasters",
+      "sourceSegment": "superga"
+    },
+    {
+      "id": "doc-charkhidadri",
+      "topic": "The Charkhi Dadri mid-air collision",
+      "keywords": [
+        "Charkhi Dadri",
+        "India",
+        "1996",
+        "mid-air collision"
+      ],
+      "status": "short",
+      "sourceCompilation": "air-disasters",
+      "sourceSegment": "charkhidadri"
+    },
+    {
+      "id": "doc-sala2",
+      "topic": "The disappearance of Emiliano Sala",
+      "keywords": [
+        "Emiliano Sala",
+        "Cardiff City",
+        "2019",
+        "plane disappearance"
+      ],
+      "status": "short",
+      "sourceCompilation": "air-disasters",
+      "sourceSegment": "sala2"
+    }
+  ]
+}

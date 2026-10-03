@@ -1,0 +1,144 @@
+{
+  "topics": [
+    {
+      "id": "concord",
+      "topic": "The shutdown of Concord",
+      "angle": "Sony spent eight years and reportedly hundreds of millions on Concord. It sold so badly that the servers were switched off two weeks after launch and the game was refunded out of existence.",
+      "keywords": [
+        "Concord (video game)",
+        "Firewalk Studios",
+        "2024",
+        "shutdown"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "clubpenguin",
+      "topic": "The shutdown of Club Penguin",
+      "angle": "A childrens virtual world with hundreds of millions of registered accounts, closed by Disney in 2017 while players held a final party on the servers.",
+      "keywords": [
+        "Club Penguin",
+        "Disney",
+        "2017",
+        "virtual world"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "toontown",
+      "topic": "The shutdown of Toontown Online",
+      "angle": "Disneys first MMO ran for ten years before being closed in 2013 — and was then rebuilt by its own players, who still run it.",
+      "keywords": [
+        "Toontown Online",
+        "Disney",
+        "2013",
+        "MMO"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "cityofheroes",
+      "topic": "The shutdown of City of Heroes",
+      "angle": "NCSoft closed a profitable superhero MMO in 2012. Players campaigned for years, and in 2019 it emerged the servers had secretly been kept alive the whole time.",
+      "keywords": [
+        "City of Heroes",
+        "NCSoft",
+        "2012",
+        "MMO"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "swgalaxies",
+      "topic": "The shutdown of Star Wars Galaxies",
+      "angle": "An MMO that rewrote its own combat system overnight, lost most of its players, and was shut down in 2011 with the servers going dark on the same day.",
+      "keywords": [
+        "Star Wars Galaxies",
+        "Sony Online Entertainment",
+        "2011",
+        "NGE"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "geocities",
+      "topic": "The deletion of GeoCities",
+      "angle": "Yahoo deleted around 38 million user-built pages in 2009. Most of the early personal web survives only because volunteers raced to archive it first.",
+      "keywords": [
+        "GeoCities",
+        "Yahoo",
+        "2009",
+        "web hosting"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "friendster",
+      "topic": "The collapse of Friendster",
+      "angle": "The social network that came before MySpace and Facebook, turned down a Google buyout, then deleted every user photo and message in 2011.",
+      "keywords": [
+        "Friendster",
+        "social network",
+        "2011",
+        "Google"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "googleplus",
+      "topic": "The shutdown of Google Plus",
+      "angle": "Google forced its social network onto every product it owned, then closed it in 2019 after a data leak it had chosen not to disclose.",
+      "keywords": [
+        "Google+",
+        "Google",
+        "2019",
+        "data breach"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "vine",
+      "topic": "The shutdown of Vine",
+      "angle": "Twitter bought Vine for thirty million dollars, made it a culture-defining format, then shut it down in 2017 without ever selling an ad on it.",
+      "keywords": [
+        "Vine (service)",
+        "Twitter",
+        "2017",
+        "short video"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "limewire",
+      "topic": "The shutdown of LimeWire",
+      "angle": "The file-sharing program on half the worlds computers, sued into oblivion in 2010 for a figure larger than the entire recorded music industry.",
+      "keywords": [
+        "LimeWire",
+        "peer-to-peer",
+        "2010",
+        "copyright"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural"
+    }
+  ]
+}
