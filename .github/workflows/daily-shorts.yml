@@ -1,7 +1,11 @@
-# Make and post the day's shorts on all three channels, in the cloud.
+# Run the channels for a day, in the cloud, with nobody watching.
 #
-# Runs just after YouTube's daily quota resets (midnight Pacific = 07:00 UTC),
-# so the run always has the full 10,000 units — 6 uploads.
+# scripts/autopilot.js, per channel: one documentary short a day cut from a
+# compilation, the compilation itself as a 9-14 minute video every couple of
+# days, and a freshly planned + researched compilation whenever the shorts run
+# out. Every render passes scripts/autopilot/check-video.js before upload.
+#
+# Runs just after YouTube's daily quota resets (midnight Pacific = 07:00 UTC).
 #
 # Secrets (repo Settings -> Secrets and variables -> Actions):
 #   ENV_FILE             the whole engine .env, verbatim
@@ -10,8 +14,8 @@
 #   YT_TOKENS_AFTERCACHE config/tokens.aftercache.json, base64
 #   YT_TOKENS_CLIPS      config/tokens.clips.json, base64      (Viral Vault Clip)
 #
-# Large binaries (gameplay footage, renders made elsewhere) live as assets on
-# the `media` and `pending` releases, not in git.
+# Compilation photographs live on the `refs` release (one tarball per set),
+# because .jpg is outside git.
 
 name: daily-shorts
 
@@ -20,9 +24,9 @@ on:
     - cron: "30 7 * * *"
   workflow_dispatch:
     inputs:
-      per:
-        description: "Shorts per channel"
-        default: "2"
+      lane:
+        description: "Only this channel (blank = all)"
+        default: ""
       dry_run:
         description: "Plan only: render and post nothing"
         type: boolean
@@ -36,9 +40,15 @@ permissions:
   contents: write
 
 jobs:
-  shorts:
+  autopilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 340
+    env:
+      # Gemini's free tier is 20 requests a day and a compilation needs ~25;
+      # Groq carries the run and the others remain as fallbacks.
+      AI_TEXT_PROVIDER: groq
+      RESEARCH_WIKI_LANG: en
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
 
@@ -68,24 +78,11 @@ jobs:
           echo "$YT_TOKENS_AFTERCACHE" | base64 -d > config/tokens.aftercache.json
           echo "$YT_TOKENS_CLIPS" | base64 -d > config/tokens.clips.json
 
-      - name: Media
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          mkdir -p data/gameplay
-          gh release download media -p 'gameplay-1080p.mp4' -D data/gameplay
-          # Renders made off-runner, named <channel>__<file>.mp4
-          mkdir -p /tmp/pending
-          if gh release download pending -D /tmp/pending 2>/dev/null; then
-            for f in /tmp/pending/*__*.mp4; do
-              [ -e "$f" ] || continue
-              base="$(basename "$f")"; ch="${base%%__*}"; name="${base#*__}"
-              mkdir -p "state/$ch/shorts/video" && mv "$f" "state/$ch/shorts/video/$name"
-            done
-          fi
-
       - name: Make and post
-        run: node scripts/daily.js --per "${{ github.event.inputs.per || '2' }}" ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
+        run: |
+          node scripts/autopilot.js \
+            ${{ github.event.inputs.lane != '' && format('--lane "{0}"', github.event.inputs.lane) || '' }} \
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
 
       - name: Update WHOP OS brain
         if: always()
@@ -94,8 +91,9 @@ jobs:
       - name: Save state
         if: always()
         run: |
-          git config user.name "daily-shorts"
+          git config user.name "autopilot"
           git config user.email "actions@users.noreply.github.com"
           git add state
-          git diff --cached --quiet || git commit -m "state: daily shorts $(date -u +%F)"
+          git diff --cached --quiet || git commit -m "state: autopilot $(date -u +%F)"
+          git pull --rebase --quiet || true
           git push

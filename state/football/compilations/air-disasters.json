@@ -1,0 +1,25 @@
+{
+  "id": "air-disasters",
+  "title": "Every Football Team Destroyed By A Plane Crash",
+  "hook": "Five aircraft carrying footballers never landed.",
+  "note": "Sala and Vichai are single deaths and open the video; Superga closes it as the one that erased an entire champion side.",
+  "segments": [
+    {
+      "id": "sala2",
+      "outcome": "died in the crash"
+    },
+    {
+      "id": "vichai",
+      "outcome": "died in the crash"
+    },
+    {
+      "id": "charkhidadri",
+      "outcome": "died in the collision"
+    },
+    {
+      "id": "superga",
+      "outcome": "the entire squad died"
+    }
+  ],
+  "thumb": "Teams Wiped Out"
+}

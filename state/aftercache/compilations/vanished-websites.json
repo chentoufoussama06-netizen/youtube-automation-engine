@@ -1,0 +1,28 @@
+{
+  "id": "vanished-websites",
+  "title": "Every Website That Deleted Itself",
+  "hook": "Five services that held what people made, then erased it.",
+  "note": "Builds toward GeoCities, the largest single deletion of user-made web content.",
+  "segments": [
+    {
+      "id": "vine",
+      "outcome": "shut down in 2017"
+    },
+    {
+      "id": "googleplus",
+      "outcome": "shut down in 2019"
+    },
+    {
+      "id": "limewire",
+      "outcome": "shut down by court order in 2010"
+    },
+    {
+      "id": "friendster",
+      "outcome": "deleted all user content in 2011"
+    },
+    {
+      "id": "geocities",
+      "outcome": "about 38 million pages deleted in 2009"
+    }
+  ]
+}

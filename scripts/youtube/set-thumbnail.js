@@ -10,7 +10,7 @@ const ROOT = path.join(__dirname, '..', '..');
 
 function authorize() {
   const creds = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'credentials.json'), 'utf8')).youtube;
-  const tokens = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'tokens.json'), 'utf8')).youtube;
+  const tokens = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', process.env.YT_TOKENS_FILE || 'tokens.json'), 'utf8')).youtube;
   const oauth = new google.auth.OAuth2(creds.client_id, creds.client_secret, (creds.redirect_uris || [])[0]);
   oauth.setCredentials(tokens);
   return google.youtube({ version: 'v3', auth: oauth });

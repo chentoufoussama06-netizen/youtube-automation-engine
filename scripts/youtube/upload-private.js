@@ -26,12 +26,16 @@ const { Logger } = require('../../utils/logger');
 const { recordCurrentChannel } = require('../../utils/whop-os');
 
 const ROOT = path.join(__dirname, '..', '..');
-const QUEUE_PATH = process.env.QUEUE_PATH || path.join(ROOT, 'data', 'queue.json');
+// DATA_ROOT / YT_TOKENS_FILE pick the channel, the same way upload-shorts.js
+// does, so the autopilot can post AFTER CACHE's compilations to AFTER CACHE.
+const DATA_ROOT = process.env.DATA_ROOT || 'data';
+const YT_TOKENS_FILE = process.env.YT_TOKENS_FILE || 'tokens.json';
+const QUEUE_PATH = process.env.QUEUE_PATH || path.join(ROOT, DATA_ROOT, 'queue.json');
 const logger = new Logger('UploadPrivate');
 
 function authorize() {
   const creds = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'credentials.json'), 'utf8')).youtube;
-  const tokens = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'tokens.json'), 'utf8')).youtube;
+  const tokens = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', YT_TOKENS_FILE), 'utf8')).youtube;
   const oauth = new google.auth.OAuth2(creds.client_id, creds.client_secret, (creds.redirect_uris || [])[0]);
   oauth.setCredentials(tokens);
   return google.youtube({ version: 'v3', auth: oauth });
@@ -93,7 +97,7 @@ function buildMetadata(job, { makePublic = false } = {}) {
       title,
       description,
       tags: (job.keywords || []).slice(0, 15),
-      categoryId: '17',            // Sports
+      categoryId: process.env.CATEGORY_ID || '17',   // default: Sports
       defaultLanguage: process.env.CONTENT_LANGUAGE || 'en',
       defaultAudioLanguage: process.env.CONTENT_LANGUAGE || 'en'
     },
@@ -113,9 +117,9 @@ function buildMetadata(job, { makePublic = false } = {}) {
  * find. This turns one into the shape uploadOne already expects.
  */
 async function compilationJob(id) {
-  const docPath = path.join(ROOT, 'data', 'scripts', `longform_${id}.json`);
+  const docPath = path.join(ROOT, DATA_ROOT, 'scripts', `longform_${id}.json`);
   const doc = JSON.parse(await fsp.readFile(docPath, 'utf8'));
-  const videoPath = path.join(ROOT, 'data', 'videos', `${id}_documentary.mp4`);
+  const videoPath = path.join(ROOT, DATA_ROOT, 'videos', `${id}_documentary.mp4`);
   await fsp.stat(videoPath);   // throws a clear ENOENT if it was never rendered
 
   // Credits come from the sidecars the downloader wrote next to each image,
@@ -123,7 +127,7 @@ async function compilationJob(id) {
   // written at download time straight from the Commons metadata, whereas the
   // script's copy has already been wrong once — it read a field named `author`
   // that does not exist, and credited every CC BY image to "unknown".
-  const imgDir = path.join(ROOT, 'data', 'reference', `${id}-archival`);
+  const imgDir = path.join(ROOT, DATA_ROOT, 'reference', `${id}-archival`);
   const used = new Set(doc.sections.flatMap((s) => s.images || []));
   const attribution = [];
   for (const file of used) {

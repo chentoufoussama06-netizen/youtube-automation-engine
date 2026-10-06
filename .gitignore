@@ -101,3 +101,6 @@ state/**/video/
 state/**/audio/
 state/**/captions/
 state/**/work/
+state/**/videos/
+state/**/production/
+state/**/thumbnails/

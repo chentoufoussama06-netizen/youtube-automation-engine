@@ -17,8 +17,10 @@ const PROVIDERS = {
     // behaviour on that specific model, not a formatting bug — no amount of
     // prompt rewording fixed it (tested 2026-09-04). groq/compound does not
     // hit the same wall on the identical prompt.
-    defaultModel: 'groq/compound',
-    models: ['groq/compound', 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'],
+    // 2026-10-06: groq/compound was withdrawn from this key (404 "does not
+    // exist"), which silently took Groq out of the fallback chain.
+    defaultModel: 'openai/gpt-oss-120b',
+    models: ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b', 'openai/gpt-oss-20b'],
     envKey: 'GROQ_API_KEY',
     // groq/compound rejects any request above this outright (400). Clamping
     // a big request down to fit made it worse, not better: a full documentary

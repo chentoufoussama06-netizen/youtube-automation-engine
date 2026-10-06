@@ -1,0 +1,37 @@
+{
+  "id": "pitch-deaths",
+  "title": "Every Footballer Who Collapsed On The Pitch",
+  "hook": "Seven players went down mid-match in front of a full stadium. Four never got up.",
+  "note": "Ordered weakest-to-strongest. The survivors sit in the middle as relief, and Foe closes because it is the one everyone remembers. Outcomes are stated here rather than inferred, because the model miscounted them twice.",
+  "segments": [
+    {
+      "id": "morosini",
+      "outcome": "died on the pitch"
+    },
+    {
+      "id": "feher",
+      "outcome": "died on the pitch"
+    },
+    {
+      "id": "puerta",
+      "outcome": "died three days later in hospital"
+    },
+    {
+      "id": "muamba",
+      "outcome": "survived"
+    },
+    {
+      "id": "eriksen",
+      "outcome": "survived and returned to professional football"
+    },
+    {
+      "id": "nouri",
+      "outcome": "survived with permanent brain damage"
+    },
+    {
+      "id": "foe",
+      "outcome": "died on the pitch"
+    }
+  ],
+  "thumb": "Collapsed On The Pitch"
+}

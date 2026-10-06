@@ -1,0 +1,28 @@
+{
+  "id": "dead-games",
+  "title": "Every Game That Shut Down And Never Came Back",
+  "hook": "Five worlds that millions of people lived in, switched off for good.",
+  "note": "Ordered by how long each survived; Concord opens because two weeks is the shortest life any of them had.",
+  "segments": [
+    {
+      "id": "concord",
+      "outcome": "shut down 2 weeks after launch"
+    },
+    {
+      "id": "swgalaxies",
+      "outcome": "shut down in 2011"
+    },
+    {
+      "id": "toontown",
+      "outcome": "shut down in 2013, later revived by players"
+    },
+    {
+      "id": "cityofheroes",
+      "outcome": "shut down in 2012"
+    },
+    {
+      "id": "clubpenguin",
+      "outcome": "shut down in 2017"
+    }
+  ]
+}
