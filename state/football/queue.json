@@ -869,6 +869,81 @@
       "status": "short",
       "sourceCompilation": "air-disasters",
       "sourceSegment": "sala2"
+    },
+    {
+      "id": "scarborough",
+      "topic": "The seaside club folded in 2007 and was reborn as Scarborough Athletic.",
+      "angle": "Fans turned a painful dissolution into a grassroots phoenix club.",
+      "keywords": [
+        "Scarborough",
+        "2007",
+        "Scarborough, England"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Scarborough F.C.",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "aldershot",
+      "topic": "The original town team went bust in 1992, prompting locals to launch Aldershot Town as its successor.",
+      "angle": "The community built a new identity from the ashes of the old club.",
+      "keywords": [
+        "Aldershot",
+        "1992",
+        "Aldershot, Hampshire"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Aldershot F.C.",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "darlington",
+      "topic": "Bankruptcy forced the club out of the Football League in 2012, leading to the formation of Darlington 1883.",
+      "angle": "A historic club fell, but the town rallied to keep football alive at any level.",
+      "keywords": [
+        "Darlington",
+        "2012",
+        "Darlington, County Durham"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Darlington F.C.",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "chester-city",
+      "topic": "After years of financial turmoil, Chester City was wound up in 2010 and reborn as Chester F.C.",
+      "angle": "Supporters refused to let the city's football heritage disappear.",
+      "keywords": [
+        "Chester City",
+        "2010",
+        "Chester, England"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Chester City F.C.",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "bury",
+      "topic": "Expelled from the Football League in 2019 after 133 years, Bury’s supporters founded Bury AFC to continue the legacy.",
+      "angle": "A historic club’s exile led to a passionate fan‑driven revival.",
+      "keywords": [
+        "Bury",
+        "2019",
+        "Bury, Greater Manchester"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Bury F.C.",
+      "plannedBy": "autopilot"
     }
   ]
 }

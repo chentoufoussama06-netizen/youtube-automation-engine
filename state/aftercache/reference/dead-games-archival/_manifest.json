@@ -1,0 +1,29 @@
+{
+  "clubpenguin": {
+    "files": [
+      "Club_penguin_CCG_Card_Jitsu_Card_collection.jpg",
+      "Club_Penguin_CP_Wordmark.png",
+      "Club_Penguin_CCG_redeem_code_cards.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Club penguin CCG Card-Jitsu Card collection.jpg",
+        "license": "CC BY 4.0",
+        "author": "B3251",
+        "source": "https://commons.wikimedia.org/wiki/File:Club_penguin_CCG_Card-Jitsu_Card_collection.jpg"
+      },
+      {
+        "file": "Club Penguin CP Wordmark.png",
+        "license": "Public domain",
+        "author": "Wholeness Inside",
+        "source": "https://commons.wikimedia.org/wiki/File:Club_Penguin_CP_Wordmark.png"
+      },
+      {
+        "file": "Club Penguin CCG redeem code cards.jpg",
+        "license": "CC BY 4.0",
+        "author": "B3251",
+        "source": "https://commons.wikimedia.org/wiki/File:Club_Penguin_CCG_redeem_code_cards.jpg"
+      }
+    ]
+  }
+}

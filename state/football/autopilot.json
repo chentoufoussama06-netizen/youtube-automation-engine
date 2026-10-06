@@ -1,0 +1,14 @@
+{
+  "longform": {},
+  "failures": {
+    "build:every-english-club-reformed-after": 1
+  },
+  "history": [
+    {
+      "at": "2026-10-06T20:32:37.895Z",
+      "event": "planned",
+      "id": "every-english-club-reformed-after",
+      "title": "Every English Club Reformed After Bankruptcy"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "googleplus": {
+    "files": [
+      "Google_blue_2015_2019_.png",
+      "Google_pink_2015_2019_.png"
+    ],
+    "credits": [
+      {
+        "file": "Google+ blue (2015-2019).png",
+        "license": "Public domain",
+        "author": "Edu!",
+        "source": "https://commons.wikimedia.org/wiki/File:Google%2B_blue_(2015-2019).png"
+      },
+      {
+        "file": "Google+ pink (2015-2019).png",
+        "license": "Public domain",
+        "author": "Edu!",
+        "source": "https://commons.wikimedia.org/wiki/File:Google%2B_pink_(2015-2019).png"
+      }
+    ]
+  },
+  "limewire": {
+    "files": [
+      "Kymco_LimeWire_RevoNEX.jpg",
+      "LimeWire_4.12.6_Ubuntu_Spanish.png",
+      "LimeWire5_1_2.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Kymco LimeWire RevoNEX.jpg",
+        "license": "CC BY-SA 4.0",
+        "author": "AVMOTO",
+        "source": "https://commons.wikimedia.org/wiki/File:Kymco_LimeWire_RevoNEX.jpg"
+      },
+      {
+        "file": "LimeWire 4.12.6 Ubuntu Spanish.png",
+        "license": "CC BY-SA 3.0",
+        "author": "Qwerty2",
+        "source": "https://commons.wikimedia.org/wiki/File:LimeWire_4.12.6_Ubuntu_Spanish.png"
+      },
+      {
+        "file": "LimeWire5-1-2.jpg",
+        "license": "CC BY-SA 3.0",
+        "author": "Alle-Kalle Projects",
+        "source": "https://commons.wikimedia.org/wiki/File:LimeWire5-1-2.jpg"
+      }
+    ]
+  },
+  "geocities": {
+    "files": [
+      "he_GeoCities_Research_Institute_Library_at_Merz_Akademie_Stuttgart.jpg",
+      "_Computer_History_Museum_Mountain_View_California_USA_49501791216_.jpg",
+      "ies_Research_Institute_Library_at_Merz_Akademie_Stuttgart_cropped_.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Olia Lialina at the GeoCities Research Institute Library at Merz Akademie, Stuttgart.jpg",
+        "license": "CC BY-SA 4.0",
+        "author": "Lea Röwer, Merz Akademie",
+        "source": "https://commons.wikimedia.org/wiki/File:Olia_Lialina_at_the_GeoCities_Research_Institute_Library_at_Merz_Akademie,_Stuttgart.jpg"
+      },
+      {
+        "file": "Geocities archive warning, Computer History Museum, Mountain View, California, USA (49501791216).jpg",
+        "license": "CC BY-SA 2.0",
+        "author": "Cory Doctorow from Beautiful Downtown Burbank, USA",
+        "source": "https://commons.wikimedia.org/wiki/File:Geocities_archive_warning,_Computer_History_Museum,_Mountain_View,_California,_USA_(49501791216).jpg"
+      },
+      {
+        "file": "Olia Lialina at the GeoCities Research Institute Library at Merz Akademie, Stuttgart(cropped).jpg",
+        "license": "CC BY-SA 4.0",
+        "author": "Lea Röwer, Merz Akademie",
+        "source": "https://commons.wikimedia.org/wiki/File:Olia_Lialina_at_the_GeoCities_Research_Institute_Library_at_Merz_Akademie,_Stuttgart(cropped).jpg"
+      }
+    ]
+  }
+}
