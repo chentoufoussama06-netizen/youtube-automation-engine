@@ -37,6 +37,7 @@ const { LANES } = require('./autopilot/lanes');
 const { check } = require('./autopilot/check-video');
 const { makeThumbnail } = require('./autopilot/make-thumbnail');
 const { plan } = require('./autopilot/plan-compilation');
+const { makeStoryShort } = require('./autopilot/story-short');
 
 const ROOT = path.join(__dirname, '..');
 const LONGFORM_GAP_DAYS = Number(process.env.LONGFORM_GAP_DAYS) || 2;
@@ -258,6 +259,29 @@ async function postShort(lane, st, ai) {
   return `${lane.name}: no short (every candidate failed the quality gate)`;
 }
 
+/** One famous-player story short: write, render, gate, upload, publish. */
+async function postStoryShort(lane, st) {
+  let made;
+  try {
+    made = await makeStoryShort(lane.name, { dryRun: DRY });
+  } catch (error) {
+    return `${lane.name}: no story short — ${error.message}`;
+  }
+  if (DRY) return `${lane.name}: would post story short "${made.title}"`;
+
+  const gate = check(made.video, 'short');
+  if (!gate.ok) {
+    fs.rmSync(made.video, { force: true });
+    return `${lane.name}: story short ${made.id} rejected — ${gate.problems.join('; ')}`;
+  }
+  run(lane, 'scripts/youtube/upload-shorts.js', ['--no-subs', '--limit', '1'], 15);
+  if (!ledgerOf(lane)[made.id]) return `${lane.name}: story short ${made.id} rendered but upload failed`;
+  run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', made.id], 10);
+  const entry = ledgerOf(lane)[made.id];
+  st.history.push({ at: new Date().toISOString(), event: 'story', id: made.id, url: entry.url });
+  return `${lane.name}: story short ${entry.privacyStatus} ${entry.url} "${entry.title}"`;
+}
+
 async function postLongform(lane, st) {
   const last = Object.values(st.longform).map((v) => Date.parse(v.uploadedAt)).sort().pop() || 0;
   const days = (Date.now() - last) / 86400000;
@@ -319,12 +343,22 @@ async function main() {
     log(`=== ${lane.name} ===`);
     const st = stateOf(lane);
     st.history = st.history.slice(-200);
-    try {
-      summary.push(await postShort(lane, st, ai));
-    } catch (error) {
-      summary.push(`${lane.name}: short crashed — ${error.message}`);
+    for (let i = 0; i < (lane.storyShortsPerDay ?? 0); i++) {
+      try {
+        summary.push(await postStoryShort(lane, st));
+      } catch (error) {
+        summary.push(`${lane.name}: story short crashed — ${error.message}`);
+      }
+      saveState(lane, st);
     }
-    saveState(lane, st);
+    for (let i = 0; i < (lane.docShortsPerDay ?? 1); i++) {
+      try {
+        summary.push(await postShort(lane, st, ai));
+      } catch (error) {
+        summary.push(`${lane.name}: short crashed — ${error.message}`);
+      }
+      saveState(lane, st);
+    }
     try {
       summary.push(await postLongform(lane, st));
     } catch (error) {

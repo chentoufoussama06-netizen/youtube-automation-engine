@@ -19,6 +19,11 @@ const LANES = [
     tokens: 'tokens.json',
     categoryId: '17',             // Sports
     voice: 'en-US-BrianNeural',
+    // Two ~2:40 famous-player story shorts a day (story-short.js) — the shape
+    // of GOATED90, the fastest-growing young channel in this niche. The
+    // compilation pipeline stays for long-form and watch hours.
+    storyShortsPerDay: 2,
+    docShortsPerDay: 0,
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
       + 'disappearances, crimes, cursed careers, collapses and rise-and-fall stories '
       + 'of real footballers, managers, clubs, referees and matches, from any country and era.',
@@ -35,6 +40,8 @@ const LANES = [
     tokens: 'tokens.aftercache.json',
     categoryId: '27',             // Education
     voice: 'en-US-BrianNeural',
+    storyShortsPerDay: 0,
+    docShortsPerDay: 1,
     niche: 'Digital investigations: lost media, shut-down online games, vanished websites, '
       + 'deleted platforms, failed consoles and gadgets, internet mysteries, hacks and leaks, '
       + 'and the companies and people behind them.',

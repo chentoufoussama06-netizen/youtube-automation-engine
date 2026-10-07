@@ -669,8 +669,16 @@ Rules:
    */
   async stillToClip(imagePath, seconds, outPath) {
     const { runFFmpeg } = require('./ffmpeg');
+    // The photo is fitted whole over a blurred, darkened fill of itself. The
+    // old filter was a bare `scale=1188:2112`, which ignores aspect ratio: every
+    // landscape photograph — most of Commons — was stretched to roughly three
+    // times its height, faces included.
     await runFFmpeg(['-y', '-loop', '1', '-t', seconds.toFixed(2), '-i', imagePath,
-      '-vf', 'scale=1188:2112,crop=1188:2112,'
+      '-filter_complex',
+      '[0:v]split[a][b];'
+        + '[a]scale=1188:2112:force_original_aspect_ratio=increase,crop=1188:2112,boxblur=24:2,eq=brightness=-0.18[bg];'
+        + '[b]scale=1188:1700:force_original_aspect_ratio=decrease[fg];'
+        + '[bg][fg]overlay=(W-w)/2:(H-h)/2,'
         + `crop=1080:1920:x='(iw-ow)/2+sin(t/6)*10':y='(ih-oh)/2+cos(t/8)*14',`
         + 'fps=30,format=yuv420p',
       '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', outPath]);

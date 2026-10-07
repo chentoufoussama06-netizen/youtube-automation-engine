@@ -95,7 +95,9 @@ function buildMetadata(copy, job) {
   const SUFFIX = ' #Shorts';
   const room = 100 - SUFFIX.length;
 
-  let hook = String(copy).split(/(?<=[.!?])\s+/)[0] || job.topic;
+  // Story shorts carry a title written for the feed ("... 😭🔥"), which has no
+  // sentence punctuation to split on, so it travels on the queue entry instead.
+  let hook = job.shortTitle || String(copy).split(/(?<=[.!?])\s+/)[0] || job.topic;
   hook = hook.replace(/\s+/g, ' ').trim();
   if (hook.length > room) {
     // Cut back to a word boundary so a title never ends mid-word.

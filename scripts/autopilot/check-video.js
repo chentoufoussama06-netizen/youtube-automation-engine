@@ -15,7 +15,8 @@
 const { spawnSync } = require('child_process');
 
 const LIMITS = {
-  short: { min: 20, max: 60, portrait: true },
+  // Shorts may run to 3 minutes (since Oct 2024); story shorts aim at ~2:40.
+  short: { min: 20, max: 180, portrait: true },
   long: { min: 6 * 60, max: 25 * 60, portrait: false }
 };
 
