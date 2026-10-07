@@ -80,9 +80,21 @@ jobs:
 
       - name: Make and post
         run: |
+          set -o pipefail
           node scripts/autopilot.js \
             ${{ github.event.inputs.lane != '' && format('--lane "{0}"', github.event.inputs.lane) || '' }} \
-            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }} 2>&1 | tee autopilot.log
+
+      # What went up today, with links, on the run's own page in GitHub, so
+      # nobody has to open a log or keep a machine watching.
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo "## Autopilot $(date -u +%F)"
+            echo
+            sed -n '/=== summary ===/,$p' autopilot.log | tail -n +2 | sed 's/^/- /'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update WHOP OS brain
         if: always()
