@@ -399,6 +399,18 @@ async function briefFor(research, entry, { attempt = 1 } = {}) {
     return cached;
   }
 
+  // A planned entry names its verified article (plan-compilation.js). The brief
+  // cache does not survive between cloud runs, and searching the topic
+  // sentence instead can land on a different article entirely.
+  if (entry.article) {
+    const pinned = await research.buildBriefFromArticle(entry.article).catch(() => null);
+    if (pinned) {
+      await fsp.mkdir(BRIEF_CACHE_DIR, { recursive: true });
+      await fsp.writeFile(cachePath, JSON.stringify(pinned, null, 2));
+      return pinned;
+    }
+  }
+
   const keywords = (entry.keywords || []).map(String).filter(Boolean);
 
   // Order matters more than anything else here. Searching keywords[0] first

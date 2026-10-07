@@ -1,8 +1,6 @@
 {
   "longform": {},
-  "failures": {
-    "build:every-english-club-reformed-after": 1
-  },
+  "failures": {},
   "history": [
     {
       "at": "2026-10-06T20:32:37.895Z",

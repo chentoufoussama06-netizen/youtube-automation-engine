@@ -446,16 +446,25 @@ class AITextService {
     const startedAt = Date.now();
     this.logger.info(`${this.providerName} generating (model: ${model}, max_tokens: ${maxTokens})`);
 
+    // gpt-oss models reason before answering and the reasoning counts against
+    // max_tokens: a 900-token segment request came back as 0 words of prose
+    // (2026-10-06). Keep their reasoning short and give it headroom on top.
+    const reasoning = /gpt-oss/i.test(model);
     const response = await this.client.chat.completions.create({
       model,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: maxTokens,
+      max_tokens: reasoning ? maxTokens + 3000 : maxTokens,
       temperature,
+      ...(reasoning ? { reasoning_effort: 'low' } : {}),
       ...(wantsJson ? { response_format: { type: 'json_object' } } : {})
     });
 
     this.logger.info(`${this.providerName} responded in ${Math.round((Date.now() - startedAt) / 1000)}s`);
-    return response.choices[0].message.content;
+    const content = response.choices[0].message.content;
+    // An empty answer is a failure, not a result: thrown, it reaches the
+    // fallback providers; returned, it became a 0-word segment.
+    if (!String(content || '').trim()) throw new Error(`${this.providerName} returned an empty completion`);
+    return content;
   }
 
   isAvailable() {

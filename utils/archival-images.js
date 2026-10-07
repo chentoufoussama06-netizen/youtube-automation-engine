@@ -28,7 +28,9 @@ const COMMONS_API = 'https://commons.wikimedia.org/w/api.php';
 
 // Commons blocks generic clients and rate-limits hard; a descriptive UA with a
 // contact route is what their policy asks for and what keeps 429s away.
-const USER_AGENT = 'MarcoDeHierra-Documentary/1.0 (French documentary channel; automated archival sourcing)';
+// Wikimedia's User-Agent policy requires a contact; a UA without one is what
+// cloud runners get throttled for (every Commons call 429'd on 2026-10-06).
+const USER_AGENT = 'FootballFilesArchive/1.1 (https://github.com/chentoufoussama06-netizen/youtube-automation-engine) node';
 
 // Licenses that permit commercial reuse. Matched against extmetadata's
 // LicenseShortName, which is a display string rather than an identifier, hence
@@ -56,7 +58,7 @@ class ArchivalImageService {
     this.requestDelayMs = Number(process.env.ARCHIVAL_DELAY_MS) || 1200;
   }
 
-  async _api(params) {
+  async _api(params, attempt = 1) {
     const url = `${COMMONS_API}?${new URLSearchParams({ format: 'json', ...params })}`;
     const response = await fetch(url, {
       headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
@@ -67,6 +69,15 @@ class ArchivalImageService {
     // which surfaces as an unhelpful "Unexpected token 'Y'" parse error unless
     // the body is checked before parsing.
     const body = await response.text();
+    // A 429 used to throw straight away, so one throttled burst on a cloud
+    // runner emptied the photo search for every story in the set. Back off.
+    if (response.status === 429 && attempt < 5) {
+      const retryAfter = Number(response.headers.get('retry-after')) * 1000;
+      const wait = Math.max(retryAfter || 0, 4000 * attempt * attempt);
+      this.logger.warn(`Commons rate limit; waiting ${(wait / 1000).toFixed(0)}s (attempt ${attempt})`);
+      await new Promise((resolve) => setTimeout(resolve, wait));
+      return this._api(params, attempt + 1);
+    }
     if (!response.ok || !body.trimStart().startsWith('{')) {
       throw new Error(`Commons HTTP ${response.status}: ${body.slice(0, 90).replace(/\s+/g, ' ')}`);
     }

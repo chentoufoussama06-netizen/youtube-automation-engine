@@ -82,8 +82,9 @@ class ResearchService {
 
     const url = `${this.apiUrl}?${new URLSearchParams({ format: 'json', ...params })}`;
     const res = await fetch(url, {
-      // Wikipedia blocks requests without a descriptive User-Agent.
-      headers: { 'User-Agent': 'youtube-automation-agent/1.0 (documentary research)' },
+      // Wikimedia's policy wants a contact in the agent string; without one,
+      // shared cloud IPs (GitHub Actions) were throttled to 429 within minutes.
+      headers: { 'User-Agent': 'FootballFilesResearch/1.1 (https://github.com/chentoufoussama06-netizen/youtube-automation-engine) node' },
       signal: AbortSignal.timeout(30000)
     });
 
@@ -91,8 +92,9 @@ class ResearchService {
     const rateLimited = res.status === 429 || /too many requests/i.test(body.slice(0, 200));
 
     if (rateLimited) {
-      if (attempt >= 4) throw new Error('Wikipedia rate limit — gave up after 4 attempts');
-      const backoff = 2000 * attempt * attempt;
+      if (attempt >= 6) throw new Error('Wikipedia rate limit — gave up after 6 attempts');
+      const retryAfter = Number(res.headers.get('retry-after')) * 1000;
+      const backoff = Math.max(retryAfter || 0, 3000 * attempt * attempt);
       this.logger.warn(`Wikipedia rate limit; waiting ${(backoff / 1000).toFixed(0)}s (attempt ${attempt})`);
       await new Promise(resolve => setTimeout(resolve, backoff));
       return this._api(params, attempt + 1);
