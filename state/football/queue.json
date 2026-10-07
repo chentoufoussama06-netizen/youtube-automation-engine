@@ -944,6 +944,18 @@
       "voice": "en-US-BrianNeural",
       "article": "Bury F.C.",
       "plannedBy": "autopilot"
+    },
+    {
+      "id": "doc-scarborough",
+      "topic": "The seaside club folded in 2007 and was reborn as Scarborough Athletic.",
+      "keywords": [
+        "Scarborough",
+        "2007",
+        "Scarborough, England"
+      ],
+      "status": "short",
+      "sourceCompilation": "every-english-club-reformed-after",
+      "sourceSegment": "scarborough"
     }
   ]
 }

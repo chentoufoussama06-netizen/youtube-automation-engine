@@ -1,5 +1,8 @@
 {
   "longform": {},
-  "failures": {},
+  "failures": {
+    "build:dead-games": 1,
+    "build:vanished-websites": 1
+  },
   "history": []
 }

@@ -134,5 +134,39 @@
         "source": "https://commons.wikimedia.org/wiki/File:Cleveland_Street,_Darlington_-_geograph.org.uk_-_2876467.jpg"
       }
     ]
+  },
+  "chester-city": {
+    "files": [
+      "Chester_City_Walls_geograph.org.uk_3783272.jpg",
+      "Chester_City_Wall_near_the_Watergate_geograph.org.uk_8273743.jpg",
+      "The_Bridge_Gate_Chester_city_walls_geograph.org.uk_7551750.jpg",
+      "Park_Street_from_Chester_city_walls_geograph.org.uk_7040879.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Chester City Walls - geograph.org.uk - 3783272.jpg",
+        "license": "CC BY-SA 2.0",
+        "author": "Jeff Buck",
+        "source": "https://commons.wikimedia.org/wiki/File:Chester_City_Walls_-_geograph.org.uk_-_3783272.jpg"
+      },
+      {
+        "file": "Chester City Wall near the Watergate - geograph.org.uk - 8273743.jpg",
+        "license": "CC BY-SA 2.0",
+        "author": "Bill Harrison",
+        "source": "https://commons.wikimedia.org/wiki/File:Chester_City_Wall_near_the_Watergate_-_geograph.org.uk_-_8273743.jpg"
+      },
+      {
+        "file": "The Bridge Gate, Chester city walls - geograph.org.uk - 7551750.jpg",
+        "license": "CC BY-SA 2.0",
+        "author": "David Smith",
+        "source": "https://commons.wikimedia.org/wiki/File:The_Bridge_Gate,_Chester_city_walls_-_geograph.org.uk_-_7551750.jpg"
+      },
+      {
+        "file": "Park Street, from Chester city walls - geograph.org.uk - 7040879.jpg",
+        "license": "CC BY-SA 2.0",
+        "author": "Mike Parker",
+        "source": "https://commons.wikimedia.org/wiki/File:Park_Street,_from_Chester_city_walls_-_geograph.org.uk_-_7040879.jpg"
+      }
+    ]
   }
 }
