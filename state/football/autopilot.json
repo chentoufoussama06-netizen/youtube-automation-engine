@@ -32,6 +32,18 @@
       "event": "longform",
       "id": "air-disasters",
       "url": "https://www.youtube.com/watch?v=pPUIed5fle8"
+    },
+    {
+      "at": "2026-10-07T01:14:11.706Z",
+      "event": "story",
+      "id": "story-zinedine-zidane-zidane-s-headbut",
+      "url": "https://www.youtube.com/watch?v=Zk44Zaeuo-0"
+    },
+    {
+      "at": "2026-10-07T01:16:38.709Z",
+      "event": "story",
+      "id": "story-diego-maradona-maradona-s-infam",
+      "url": "https://www.youtube.com/watch?v=gBXn9HgOguM"
     }
   ]
 }

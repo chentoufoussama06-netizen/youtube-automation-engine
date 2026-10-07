@@ -956,6 +956,30 @@
       "status": "short",
       "sourceCompilation": "every-english-club-reformed-after",
       "sourceSegment": "scarborough"
+    },
+    {
+      "id": "story-zinedine-zidane-zidane-s-headbut",
+      "topic": "Zidane’s headbutt on Marco Materazzi in the 2006 World Cup final.",
+      "keywords": [
+        "Zinedine Zidane",
+        "football",
+        "football story"
+      ],
+      "status": "short",
+      "shortTitle": "When Zidane Lost His Cool on the World Stage 😭💀",
+      "article": "Zinedine Zidane"
+    },
+    {
+      "id": "story-diego-maradona-maradona-s-infam",
+      "topic": "Maradona's infamous 'Hand of God' goal against England in the 1986 World Cup.",
+      "keywords": [
+        "Diego Maradona",
+        "football",
+        "football story"
+      ],
+      "status": "short",
+      "shortTitle": "Maradona’s Hand of God 😭🤯",
+      "article": "Diego Maradona"
     }
   ]
 }
