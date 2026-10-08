@@ -41,17 +41,38 @@ const DARK_FOOTBALL_STORY = {
 // order is priority: a lane that runs out of quota loses its posts, not others'.
 const LANES = [
   {
-    // An unused 49-subscriber channel connected 2026-10-08. Football Files'
-    // distribution collapsed in September (median views 767 -> 3) while the
-    // format kept winning, so the proven shorts go to a clean channel first.
-    name: 'Football Stories',
+    // An unused 49-subscriber channel connected 2026-10-08 (data root and
+    // token file keep their first name, football2). Ancient history is the one
+    // niche where several brand-new channels exploded at once in the
+    // 2026-10-08 scan, so it is the topic and not luck: historicalmiracles
+    // (15 days old) put 950K and 695K on its first 20-second battle shorts,
+    // Rome Unscrolled (45 days) gets 20K-2M on every upload, Nils History
+    // (3 months) 56K subs. One short a day, on purpose.
+    name: 'Ancient History',
     dataRoot: 'state/football2',
     tokens: 'tokens.football2.json',
-    categoryId: '17',             // Sports
-    voice: 'en-US-BrianNeural',
-    storyShortsPerDay: 2,
+    categoryId: '27',             // Education
+    voice: 'en-GB-RyanNeural',
+    storyShortsPerDay: 1,
     docShortsPerDay: 0,
-    story: DARK_FOOTBALL_STORY
+    story: {
+      examples: [
+        'Hannibal marches on the Romans  (15-day-old channel: 950K)',
+        'The Battle of Cannae, 216 BCE.  (same channel: 695K)',
+        'What Did People in Ancient Rome Actually Do All Day?  (45-day-old channel: 2.1M)',
+        'The Library of Alexandria is Weirder Than You Think  (3-month-old channel: 2.1M)',
+        'The Emperor Who Made His Horse a Senator 💀'
+      ],
+      scope: 'A REAL, documented episode from the ancient world (Rome, Greece, Egypt, Carthage,\n'
+        + '  Persia, the Bronze Age, Mesopotamia, the Celts and Germanic tribes) that a casual\n'
+        + '  viewer has half-heard of or will not believe: a famous battle, an emperor\'s\n'
+        + '  madness or murder, a betrayal, a siege, a lost city, a bizarre law or custom.\n'
+        + '- One specific episode with a clear arc and a payoff. The title names it plainly\n'
+        + '  (like the examples), optionally ending with one emoji.',
+      captionExample: 'Hannibal',
+      tags: ['ancient history', 'roman empire', 'history'],
+      words: { min: 110, target: 135, max: 165 }
+    }
   },
   {
     name: 'Football Files',
@@ -59,10 +80,9 @@ const LANES = [
     tokens: 'tokens.json',
     categoryId: '17',             // Sports
     voice: 'en-US-BrianNeural',
-    // One story short a day while the channel is throttled; the quota it
-    // freed goes to Football Stories. The compilation pipeline stays for
-    // long-form and watch hours.
-    storyShortsPerDay: 1,
+    // Two story shorts a day. The compilation pipeline stays for long-form
+    // and watch hours.
+    storyShortsPerDay: 2,
     docShortsPerDay: 0,
     story: DARK_FOOTBALL_STORY,
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '

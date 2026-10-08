@@ -242,6 +242,23 @@ emojis, no stage directions. ${WORDS.min}-${WORDS.max} words. Return only the na
     const sentences = kept.match(/[^.!?]+[.!?]+["'”’]?/g) || [kept];
     const checked = sentences.filter((_, i) => !flagged.has(i)).join(' ').replace(/\s+/g, ' ').trim();
     if (flagged.size) logger.info(`fact-check cut ${flagged.size} sentence(s): ${[...flagged].map((i) => `"${sentences[i].trim().slice(0, 60)}"`).join(' | ')}`);
+    // A bare cut can strand the next sentence: an Alexander draft lost "Darius
+    // offered half his empire" and kept "Alexander refused." So the writer gets
+    // one chance to retell it without the flagged claims; the retelling only
+    // ships if it comes back from the checker clean.
+    if (flagged.size) {
+      const fixed = String(await writer.generateText(`${base}\n\nHere is a draft:\n"""\n${kept}\n"""\n`
+        + `A fact-checker could not find these claims in the SOURCE; leave them out:\n`
+        + `${[...flagged].map((i) => `- ${sentences[i].trim()}`).join('\n')}\n`
+        + 'Rewrite the whole narration so it still flows without them.', { maxTokens: 1400, temperature: 0.4 }).catch(() => ''))
+        .replace(/^#+.*$/gm, '').replace(/\*\*/g, '').replace(/[‐-‒]/g, '-').replace(/\s+/g, ' ').trim();
+      const n = words(fixed);
+      if (fixed && !unsourcedNumbers(fixed, brief.text).length && n >= WORDS.min && n <= WORDS.max) {
+        const again = await unsupportedSentences(ai, fixed, brief);
+        if (again && again.size === 0) { logger.info('rewrite passed the fact-check clean'); return fixed; }
+        logger.info(`rewrite still had ${again ? again.size : '?'} unsupported sentence(s); using the cut draft`);
+      }
+    }
     // Cutting more than a quarter of the story leaves holes in the telling.
     // Losing the first sentence loses the hook — a Messi story opened on "The
     // Argentine star..." without ever naming him. The title is already checked
