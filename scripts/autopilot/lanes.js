@@ -51,6 +51,37 @@ const LANES = [
       'The Websites That Vanished Overnight',
       'Every Video Game Console That Destroyed Its Company'
     ]
+  },
+  {
+    // Unbelievable-but-true stories: war, survival, disasters, history. Picked
+    // from the 2026-10-07 scan: "War facts" (38 days old) put 3.1M on "3 WAR
+    // STORIES THAT REALLY HAPPENED"; The P2 Facts reached 567K subs in 96 days
+    // on real-life miracles; Veilix (97M views) on "He Jumped Into a Volcano to
+    // Prove He Was God". All Wikipedia-sourced, and Commons is deep in public-
+    // domain wartime and historical photographs. Replaces the Reddit loop that
+    // got 0 views on all six of this channel's uploads.
+    name: 'Viral Vault Clip',
+    dataRoot: 'state/clips-channel',
+    tokens: 'tokens.clips.json',
+    categoryId: '27',             // Education
+    voice: 'en-US-ChristopherNeural',
+    storyShortsPerDay: 1,
+    docShortsPerDay: 0,
+    story: {
+      examples: [
+        '3 War Stories That Really Happened 😳  (3.1M, 38-day-old channel)',
+        'He Jumped Into a Volcano to Prove He Was God 💀  (1.3M)',
+        '3 Creepy Real-Life Miracles That Will Give You Chills 😨  (1.9M)',
+        'The Soldier Who Kept Fighting 29 Years After the War Ended 🤯',
+        'He Survived Both Atomic Bombs 😳'
+      ],
+      scope: 'A REAL, documented event or person so unbelievable it sounds made up:\n'
+        + '  war stories, impossible survivals, bizarre history, disasters, mysteries,\n'
+        + '  heists, escapes, strange deaths, accidental discoveries. Any era, any country.\n'
+        + '- One specific episode with a clear arc and a payoff the viewer will not see coming.',
+      captionExample: 'Hiroo Onoda',
+      tags: ['true story', 'history', 'unbelievable']
+    }
   }
 ];
 

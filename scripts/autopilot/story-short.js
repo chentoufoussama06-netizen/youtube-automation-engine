@@ -50,27 +50,39 @@ function parseJson(raw) {
   return JSON.parse(text.slice(s, e + 1));
 }
 
+// What each lane's stories are about. A lane without its own `story` block in
+// lanes.js gets the football brief, which is where this format was measured.
+const DEFAULT_STORY = {
+  examples: [
+    'When Balotelli Completely Lost His Mind 😭🔥  (4.4M)',
+    'The Ronaldo Comeback Nobody Was Ready For 😭🔥  (2.0M)',
+    'How Did Ronaldo Even Do This 😭🔥  (1.5M)',
+    'Football Gave Torres the SAME Chance Twice  (1.2M)',
+    'The Man Who DESTROYED the Galácticos 💀  (1.1M)',
+    'The Champions League Run That Made ZERO Sense 😭🔥  (1.0M)',
+    'When Karma DESTROYED an Entire National Team 😭🔥  (0.7M)'
+  ],
+  scope: 'About a FAMOUS footballer, manager, club or national team that casual fans\n'
+    + '  worldwide know. Not obscure lower-league subjects.\n'
+    + '- One specific, dramatic episode with an arc: meltdown, betrayal, impossible\n'
+    + '  comeback, karma, redemption, rivalry turning into war, a season that made no\n'
+    + '  sense, a career that collapsed, a disappearance.',
+  captionExample: 'Mario Balotelli',
+  tags: ['football', 'football story']
+};
+
 async function propose(ai, lane, avoid) {
+  const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
-The format that is winning right now (titles and views from a 4-month-old channel):
-- When Balotelli Completely Lost His Mind 😭🔥  (4.4M)
-- The Ronaldo Comeback Nobody Was Ready For 😭🔥  (2.0M)
-- How Did Ronaldo Even Do This 😭🔥  (1.5M)
-- Football Gave Torres the SAME Chance Twice  (1.2M)
-- The Man Who DESTROYED the Galácticos 💀  (1.1M)
-- The Champions League Run That Made ZERO Sense 😭🔥  (1.0M)
-- When Karma DESTROYED an Entire National Team 😭🔥  (0.7M)
+The format that is winning right now (titles and views from young channels):
+${story.examples.map((e) => `- ${e}`).join('\n')}
 
 Propose 10 stories like these. Rules:
-- About a FAMOUS footballer, manager, club or national team that casual fans
-  worldwide know. Not obscure lower-league subjects.
-- One specific, dramatic episode with an arc: meltdown, betrayal, impossible
-  comeback, karma, redemption, rivalry turning into war, a season that made no
-  sense, a career that collapsed, a disappearance.
+- ${story.scope}
 - It must be documented in that subject's English Wikipedia article.
-- "article": the EXACT English Wikipedia article title of the person, club or event.
-- "subject": the name a photo caption would use (e.g. "Mario Balotelli"), no parentheses.
+- "article": the EXACT English Wikipedia article title of the person, event or thing.
+- "subject": the name a photo caption would use (e.g. "${story.captionExample}"), no parentheses.
 - "moment": one sentence naming the episode, with its year.
 - "title": under 55 characters, curiosity gap, ends with 1-2 of these emojis 😭🔥💀🤯🥶😳.
   Capitalise like the examples. Never promise something the article cannot back.
@@ -190,7 +202,7 @@ ${brief.text.slice(0, 9000)}
 Structure:
 1. First sentence is the hook: name ${story.subject} and promise the drama in
    under 20 words, so a viewer swiping past stops.
-2. Set up who he was and what was at stake, quickly.
+2. Set up who or what this was and what was at stake, quickly.
 3. Tell the episode in the order the SOURCE gives it, building tension sentence
    by sentence. Who scored, when and how must match the source exactly — if the
    source does not say how a goal was scored, do not describe it.
@@ -329,7 +341,7 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
 
       const queuePath = base('queue.json');
       const queue = readJson(queuePath, { topics: [] });
-      queue.topics.push({ id, topic: story.moment, keywords: [subject, 'football', 'football story'], status: 'short', shortTitle: title, article: brief.title });
+      queue.topics.push({ id, topic: story.moment, keywords: [subject, ...(lane.story || DEFAULT_STORY).tags], status: 'short', shortTitle: title, article: brief.title, categoryId: lane.categoryId });
       await fsp.writeFile(queuePath, JSON.stringify(queue, null, 2));
 
       done.push({ id, subject, article: brief.title, moment: story.moment, title, at: new Date().toISOString() });

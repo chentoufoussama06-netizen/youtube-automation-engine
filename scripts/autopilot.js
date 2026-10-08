@@ -282,8 +282,13 @@ async function postStoryShort(lane, st) {
   return `${lane.name}: story short ${entry.privacyStatus} ${entry.url} "${entry.title}"`;
 }
 
+// All channels share one Google project's 10,000 units a day. Five shorts
+// (≈8,250 with publishes) leave room for exactly one long-form upload.
+let longformPostedThisRun = false;
+
 async function postLongform(lane, st) {
-  const last = Object.values(st.longform).map((v) => Date.parse(v.uploadedAt)).sort().pop() || 0;
+  if (longformPostedThisRun) return `${lane.name}: long-form waits a day (one per run keeps the upload quota)`;
+  const last =Object.values(st.longform).map((v) => Date.parse(v.uploadedAt)).sort().pop() || 0;
   const days = (Date.now() - last) / 86400000;
   if (days < LONGFORM_GAP_DAYS) return `${lane.name}: long-form resting (${days.toFixed(1)}d since the last)`;
 
@@ -312,6 +317,7 @@ async function postLongform(lane, st) {
   const m = /watch\?v=([\w-]{11})/.exec(up.out);
   if (!up.ok || !m) return fail('upload failed');
 
+  longformPostedThisRun = true;
   st.longform[comp] = { videoId: m[1], url: `https://www.youtube.com/watch?v=${m[1]}`, title: doc.title, uploadedAt: new Date().toISOString() };
   try {
     const thumb = await makeThumbnail(lane.dataRoot, comp);
