@@ -139,6 +139,108 @@
       "status": "held",
       "attempts": 0,
       "voice": "en-US-BrianNeural"
+    },
+    {
+      "id": "yik-yak",
+      "topic": "An anonymous college‑campus messaging app that closed in 2017.",
+      "angle": "Its rise and fall were driven by privacy concerns and widespread harassment.",
+      "keywords": [
+        "Yik Yak",
+        "2013",
+        "Yik Yak"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Yik Yak",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "bebo",
+      "topic": "A social networking site that peaked before Facebook and shut its original service in 2013.",
+      "angle": "It was an early competitor that couldn’t survive the shift to mobile‑first platforms.",
+      "keywords": [
+        "Bebo",
+        "2005",
+        "Bebo"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Bebo",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "google-wave",
+      "topic": "A collaborative communication tool launched in 2009 and discontinued in 2010.",
+      "angle": "It was technically innovative but too complex for mainstream adoption.",
+      "keywords": [
+        "Google Wave",
+        "2009",
+        "Google Wave"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Google Wave",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "altavista",
+      "topic": "One of the first popular web search engines, retired by Yahoo! in 2013.",
+      "angle": "It pioneered web search before being outpaced by Google’s algorithms.",
+      "keywords": [
+        "AltaVista",
+        "1995",
+        "AltaVista"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "AltaVista",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "google-reader",
+      "topic": "Google’s RSS aggregator that was shut down in 2013 despite a loyal user base.",
+      "angle": "Its removal sparked a backlash that highlighted the power of user‑driven tools.",
+      "keywords": [
+        "Google Reader",
+        "2005",
+        "Google Reader"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Google Reader",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "orkut",
+      "topic": "Google’s social network that was popular in Brazil and India before closing in 2014.",
+      "angle": "It remains one of the most beloved defunct platforms for its community focus.",
+      "keywords": [
+        "Orkut",
+        "2004",
+        "Orkut"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Orkut",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "doc-bebo",
+      "topic": "A social networking site that peaked before Facebook and shut its original service in 2013.",
+      "keywords": [
+        "Bebo",
+        "2005",
+        "Bebo"
+      ],
+      "status": "short",
+      "sourceCompilation": "every-major-online-service-that-shut",
+      "sourceSegment": "bebo"
     }
   ]
 }

@@ -1,0 +1,117 @@
+{
+  "bebo": {
+    "files": [
+      "Bebo_Sher_razor.jpg",
+      "Bebo_Sher_Typ_014_Verpackung_01.jpg",
+      "Bebo_Music_Zone3_Festivalfotografie_Open_Beatz.jpg",
+      "Eventfoto_Bebo_Music_Foto_Zone3_Open_Beatz.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Bebo Sher razor.JPG",
+        "license": "CC BY-SA 4.0",
+        "author": "Illustratedjc",
+        "source": "https://commons.wikimedia.org/wiki/File:Bebo_Sher_razor.JPG"
+      },
+      {
+        "file": "Bebo Sher Typ 014 Verpackung 01.jpg",
+        "license": "CC BY-SA 4.0",
+        "author": "Robin The Nagel",
+        "source": "https://commons.wikimedia.org/wiki/File:Bebo_Sher_Typ_014_Verpackung_01.jpg"
+      },
+      {
+        "file": "Bebo Music Zone3 Festivalfotografie Open Beatz.jpg",
+        "license": "CC BY-SA 4.0",
+        "author": "Wayne 1313",
+        "source": "https://commons.wikimedia.org/wiki/File:Bebo_Music_Zone3_Festivalfotografie_Open_Beatz.jpg"
+      },
+      {
+        "file": "Eventfoto Bebo Music Foto Zone3 Open Beatz.jpg",
+        "license": "CC BY-SA 4.0",
+        "author": "Wayne 1313",
+        "source": "https://commons.wikimedia.org/wiki/File:Eventfoto_Bebo_Music_Foto_Zone3_Open_Beatz.jpg"
+      }
+    ]
+  },
+  "altavista": {
+    "files": [
+      "Estacion_Altavista_03.jpg",
+      "Estacion_Altavista_01.jpg",
+      "Altavista_Chalchihuites_Zacatecas_panoramio.jpg",
+      "Altavista_Chalchihuites_Zacatecas_panoramio.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Estacion Altavista 03.JPG",
+        "license": "CC BY-SA 3.0",
+        "author": "GAED",
+        "source": "https://commons.wikimedia.org/wiki/File:Estacion_Altavista_03.JPG"
+      },
+      {
+        "file": "Estacion Altavista 01.JPG",
+        "license": "CC BY-SA 3.0",
+        "author": "GAED",
+        "source": "https://commons.wikimedia.org/wiki/File:Estacion_Altavista_01.JPG"
+      },
+      {
+        "file": "Altavista, Chalchihuites Zacatecas - panoramio.jpg",
+        "license": "CC BY-SA 3.0",
+        "author": "panza.rayada",
+        "source": "https://commons.wikimedia.org/wiki/File:Altavista,_Chalchihuites_Zacatecas_-_panoramio.jpg"
+      },
+      {
+        "file": "Altavista, Chalchihuites, Zacatecas - panoramio.jpg",
+        "license": "CC BY-SA 3.0",
+        "author": "panza.rayada",
+        "source": "https://commons.wikimedia.org/wiki/File:Altavista,_Chalchihuites,_Zacatecas_-_panoramio.jpg"
+      }
+    ]
+  },
+  "google-reader": {
+    "files": [
+      "Google_Reader_Chinese_2861195992_.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Google Reader Chinese (2861195992).jpg",
+        "license": "CC0",
+        "author": "cogdogblog",
+        "source": "https://commons.wikimedia.org/wiki/File:Google_Reader_Chinese_(2861195992).jpg"
+      }
+    ]
+  },
+  "orkut": {
+    "files": [
+      "Hello_Orkut_B_y_kk_kten_2015.jpg",
+      "Foto_Orkut_II.jpg",
+      "Apar_ncia_visual_do_novo_orkut_.png",
+      "Evangelista_engenheiro_do_Orkut_2575862901_.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Hello Orkut Büyükkökten 2015.jpg",
+        "license": "CC BY-SA 4.0",
+        "author": "Mark Schierbecker",
+        "source": "https://commons.wikimedia.org/wiki/File:Hello_Orkut_B%C3%BCy%C3%BCkk%C3%B6kten_2015.jpg"
+      },
+      {
+        "file": "Foto Orkut II.JPG",
+        "license": "Public domain",
+        "author": "aggerminiani, it's just a picture",
+        "source": "https://commons.wikimedia.org/wiki/File:Foto_Orkut_II.JPG"
+      },
+      {
+        "file": "Aparência visual do 'novo orkut'.png",
+        "license": "CC BY-SA 2.5",
+        "author": "MisterSanderson",
+        "source": "https://commons.wikimedia.org/wiki/File:Apar%C3%AAncia_visual_do_%27novo_orkut%27.png"
+      },
+      {
+        "file": "Evangelista engenheiro do Orkut (2575862901).jpg",
+        "license": "CC BY-SA 2.0",
+        "author": "Wagner Tamanaha from Sao Paulo, Brazil",
+        "source": "https://commons.wikimedia.org/wiki/File:Evangelista_engenheiro_do_Orkut_(2575862901).jpg"
+      }
+    ]
+  }
+}

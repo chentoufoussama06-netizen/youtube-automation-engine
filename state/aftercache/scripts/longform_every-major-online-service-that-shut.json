@@ -1,0 +1,186 @@
+{
+  "title": "Every Major Online Service That Shut Down After Decline",
+  "angle": "Each of these once‑thriving online platforms eventually went offline, leaving millions of users searching for what happened.",
+  "keywords": [
+    "Bebo",
+    "2005",
+    "AltaVista",
+    "1995",
+    "Google Reader",
+    "Orkut",
+    "2004"
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "title": "Every Major Online Service That Shut Down After Decline",
+      "images": [
+        "Bebo_Sher_razor.jpg",
+        "Bebo_Sher_Typ_014_Verpackung_01.jpg"
+      ],
+      "text": "Bebo was founded by Michael and Xochi Birch in January 2005 at their home in San Francisco. It rose to become the United Kingdom’s most‑used social network, overtaking MySpace before being sold to AOL for $850 million in 2008, only to be abandoned as users migrated to newer platforms. Across the next decade, three other once‑dominant online services followed similar arcs of rapid ascent and abrupt closure: a pioneering web search engine that Yahoo! retired in 2013 after Google’s algorithms eclipsed its relevance; Google’s RSS aggregator that vanished the same year despite a devoted community, sparking a notable backlash; and Google’s social network that flourished in Brazil and India before shutting down in 2014, remaining beloved for its community focus. Each platform fell for different reasons, yet all illustrate how shifting technology and user habits can render even the biggest digital giants obsolete.",
+      "cueText": "Bebo was founded by Michael and Xochi Birch"
+    },
+    {
+      "id": "bebo",
+      "title": "A social networking site that peaked before Facebook and shut its original service in 2013.",
+      "images": [
+        "Bebo_Sher_razor.jpg",
+        "Bebo_Sher_Typ_014_Verpackung_01.jpg",
+        "Bebo_Music_Zone3_Festivalfotografie_Open_Beatz.jpg",
+        "Eventfoto_Bebo_Music_Foto_Zone3_Open_Beatz.jpg"
+      ],
+      "text": "Bebo, the social networking site founded by Michael and Xochi Birch in January 2005, surged to prominence by overtaking MySpace as the United Kingdom’s most‑used platform, amassing at least 10.7 million unique users. In March 2008 AOL purchased Bebo for $850 million, a deal later condemned as one of the dot‑com era’s worst, and the site began to lose ground as Facebook’s mobile‑first strategy attracted its audience. By April 2010 AOL announced plans to sell or shut down Bebo, citing dwindling user numbers and an inability to compete in its existing form. The network changed hands to hedge‑fund firm Criterion Capital Partners on June 16 2010, received a redesign in February 2011, and suffered a 36‑hour outage in January 2012 that sparked rumors of its demise. After filing for Chapter 11 bankruptcy in May 2013, the original founders repurchased Bebo for $1 million in July of that year and subsequently dismantled the original service, deleting user content. A series of short‑lived relaunches followed, including the Bebo Blab messenger in 2015 and streaming software in 2018, none of which reclaimed its early dominance. In July 2019 Amazon’s Twitch Interactive acquired Bebo for $25 million, marking the final transition of the once‑leading network into the hands of a mobile‑centric giant.",
+      "cueText": "Bebo, the social networking site founded by Michael",
+      "source": "https://en.wikipedia.org/wiki/Bebo"
+    },
+    {
+      "id": "altavista",
+      "title": "One of the first popular web search engines, retired by Yahoo! in 2013.",
+      "images": [
+        "Estacion_Altavista_03.jpg",
+        "Estacion_Altavista_01.jpg",
+        "Altavista_Chalchihuites_Zacatecas_panoramio.jpg",
+        "Altavista_Chalchihuites_Zacatecas_panoramio.jpg"
+      ],
+      "text": "AltaVista launched on December 15 1995, emerging from Digital Equipment Corporation researchers who wanted to showcase their hardware by making the growing public network searchable. Paul Flaherty conceived the idea, Louis Monier built the fast multi‑threaded crawler named Scooter, and Michael Burrows created the TurboVista index that delivered the first full‑text, Boolean searchable web index. The service attracted 300,000 hits on its opening day and surged to more than 80 million daily queries by 1997, cementing its place among the era’s most visited sites. In 1996 AltaVista became Yahoo’s exclusive search provider, and in 1997 it added Babel Fish, a web‑based translation tool. After Compaq bought DEC in January 1998, AltaVista was transferred to the new owner, which later spun the engine off and began redesigning it as a portal in early 1999 under CEO Rod Schrock. The site expanded into mail, finance, and dial‑up access, and a $120 million marketing push featured television ads with Pamela Anderson. By 2000 Media Metrix showed AltaVista serving 17.7 percent of Internet users, but Google’s rising algorithms soon eclipsed it, leading to its acquisition by Overture in February 2003 and the eventual redirection of its domain to Yahoo Search in June 2013.",
+      "cueText": "AltaVista launched on December 15 1995, emerging from",
+      "source": "https://en.wikipedia.org/wiki/AltaVista"
+    },
+    {
+      "id": "google-reader",
+      "title": "Google’s RSS aggregator that was shut down in 2013 despite a loyal user base.",
+      "images": [
+        "Google_Reader_Chinese_2861195992_.jpg"
+      ],
+      "text": "Google Reader, the RSS and Atom feed aggregator launched by Google on 7 October 2005, was announced for discontinuation on 13 March 2013. Google explained that the service had a loyal but declining following and that the company wanted to concentrate on fewer products, giving users until 1 July 2013 to export their data via Google Takeout. The news sparked an immediate wave of protest. Within 48 hours, Feedly reported more than 500,000 new registrations, and over the next two weeks the platform added three million users. NewsBlur’s subscriber count jumped from roughly 1,500 to over 60,000. Digg responded by promising a replacement, rebuilding its API and adding features that leveraged social‑network recommendations. Petitions on Change.org gathered over 100,000 signatures demanding the service be kept alive. Developers and enthusiasts launched work‑alike alternatives, most notably “The Old Reader.” The swift migration of millions of users to competing services underscored the power of community‑driven tools when a beloved platform disappears.",
+      "cueText": "Google Reader, the RSS and Atom feed aggregator",
+      "source": "https://en.wikipedia.org/wiki/Google_Reader"
+    },
+    {
+      "id": "orkut",
+      "title": "Google’s social network that was popular in Brazil and India before closing in 2014.",
+      "images": [
+        "Hello_Orkut_B_y_kk_kten_2015.jpg",
+        "Foto_Orkut_II.jpg",
+        "Apar_ncia_visual_do_novo_orkut_.png",
+        "Evangelista_engenheiro_do_Orkut_2575862901_.jpg"
+      ],
+      "text": "Orkut, the Google‑owned social network created by Turkish engineer Orkut Büyükkökten, launched quietly on January 22 2004 and quickly became a gathering place for friends and strangers alike. By 2008 the site ranked among the most visited webpages in India and Brazil, prompting Google to place full operational control of the service in Brazil’s Belo Horizonte to address the massive local user base and emerging legal concerns. The platform’s early features let members rate friends as “Trustworthy,” “Cool,” or “Sexy,” add anyone to a “Crush List,” and view any public profile unless blocked, fostering a sense of open community that resonated especially in those two countries. A redesign in August 2007 introduced softer colors, round corners, and new language support for Hindi, Bengali, Marathi, Tamil, Kannada and Telugu, while a theming engine launched in June 2008 allowed users in Brazil and India to personalize their pages with vibrant skins. As competitors like Facebook and MySpace grew, Google announced on June 30 2014 that Orkut would shut down on September 30 2014, halted new registrations in July, and offered users a final chance to download their data via Google Takeout. The closure marked the end of a beloved, community‑centric era for its millions of fans.",
+      "cueText": "Orkut, the Google‑owned social network created by Turkish",
+      "source": "https://en.wikipedia.org/wiki/Orkut"
+    },
+    {
+      "id": "outro",
+      "title": "Closing",
+      "images": [
+        "Hello_Orkut_B_y_kk_kten_2015.jpg",
+        "Foto_Orkut_II.jpg"
+      ],
+      "text": "Each platform once mapped a new corner of the web, offering a glimpse of what digital life could become. Their architectures were built on optimism, their codebases grew with eager communities, and their shutdowns left empty spaces where innovation had thrummed. When the social network faded, the search engine vanished, the RSS reader was silenced, and the micro‑blogging service disappeared, the collective memory of early internet ambition dimmed. Yet those vanished services still echo in the features of today’s apps, reminding us that every dead line traces a path forward.",
+      "cueText": "Each platform once mapped a new corner of"
+    }
+  ],
+  "attribution": [
+    {
+      "file": "Bebo Sher razor.JPG",
+      "license": "CC BY-SA 4.0",
+      "author": "Illustratedjc",
+      "source": "https://commons.wikimedia.org/wiki/File:Bebo_Sher_razor.JPG"
+    },
+    {
+      "file": "Bebo Sher Typ 014 Verpackung 01.jpg",
+      "license": "CC BY-SA 4.0",
+      "author": "Robin The Nagel",
+      "source": "https://commons.wikimedia.org/wiki/File:Bebo_Sher_Typ_014_Verpackung_01.jpg"
+    },
+    {
+      "file": "Bebo Music Zone3 Festivalfotografie Open Beatz.jpg",
+      "license": "CC BY-SA 4.0",
+      "author": "Wayne 1313",
+      "source": "https://commons.wikimedia.org/wiki/File:Bebo_Music_Zone3_Festivalfotografie_Open_Beatz.jpg"
+    },
+    {
+      "file": "Eventfoto Bebo Music Foto Zone3 Open Beatz.jpg",
+      "license": "CC BY-SA 4.0",
+      "author": "Wayne 1313",
+      "source": "https://commons.wikimedia.org/wiki/File:Eventfoto_Bebo_Music_Foto_Zone3_Open_Beatz.jpg"
+    },
+    {
+      "file": "Estacion Altavista 03.JPG",
+      "license": "CC BY-SA 3.0",
+      "author": "GAED",
+      "source": "https://commons.wikimedia.org/wiki/File:Estacion_Altavista_03.JPG"
+    },
+    {
+      "file": "Estacion Altavista 01.JPG",
+      "license": "CC BY-SA 3.0",
+      "author": "GAED",
+      "source": "https://commons.wikimedia.org/wiki/File:Estacion_Altavista_01.JPG"
+    },
+    {
+      "file": "Altavista, Chalchihuites Zacatecas - panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "author": "panza.rayada",
+      "source": "https://commons.wikimedia.org/wiki/File:Altavista,_Chalchihuites_Zacatecas_-_panoramio.jpg"
+    },
+    {
+      "file": "Altavista, Chalchihuites, Zacatecas - panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "author": "panza.rayada",
+      "source": "https://commons.wikimedia.org/wiki/File:Altavista,_Chalchihuites,_Zacatecas_-_panoramio.jpg"
+    },
+    {
+      "file": "Google Reader Chinese (2861195992).jpg",
+      "license": "CC0",
+      "author": "cogdogblog",
+      "source": "https://commons.wikimedia.org/wiki/File:Google_Reader_Chinese_(2861195992).jpg"
+    },
+    {
+      "file": "Hello Orkut Büyükkökten 2015.jpg",
+      "license": "CC BY-SA 4.0",
+      "author": "Mark Schierbecker",
+      "source": "https://commons.wikimedia.org/wiki/File:Hello_Orkut_B%C3%BCy%C3%BCkk%C3%B6kten_2015.jpg"
+    },
+    {
+      "file": "Foto Orkut II.JPG",
+      "license": "Public domain",
+      "author": "aggerminiani, it's just a picture",
+      "source": "https://commons.wikimedia.org/wiki/File:Foto_Orkut_II.JPG"
+    },
+    {
+      "file": "Aparência visual do 'novo orkut'.png",
+      "license": "CC BY-SA 2.5",
+      "author": "MisterSanderson",
+      "source": "https://commons.wikimedia.org/wiki/File:Apar%C3%AAncia_visual_do_%27novo_orkut%27.png"
+    },
+    {
+      "file": "Evangelista engenheiro do Orkut (2575862901).jpg",
+      "license": "CC BY-SA 2.0",
+      "author": "Wagner Tamanaha from Sao Paulo, Brazil",
+      "source": "https://commons.wikimedia.org/wiki/File:Evangelista_engenheiro_do_Orkut_(2575862901).jpg"
+    }
+  ],
+  "sources": [
+    {
+      "id": "bebo",
+      "article": "Bebo",
+      "url": "https://en.wikipedia.org/wiki/Bebo"
+    },
+    {
+      "id": "altavista",
+      "article": "AltaVista",
+      "url": "https://en.wikipedia.org/wiki/AltaVista"
+    },
+    {
+      "id": "google-reader",
+      "article": "Google Reader",
+      "url": "https://en.wikipedia.org/wiki/Google_Reader"
+    },
+    {
+      "id": "orkut",
+      "article": "Orkut",
+      "url": "https://en.wikipedia.org/wiki/Orkut"
+    }
+  ]
+}

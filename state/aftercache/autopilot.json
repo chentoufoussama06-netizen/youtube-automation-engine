@@ -1,8 +1,40 @@
 {
-  "longform": {},
+  "longform": {
+    "every-major-online-service-that-shut": {
+      "videoId": "sTQXfM4oqNc",
+      "url": "https://www.youtube.com/watch?v=sTQXfM4oqNc",
+      "title": "Every Major Online Service That Shut Down After Decline",
+      "uploadedAt": "2026-10-08T15:03:35.959Z",
+      "thumbnail": false
+    }
+  },
   "failures": {
     "build:dead-games": 2,
     "build:vanished-websites": 2
   },
-  "history": []
+  "history": [
+    {
+      "at": "2026-10-08T14:53:57.948Z",
+      "event": "planned",
+      "id": "every-major-online-service-that-shut",
+      "title": "Every Major Online Service That Shut Down After Decline"
+    },
+    {
+      "at": "2026-10-08T14:55:16.387Z",
+      "event": "built",
+      "id": "every-major-online-service-that-shut"
+    },
+    {
+      "at": "2026-10-08T14:56:15.821Z",
+      "event": "short",
+      "id": "doc-bebo",
+      "url": "https://www.youtube.com/watch?v=7k_Ly3uVONA"
+    },
+    {
+      "at": "2026-10-08T15:03:37.930Z",
+      "event": "longform",
+      "id": "every-major-online-service-that-shut",
+      "url": "https://www.youtube.com/watch?v=sTQXfM4oqNc"
+    }
+  ]
 }
