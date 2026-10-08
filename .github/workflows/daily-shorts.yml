@@ -38,6 +38,7 @@ concurrency:
 
 permissions:
   contents: write
+  issues: write        # the limit alert opens an issue, which GitHub emails to the owner
 
 jobs:
   autopilot:
@@ -70,8 +71,21 @@ jobs:
           YT_TOKENS: ${{ secrets.YT_TOKENS }}
           YT_TOKENS_AFTERCACHE: ${{ secrets.YT_TOKENS_AFTERCACHE }}
           YT_TOKENS_CLIPS: ${{ secrets.YT_TOKENS_CLIPS }}
+          # A fresh AI key goes in its own secret (Settings -> Secrets ->
+          # Actions) and replaces the one inside ENV_FILE; blank = keep ENV_FILE's.
+          NEW_GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NEW_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEW_MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: |
           printf '%s\n' "$ENV_FILE" > .env
+          for name in GROQ_API_KEY GEMINI_API_KEY MISTRAL_API_KEY; do
+            value="$(printenv "NEW_$name" || true)"
+            if [ -n "$value" ]; then
+              sed -i "/^$name=/d" .env
+              printf '%s=%s\n' "$name" "$value" >> .env
+              echo "using the $name secret"
+            fi
+          done
           mkdir -p config
           echo "$YT_CREDENTIALS" | base64 -d > config/credentials.json
           echo "$YT_TOKENS" | base64 -d > config/tokens.json
@@ -95,6 +109,53 @@ jobs:
             echo
             sed -n '/=== summary ===/,$p' autopilot.log | tail -n +2 | sed 's/^/- /'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # When a free AI tier runs out AND that cost the channels a post, open
+      # (or bump) an issue that @mentions the owner — GitHub emails it. Says
+      # which provider ran dry and exactly where the replacement key goes.
+      - name: Limit alert
+        if: always()
+        run: |
+          [ -f autopilot.log ] || exit 0
+          summary="$(sed -n '/=== summary ===/,$p' autopilot.log)"
+          lost="$(printf '%s\n' "$summary" | grep -E 'no story short|no short|not posted|crashed|upload failed' || true)"
+          hits=""
+          grep -E '\[AITextService\].*Gemini.*(429|quota|RESOURCE_EXHAUSTED)' autopilot.log >/dev/null && hits="$hits gemini"
+          grep -E '\[AITextService\].*Groq.*(429|rate.?limit|tokens per day|TPD|quota)' autopilot.log >/dev/null && hits="$hits groq"
+          grep -E '\[AITextService\].*Mistral.*(429|quota)' autopilot.log >/dev/null && hits="$hits mistral"
+          if [ -z "$hits" ] || [ -z "$lost" ]; then echo "no limit problem today"; exit 0; fi
+
+          body="$(mktemp)"
+          {
+            echo "@${{ github.repository_owner }} the autopilot hit a free AI limit on $(date -u +%F) and lost posts because of it."
+            echo
+            echo "**Ran out:**$hits"
+            echo
+            echo "**What it could not post:**"
+            printf '%s\n' "$lost" | sed 's/^/- /'
+            echo
+            echo "**Fix (2 minutes):** make a new free key and paste it as a repository secret:"
+            echo "${{ github.server_url }}/${{ github.repository }}/settings/secrets/actions/new"
+            for p in $hits; do
+              case "$p" in
+                groq)    echo "- Groq → https://console.groq.com/keys → secret name \`GROQ_API_KEY\`" ;;
+                gemini)  echo "- Gemini → https://aistudio.google.com/apikey → secret name \`GEMINI_API_KEY\`" ;;
+                mistral) echo "- Mistral → https://console.mistral.ai/api-keys → secret name \`MISTRAL_API_KEY\`" ;;
+              esac
+            done
+            echo
+            echo "If the secret already exists, open it and press **Update**. The next run picks it up by itself."
+            echo
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > "$body"
+
+          title="AI limit hit — make a new key"
+          open="$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number' || true)"
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --body-file "$body"
+          else
+            gh issue create --title "$title" --body-file "$body"
+          fi
 
       - name: Update WHOP OS brain
         if: always()
