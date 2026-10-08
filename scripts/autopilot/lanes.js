@@ -12,42 +12,59 @@
  * Reddit-over-gameplay replacement got 0 views on all six of its uploads.
  */
 
+// Tuned to Football Files' own numbers (2026-10-08, 61 videos). Everything
+// that broke 1,000 views was a 30-50s short whose title STATED a shocking
+// fact about a death, collapse or disaster ("A football legend collapses
+// mid-match and dies that same night." 1,278 views, 59% retention); the
+// best retention of all was a twist ("Ten days after scoring an own goal,
+// he was murdered." 95%). The 2-minute stories, news reposts and long-form
+// never did. So: famous names, dark turns, ~60-80 seconds, fact-led titles.
+const DARK_FOOTBALL_STORY = {
+  examples: [
+    'A football legend collapses mid-match and dies that same night.  (1,278 views, 59% watched)',
+    'Ten days after scoring an own goal, he was murdered.  (95% watched)',
+    'A referee is assassinated after a controversial match.  (1,221 views)',
+    'When Balotelli Completely Lost His Mind 😭🔥  (another channel: 4.4M)',
+    'The Man Who DESTROYED the Galácticos 💀  (another channel: 1.1M)'
+  ],
+  scope: 'About a FAMOUS footballer, manager, club or national team that casual fans\n'
+    + '  worldwide know, at a DARK or shocking turn: a death, collapse, crime, scandal,\n'
+    + '  disaster, meltdown, betrayal, a career destroyed overnight, karma.\n'
+    + '- One specific episode. The title states the shocking fact or twist itself in\n'
+    + '  plain words (like the first three examples), optionally ending with one emoji.',
+  captionExample: 'Mario Balotelli',
+  tags: ['football', 'football story', 'football tragedy'],
+  words: { min: 140, target: 175, max: 220 }
+};
+
+// All lanes share one Google project's 10,000 units/day (a short ~1,700), so
+// order is priority: a lane that runs out of quota loses its posts, not others'.
 const LANES = [
+  {
+    // An unused 49-subscriber channel connected 2026-10-08. Football Files'
+    // distribution collapsed in September (median views 767 -> 3) while the
+    // format kept winning, so the proven shorts go to a clean channel first.
+    name: 'Football Stories',
+    dataRoot: 'state/football2',
+    tokens: 'tokens.football2.json',
+    categoryId: '17',             // Sports
+    voice: 'en-US-BrianNeural',
+    storyShortsPerDay: 2,
+    docShortsPerDay: 0,
+    story: DARK_FOOTBALL_STORY
+  },
   {
     name: 'Football Files',
     dataRoot: 'state/football',
     tokens: 'tokens.json',
     categoryId: '17',             // Sports
     voice: 'en-US-BrianNeural',
-    // Two ~2:40 famous-player story shorts a day (story-short.js) — the shape
-    // of GOATED90, the fastest-growing young channel in this niche. The
-    // compilation pipeline stays for long-form and watch hours.
-    storyShortsPerDay: 2,
+    // One story short a day while the channel is throttled; the quota it
+    // freed goes to Football Stories. The compilation pipeline stays for
+    // long-form and watch hours.
+    storyShortsPerDay: 1,
     docShortsPerDay: 0,
-    // Tuned to this channel's own numbers (2026-10-08, 61 videos). Everything
-    // that broke 1,000 views was a 30-50s short whose title STATED a shocking
-    // fact about a death, collapse or disaster ("A football legend collapses
-    // mid-match and dies that same night." 1,278 views, 59% retention); the
-    // best retention of all was a twist ("Ten days after scoring an own goal,
-    // he was murdered." 95%). The 2-minute stories, news reposts and long-form
-    // never did. So: famous names, dark turns, ~60-80 seconds, fact-led titles.
-    story: {
-      examples: [
-        'A football legend collapses mid-match and dies that same night.  (this channel: 1,278 views, 59% watched)',
-        'Ten days after scoring an own goal, he was murdered.  (this channel: 95% watched)',
-        'A referee is assassinated after a controversial match.  (this channel: 1,221 views)',
-        'When Balotelli Completely Lost His Mind 😭🔥  (another channel: 4.4M)',
-        'The Man Who DESTROYED the Galácticos 💀  (another channel: 1.1M)'
-      ],
-      scope: 'About a FAMOUS footballer, manager, club or national team that casual fans\n'
-        + '  worldwide know, at a DARK or shocking turn: a death, collapse, crime, scandal,\n'
-        + '  disaster, meltdown, betrayal, a career destroyed overnight, karma.\n'
-        + '- One specific episode. The title states the shocking fact or twist itself in\n'
-        + '  plain words (like the first three examples), optionally ending with one emoji.',
-      captionExample: 'Mario Balotelli',
-      tags: ['football', 'football story', 'football tragedy'],
-      words: { min: 140, target: 175, max: 220 }
-    },
+    story: DARK_FOOTBALL_STORY,
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
       + 'disappearances, crimes, cursed careers, collapses and rise-and-fall stories '
       + 'of real footballers, managers, clubs, referees and matches, from any country and era.',

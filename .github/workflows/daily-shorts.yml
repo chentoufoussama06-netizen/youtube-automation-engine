@@ -13,6 +13,7 @@
 #   YT_TOKENS            config/tokens.json, base64            (Football Files)
 #   YT_TOKENS_AFTERCACHE config/tokens.aftercache.json, base64
 #   YT_TOKENS_CLIPS      config/tokens.clips.json, base64      (Viral Vault Clip)
+#   YT_TOKENS_FOOTBALL2  config/tokens.football2.json, base64  (second football channel)
 #
 # Compilation photographs live on the `refs` release (one tarball per set),
 # because .jpg is outside git.
@@ -71,6 +72,7 @@ jobs:
           YT_TOKENS: ${{ secrets.YT_TOKENS }}
           YT_TOKENS_AFTERCACHE: ${{ secrets.YT_TOKENS_AFTERCACHE }}
           YT_TOKENS_CLIPS: ${{ secrets.YT_TOKENS_CLIPS }}
+          YT_TOKENS_FOOTBALL2: ${{ secrets.YT_TOKENS_FOOTBALL2 }}
           # A fresh AI key goes in its own secret (Settings -> Secrets ->
           # Actions) and replaces the one inside ENV_FILE; blank = keep ENV_FILE's.
           NEW_GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
@@ -91,6 +93,7 @@ jobs:
           echo "$YT_TOKENS" | base64 -d > config/tokens.json
           echo "$YT_TOKENS_AFTERCACHE" | base64 -d > config/tokens.aftercache.json
           echo "$YT_TOKENS_CLIPS" | base64 -d > config/tokens.clips.json
+          echo "$YT_TOKENS_FOOTBALL2" | base64 -d > config/tokens.football2.json
 
       - name: Make and post
         run: |
