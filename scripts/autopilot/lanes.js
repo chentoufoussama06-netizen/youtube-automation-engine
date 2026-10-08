@@ -24,6 +24,30 @@ const LANES = [
     // compilation pipeline stays for long-form and watch hours.
     storyShortsPerDay: 2,
     docShortsPerDay: 0,
+    // Tuned to this channel's own numbers (2026-10-08, 61 videos). Everything
+    // that broke 1,000 views was a 30-50s short whose title STATED a shocking
+    // fact about a death, collapse or disaster ("A football legend collapses
+    // mid-match and dies that same night." 1,278 views, 59% retention); the
+    // best retention of all was a twist ("Ten days after scoring an own goal,
+    // he was murdered." 95%). The 2-minute stories, news reposts and long-form
+    // never did. So: famous names, dark turns, ~60-80 seconds, fact-led titles.
+    story: {
+      examples: [
+        'A football legend collapses mid-match and dies that same night.  (this channel: 1,278 views, 59% watched)',
+        'Ten days after scoring an own goal, he was murdered.  (this channel: 95% watched)',
+        'A referee is assassinated after a controversial match.  (this channel: 1,221 views)',
+        'When Balotelli Completely Lost His Mind 😭🔥  (another channel: 4.4M)',
+        'The Man Who DESTROYED the Galácticos 💀  (another channel: 1.1M)'
+      ],
+      scope: 'About a FAMOUS footballer, manager, club or national team that casual fans\n'
+        + '  worldwide know, at a DARK or shocking turn: a death, collapse, crime, scandal,\n'
+        + '  disaster, meltdown, betrayal, a career destroyed overnight, karma.\n'
+        + '- One specific episode. The title states the shocking fact or twist itself in\n'
+        + '  plain words (like the first three examples), optionally ending with one emoji.',
+      captionExample: 'Mario Balotelli',
+      tags: ['football', 'football story', 'football tragedy'],
+      words: { min: 140, target: 175, max: 220 }
+    },
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
       + 'disappearances, crimes, cursed careers, collapses and rise-and-fall stories '
       + 'of real footballers, managers, clubs, referees and matches, from any country and era.',

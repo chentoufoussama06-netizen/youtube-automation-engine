@@ -34,7 +34,8 @@ const { LANES } = require('./lanes');
 const ROOT = path.join(__dirname, '..', '..');
 const logger = new Logger('StoryShort');
 
-const WORDS = { min: 250, target: 360, max: 420 };   // ~1:50-2:55 at Edge TTS pace
+// ~1:50-2:55 at Edge TTS pace; a lane can set its own via story.words.
+const DEFAULT_WORDS = { min: 250, target: 360, max: 420 };
 const SECONDS_PER_IMAGE = 6;
 
 const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -189,7 +190,7 @@ function writerAI() {
   return writer;
 }
 
-async function narrate(ai, story, brief, writer = writerAI()) {
+async function narrate(ai, story, brief, writer = writerAI(), WORDS = DEFAULT_WORDS) {
   const base = `Write the narration for a ${WORDS.target}-word YouTube Short about ${story.subject}.
 The episode: ${story.moment}
 
@@ -292,7 +293,7 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
       const found = await archival.gatherForTopic([subject], { must: [subject], bonus: [] }, { perQuery: 30, total: 10 }).catch(() => []);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
-      const text = await narrate(ai, { ...story, subject }, brief, writer);
+      const text = await narrate(ai, { ...story, subject }, brief, writer, lane.story?.words || DEFAULT_WORDS);
       if (!text) { logger.info(`skip ${subject}: no clean narration`); continue; }
 
       const title = String(story.title).replace(/\s+/g, ' ').trim().slice(0, 80);
