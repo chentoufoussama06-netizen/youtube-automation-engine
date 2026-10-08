@@ -80,7 +80,25 @@ function parseJson(raw) {
   return JSON.parse(text.slice(start, end + 1));
 }
 
-async function propose(ai, lane, avoid, rejected) {
+async function propose(ai, lane, avoid, rejected, keepTitle = null, have = []) {
+  // A short set is topped up rather than thrown away: three verified stories
+  // under one title are worth more than starting a fourth title from zero.
+  if (keepTitle) {
+    const prompt = `The YouTube channel "${lane.name}" (${lane.niche}) is making a documentary
+compilation titled "${keepTitle}". It already has these verified stories:
+${have.map((h) => `- ${h}`).join('\n')}
+
+Propose ${WANT_SEGMENTS} MORE real stories that belong in exactly that title, each with
+its own detailed English Wikipedia article.
+Do not repeat the ones above or any of these: ${[...avoid.slice(-60), ...rejected].join('; ')}
+
+Return ONLY JSON: {"title": "${keepTitle}", "segments": [
+  {"article": "exact English Wikipedia title", "subject": "caption name, no parentheses",
+   "topic": "one-line description", "angle": "one sentence", "context": ["year", "company or place"]}
+]}`;
+    return parseJson(await ai.generateText(prompt, { maxTokens: 6000, temperature: 0.8 }));
+  }
+
   const prompt = `You plan videos for the YouTube channel "${lane.name}".
 Niche: ${lane.niche}
 
@@ -148,21 +166,29 @@ async function plan(laneName, { dryRun = false } = {}) {
   const research = new ResearchService();
   const cover = await coverage(lane);
   const rejected = [];
+  // Verified stories carry over between attempts under the same title, and a
+  // set that reached two is topped up instead of being discarded (AFTER CACHE
+  // verified 2, 3 and 2 stories across three fresh titles and got nothing).
+  let held = null;   // { title, hook, thumb, kept }
 
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 1; attempt <= 5; attempt++) {
     let proposal;
     try {
-      proposal = await propose(ai, lane, cover.avoid, rejected);
+      proposal = held
+        ? { ...(await propose(ai, lane, cover.avoid, rejected, held.title, held.kept.map((k) => k.brief.title))), title: held.title, hook: held.hook, thumb: held.thumb }
+        : await propose(ai, lane, cover.avoid, rejected);
     } catch (error) {
       logger.warn(`attempt ${attempt}: ${error.message}`);
       continue;
     }
-    logger.info(`attempt ${attempt}: "${proposal.title}" with ${(proposal.segments || []).length} stories`);
+    logger.info(`attempt ${attempt}: "${proposal.title}" with ${(proposal.segments || []).length} ${held ? 'more ' : ''}stories`);
 
-    const kept = [];
+    const kept = held ? [...held.kept] : [];
     for (const seg of proposal.segments || []) {
+      if (kept.length >= WANT_SEGMENTS) break;
       const subject = String(seg.subject || seg.article || '').replace(/\([^)]*\)/g, '').trim();
       if (!seg.article || !subject) continue;
+      if (kept.some((k) => fold(k.brief.title) === fold(seg.article) || fold(k.subject) === fold(subject))) continue;
       if (cover.subjects.has(fold(subject))) {
         logger.info(`  skip "${subject}": already covered`);
         continue;
@@ -195,7 +221,13 @@ async function plan(laneName, { dryRun = false } = {}) {
     }
 
     if (kept.length < MIN_SEGMENTS) {
-      logger.warn(`attempt ${attempt}: only ${kept.length} verified stories; re-planning`);
+      if (kept.length >= 2) {
+        held = { title: proposal.title, hook: proposal.hook, thumb: proposal.thumb, kept };
+        logger.warn(`attempt ${attempt}: ${kept.length} verified stories; topping up "${proposal.title}"`);
+      } else {
+        held = null;
+        logger.warn(`attempt ${attempt}: only ${kept.length} verified stories; re-planning`);
+      }
       continue;
     }
 

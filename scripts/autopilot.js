@@ -343,6 +343,17 @@ async function main() {
     log(`=== ${lane.name} ===`);
     const st = stateOf(lane);
     st.history = st.history.slice(-200);
+
+    // Self-heal: a publish that failed silently left a finished short private
+    // (Messi, 2026-10-07). Anything this autopilot uploaded that is still
+    // private gets published before today's work.
+    const stuck = Object.entries(ledgerOf(lane))
+      .filter(([id, v]) => /^(story|doc)-/.test(id) && v.privacyStatus === 'private')
+      .map(([id]) => id);
+    if (stuck.length && !DRY) {
+      log(`${lane.name}: publishing ${stuck.length} short(s) left private: ${stuck.join(', ')}`);
+      run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', ...stuck], 10);
+    }
     for (let i = 0; i < (lane.storyShortsPerDay ?? 0); i++) {
       try {
         summary.push(await postStoryShort(lane, st));
