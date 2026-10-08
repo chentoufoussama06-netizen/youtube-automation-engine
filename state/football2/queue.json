@@ -1,0 +1,32 @@
+{
+  "topics": [
+    {
+      "id": "story-gary-speed-the-former-wales",
+      "topic": "The former Wales manager took his own life at his home in November 2011, shocking the football world.",
+      "keywords": [
+        "Gary Speed",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Gary Speed’s Tragic Suicide Shocks Football 🤯💀",
+      "article": "Gary Speed",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-emiliano-sala-the-23-year-old",
+      "topic": "The 23‑year‑old striker died when the private plane carrying him to Cardiff crashed over the English Channel in January 2019.",
+      "keywords": [
+        "Emiliano Sala",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Emiliano Sala Killed in Plane Crash 💀🤯",
+      "article": "Emiliano Sala",
+      "categoryId": "17"
+    }
+  ]
+}
