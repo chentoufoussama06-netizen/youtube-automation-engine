@@ -241,6 +241,18 @@
       "status": "short",
       "sourceCompilation": "every-major-online-service-that-shut",
       "sourceSegment": "bebo"
+    },
+    {
+      "id": "doc-altavista",
+      "topic": "One of the first popular web search engines, retired by Yahoo! in 2013.",
+      "keywords": [
+        "AltaVista",
+        "1995",
+        "AltaVista"
+      ],
+      "status": "short",
+      "sourceCompilation": "every-major-online-service-that-shut",
+      "sourceSegment": "altavista"
     }
   ]
 }

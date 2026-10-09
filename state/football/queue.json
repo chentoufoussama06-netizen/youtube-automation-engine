@@ -1032,6 +1032,34 @@
       "shortTitle": "Roberto Baggio’s World Cup Penalty Miss Curses Him 🤯😭",
       "article": "Roberto Baggio",
       "categoryId": "17"
+    },
+    {
+      "id": "story-manchester-united-in-1958-the-muni",
+      "topic": "In 1958, the Munich air disaster claimed the lives of eight United players, decimating the team.",
+      "keywords": [
+        "Manchester United",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Munich Air Disaster Wipes Out United Stars 💀😭",
+      "article": "Manchester United F.C.",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-portsmouth-fc-in-2012-the-club",
+      "topic": "In 2012 the club entered administration, leading to a massive points deduction and relegation.",
+      "keywords": [
+        "Portsmouth FC",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Portsmouth FC Plummets Into Administration 😭💀",
+      "article": "Portsmouth F.C.",
+      "categoryId": "17"
     }
   ]
 }
