@@ -253,6 +253,18 @@
       "status": "short",
       "sourceCompilation": "every-major-online-service-that-shut",
       "sourceSegment": "altavista"
+    },
+    {
+      "id": "doc-google-reader",
+      "topic": "Google’s RSS aggregator that was shut down in 2013 despite a loyal user base.",
+      "keywords": [
+        "Google Reader",
+        "2005",
+        "Google Reader"
+      ],
+      "status": "short",
+      "sourceCompilation": "every-major-online-service-that-shut",
+      "sourceSegment": "google-reader"
     }
   ]
 }
