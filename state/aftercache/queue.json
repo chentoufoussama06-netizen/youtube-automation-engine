@@ -265,6 +265,18 @@
       "status": "short",
       "sourceCompilation": "every-major-online-service-that-shut",
       "sourceSegment": "google-reader"
+    },
+    {
+      "id": "doc-orkut",
+      "topic": "Google’s social network that was popular in Brazil and India before closing in 2014.",
+      "keywords": [
+        "Orkut",
+        "2004",
+        "Orkut"
+      ],
+      "status": "short",
+      "sourceCompilation": "every-major-online-service-that-shut",
+      "sourceSegment": "orkut"
     }
   ]
 }

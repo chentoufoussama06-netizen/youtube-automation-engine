@@ -1074,6 +1074,34 @@
       "shortTitle": "Gary Speed Takes His Own Life 😭💀",
       "article": "Gary Speed",
       "categoryId": "17"
+    },
+    {
+      "id": "story-fc-barcelona-in-2020-the-club",
+      "topic": "In 2020 the club's financial crisis forced the departure of Lionel Messi after 21 years.",
+      "keywords": [
+        "FC Barcelona",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "FC Barcelona Forced Messi Out in 2020 💀",
+      "article": "FC Barcelona",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-neymar-in-2019-neymar-w",
+      "topic": "In 2019, Neymar was accused of raping a Brazilian woman; the case was later dismissed, but the allegation dominated headlines.",
+      "keywords": [
+        "Neymar",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Neymar Accused of Rape – Career in Turmoil 💀😳",
+      "article": "Neymar",
+      "categoryId": "17"
     }
   ]
 }
