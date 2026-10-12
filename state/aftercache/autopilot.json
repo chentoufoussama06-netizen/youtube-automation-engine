@@ -10,7 +10,11 @@
   },
   "failures": {
     "build:dead-games": 2,
-    "build:vanished-websites": 2
+    "build:vanished-websites": 2,
+    "short:virtual-boy": 1,
+    "short:3do": 1,
+    "short:atari-jaguar": 1,
+    "long:every-gaming-console-discontinued-in": 1
   },
   "history": [
     {
@@ -53,6 +57,17 @@
       "event": "short",
       "id": "doc-orkut",
       "url": "https://www.youtube.com/watch?v=nHqRZ7JuWGo"
+    },
+    {
+      "at": "2026-10-12T16:55:42.418Z",
+      "event": "planned",
+      "id": "every-gaming-console-discontinued-in",
+      "title": "Every Gaming Console Discontinued in Under Five Years"
+    },
+    {
+      "at": "2026-10-12T16:56:46.210Z",
+      "event": "built",
+      "id": "every-gaming-console-discontinued-in"
     }
   ]
 }

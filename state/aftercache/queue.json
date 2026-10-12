@@ -277,6 +277,111 @@
       "status": "short",
       "sourceCompilation": "every-major-online-service-that-shut",
       "sourceSegment": "orkut"
+    },
+    {
+      "id": "virtual-boy",
+      "topic": "Nintendo's 1995 3‑D handheld that lasted less than a year.",
+      "angle": "Its uncomfortable design and lack of games doomed it almost immediately.",
+      "keywords": [
+        "Virtual Boy",
+        "1995‑1996",
+        "Nintendo"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Virtual Boy",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "3do",
+      "topic": "A high‑priced multimedia console that vanished after three years.",
+      "angle": "Even with big names behind it, the steep price kept consumers away.",
+      "keywords": [
+        "3DO",
+        "1993‑1996",
+        "The 3DO Company"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "3DO",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "atari-jaguar",
+      "topic": "Atari's 1993 64‑bit console that failed to revive the brand.",
+      "angle": "Promised power but delivered poor software support and sales.",
+      "keywords": [
+        "Atari Jaguar",
+        "1993‑1996",
+        "Atari Corporation"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Atari Jaguar",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "gizmondo",
+      "topic": "The 2005 UK‑made handheld that folded after scandal and poor sales.",
+      "angle": "Legal troubles for its founders sealed its short lifespan.",
+      "keywords": [
+        "Gizmondo",
+        "2005‑2006",
+        "Tiger Telematics"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Gizmondo",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "ouya",
+      "topic": "Crowdfunded Android TV box that shut down two years after launch.",
+      "angle": "Initial hype couldn’t overcome a weak game library and competition.",
+      "keywords": [
+        "Ouya",
+        "2013‑2015",
+        "Ouya Inc."
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Ouya",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "wii-u",
+      "topic": "Nintendo's 2012 console that lasted just five years before being replaced.",
+      "angle": "Confusing branding and a weak launch lineup led to its early demise.",
+      "keywords": [
+        "Wii U",
+        "2012‑2017",
+        "Nintendo"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Wii U",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "philips-cd-i",
+      "topic": "A multimedia player/console that disappeared after about six years.",
+      "angle": "High cost, limited games, and an unfocused market vision doomed it quickly.",
+      "keywords": [
+        "Philips CD-i",
+        "1991‑1998",
+        "Philips"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "CD-i",
+      "plannedBy": "autopilot"
     }
   ]
 }
