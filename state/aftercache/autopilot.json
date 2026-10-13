@@ -11,10 +11,10 @@
   "failures": {
     "build:dead-games": 2,
     "build:vanished-websites": 2,
-    "short:virtual-boy": 1,
-    "short:3do": 1,
-    "short:atari-jaguar": 1,
-    "long:every-gaming-console-discontinued-in": 1
+    "short:virtual-boy": 2,
+    "short:3do": 2,
+    "short:atari-jaguar": 2,
+    "long:every-gaming-console-discontinued-in": 2
   },
   "history": [
     {
