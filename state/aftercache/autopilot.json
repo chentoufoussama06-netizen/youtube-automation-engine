@@ -14,7 +14,10 @@
     "short:virtual-boy": 2,
     "short:3do": 2,
     "short:atari-jaguar": 2,
-    "long:every-gaming-console-discontinued-in": 2
+    "long:every-gaming-console-discontinued-in": 2,
+    "short:gizmondo": 1,
+    "short:ouya": 1,
+    "short:wii-u": 1
   },
   "history": [
     {
