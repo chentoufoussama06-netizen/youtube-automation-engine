@@ -382,6 +382,66 @@
       "voice": "en-US-BrianNeural",
       "article": "CD-i",
       "plannedBy": "autopilot"
+    },
+    {
+      "id": "fable-legends",
+      "topic": "Lionhead’s ambitious multiplayer RPG that was cancelled in 2016 while in open beta.",
+      "angle": "A highly anticipated title that never left the testing stage despite active testers.",
+      "keywords": [
+        "Fable Legends",
+        "2012‑2016",
+        "Lionhead Studios"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Fable Legends",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "mafia-wars",
+      "topic": "Zynga’s Facebook hit that was retired in 2016 while thousands still played daily.",
+      "angle": "A social‑media phenomenon that was pulled despite ongoing engagement.",
+      "keywords": [
+        "Mafia Wars",
+        "2008‑2016",
+        "Zynga"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Mafia Wars",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "the-matrix-online",
+      "topic": "An MMORPG that continued the story of the film series but was discontinued while a core group of fans kept playing.",
+      "angle": "Licensing costs and dwindling subscriptions forced the publisher to pull the plug despite ongoing in‑game events.",
+      "keywords": [
+        "The Matrix Online",
+        "2005‑2009",
+        "Monolith Productions / Sony Online Entertainment"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "The Matrix Online",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "age-of-empires-online",
+      "topic": "Microsoft’s online spin‑off of the classic RTS, discontinued in 2014 with a loyal player base.",
+      "angle": "Looks at how the transition to free‑to‑play and server costs forced its shutdown.",
+      "keywords": [
+        "Age of Empires Online",
+        "2014",
+        "Microsoft"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Age of Empires Online",
+      "plannedBy": "autopilot"
     }
   ]
 }

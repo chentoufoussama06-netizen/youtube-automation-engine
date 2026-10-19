@@ -18,7 +18,8 @@
     "short:gizmondo": 2,
     "short:ouya": 2,
     "short:wii-u": 2,
-    "short:philips-cd-i": 2
+    "short:philips-cd-i": 2,
+    "build:every-online-game-shut-down-while": 1
   },
   "history": [
     {
@@ -72,6 +73,12 @@
       "at": "2026-10-12T16:56:46.210Z",
       "event": "built",
       "id": "every-gaming-console-discontinued-in"
+    },
+    {
+      "at": "2026-10-19T14:53:32.426Z",
+      "event": "planned",
+      "id": "every-online-game-shut-down-while",
+      "title": "Every Online Game Shut Down While Players Were Still Active"
     }
   ]
 }
