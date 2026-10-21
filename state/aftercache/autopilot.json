@@ -19,7 +19,8 @@
     "short:ouya": 2,
     "short:wii-u": 2,
     "short:philips-cd-i": 2,
-    "build:every-online-game-shut-down-while": 2
+    "build:every-online-game-shut-down-while": 2,
+    "build:every-major-social-platform-that-was": 1
   },
   "history": [
     {
@@ -79,6 +80,12 @@
       "event": "planned",
       "id": "every-online-game-shut-down-while",
       "title": "Every Online Game Shut Down While Players Were Still Active"
+    },
+    {
+      "at": "2026-10-21T13:06:03.535Z",
+      "event": "planned",
+      "id": "every-major-social-platform-that-was",
+      "title": "Every Major Social Platform That Was Shut Down After 2010"
     }
   ]
 }

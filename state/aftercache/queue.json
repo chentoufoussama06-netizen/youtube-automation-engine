@@ -442,6 +442,66 @@
       "voice": "en-US-BrianNeural",
       "article": "Age of Empires Online",
       "plannedBy": "autopilot"
+    },
+    {
+      "id": "google-buzz",
+      "topic": "Google’s first social networking attempt, shut down in 2011",
+      "angle": "A privacy‑laden launch that forced Google to retreat and later settle with regulators.",
+      "keywords": [
+        "Google Buzz",
+        "2010",
+        "Google"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Google Buzz",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "google-allo",
+      "topic": "Messaging app that aimed to replace Hangouts, discontinued in 2019",
+      "angle": "Promised AI‑powered features but never gained lasting traction.",
+      "keywords": [
+        "Google Allo",
+        "2016",
+        "Google"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Google Allo",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "yahoo-groups",
+      "topic": "Long‑standing discussion‑group service, finally shut down in 2020",
+      "angle": "A relic of early internet community building that outlived many newer rivals.",
+      "keywords": [
+        "Yahoo! Groups",
+        "1998",
+        "Yahoo!"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Yahoo Groups",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "google-talk",
+      "topic": "Instant‑messaging service discontinued in 2017",
+      "angle": "One of the first major XMPP‑based chat clients that was eclipsed by newer Google products.",
+      "keywords": [
+        "Google Talk",
+        "2005",
+        "Google"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Google Talk",
+      "plannedBy": "autopilot"
     }
   ]
 }

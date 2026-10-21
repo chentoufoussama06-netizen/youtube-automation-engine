@@ -1,0 +1,22 @@
+{
+  "google-talk": {
+    "files": [
+      "Google_Talk_on_BlackBerry.jpg",
+      "Google_talk_logo.png"
+    ],
+    "credits": [
+      {
+        "file": "Google Talk on BlackBerry.jpg",
+        "license": "CC BY 2.0",
+        "author": "Unknown",
+        "source": "https://commons.wikimedia.org/wiki/File:Google_Talk_on_BlackBerry.jpg"
+      },
+      {
+        "file": "Google talk logo.png",
+        "license": "Public domain",
+        "author": "Google",
+        "source": "https://commons.wikimedia.org/wiki/File:Google_talk_logo.png"
+      }
+    ]
+  }
+}
