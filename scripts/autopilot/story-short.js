@@ -304,6 +304,11 @@ emojis, no stage directions. ${WORDS.min}-${WORDS.max} words. Return only the na
   return null;
 }
 
+// Subjects any lane picked in this process. Every lane sees the same trending
+// list, and on 2026-10-22 AFTER CACHE and Viral Vault Clip both chose
+// Elizabeth Holmes; one channel per subject per day.
+const takenThisRun = new Set();
+
 async function makeStoryShort(laneName, { dryRun = false } = {}) {
   const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
   if (!lane) throw new Error(`no lane "${laneName}"`);
@@ -334,7 +339,7 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
     }
     for (const story of stories) {
       const subject = String(story.subject || '').replace(/\([^)]*\)/g, '').trim();
-      if (!story.article || !subject || recent.has(fold(subject))) continue;
+      if (!story.article || !subject || recent.has(fold(subject)) || takenThisRun.has(fold(subject))) continue;
       if (done.some((d) => fold(d.moment) === fold(story.moment))) continue;
 
       const full = await research.buildBriefFromArticle(story.article, { maxChars: 150000 }).catch(() => null);
@@ -352,9 +357,11 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
       let seen = false;
       const title = String(story.title)
         .replace(/\p{Extended_Pictographic}️?/gu, (e) => (seen ? '' : ((seen = true), e)))
+        .replace(/[‐-‒]/g, '-')   // non-breaking hyphens, as in the narration
         .replace(/\s+/g, ' ').trim().slice(0, 80);
       let id = `story-${slug(subject, 20)}-${slug(story.moment, 16)}`;
       while (ledger[id]) id += 'x';
+      takenThisRun.add(fold(subject));
       logger.success(`${id}: "${title}" — ${words(text)} words`);
       if (dryRun) return { id, title, text, subject, article: brief.title, photos: found.length };
 

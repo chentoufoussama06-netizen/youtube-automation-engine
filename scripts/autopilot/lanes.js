@@ -34,7 +34,7 @@ const DARK_FOOTBALL_STORY = {
     + '  plain words (like the first three examples), optionally ending with one emoji.',
   captionExample: 'Mario Balotelli',
   tags: ['football', 'football story', 'football tragedy'],
-  words: { min: 75, target: 100, max: 120 }    // ~30-50s at Edge TTS pace
+  words: { min: 75, target: 100, max: 135 }    // ~30-55s at Edge TTS pace
 };
 
 // All lanes share one Google project's 10,000 units/day (a short ~1,700), so
@@ -72,9 +72,9 @@ const LANES = [
         + '  (like the examples), optionally ending with one emoji.',
       captionExample: 'Hannibal',
       tags: ['ancient history', 'roman empire', 'history'],
-      // The 950K/695K battle shorts above run ~20s: 22-35s here (check-video
+      // The 950K/695K battle shorts above run ~20s: 22-38s here (check-video
       // rejects anything under 20s).
-      words: { min: 55, target: 70, max: 85 }
+      words: { min: 55, target: 70, max: 95 }
     }
   },
   {
@@ -126,7 +126,7 @@ const LANES = [
         + '- One specific episode with a clear arc and a payoff. The title states the twist plainly.',
       captionExample: 'Atari Jaguar',
       tags: ['tech history', 'lost media', 'internet history'],
-      words: { min: 75, target: 95, max: 110 }    // ~30-45s
+      words: { min: 75, target: 95, max: 125 }    // ~30-50s
     },
     niche: 'Digital investigations: lost media, shut-down online games, vanished websites, '
       + 'deleted platforms, failed consoles and gadgets, internet mysteries, hacks and leaks, '
@@ -168,7 +168,7 @@ const LANES = [
         + '- One specific episode with a clear arc and a twist ending the viewer will not see coming.',
       captionExample: 'Hiroo Onoda',
       tags: ['true story', 'history', 'unbelievable'],
-      words: { min: 75, target: 95, max: 110 }    // ~30-45s
+      words: { min: 75, target: 95, max: 125 }    // ~30-50s
     }
   }
 ];
