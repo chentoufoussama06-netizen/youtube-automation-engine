@@ -292,13 +292,18 @@ async function postLongform(lane, st) {
   const days = (Date.now() - last) / 86400000;
   if (days < LONGFORM_GAP_DAYS) return `${lane.name}: long-form resting (${days.toFixed(1)}d since the last)`;
 
-  const comp = built(lane).find((id) => !st.longform[id] && (st.failures[`long:${id}`] || 0) < MAX_FAILURES);
-  if (!comp) return `${lane.name}: no long-form ready`;
+  // A compilation whose photo set never fully restored used to block every
+  // later one ("waiting for its photos" from 2026-10-09 on); skip past it.
+  const hasPhotos = (id) => {
+    const d = readJson(base(lane, 'scripts', `longform_${id}.json`), { sections: [] });
+    const dir = base(lane, 'reference', `${id}-archival`);
+    return d.sections.every((s) => (s.images || []).every((f) => fs.existsSync(path.join(dir, f))));
+  };
+  const ready = built(lane).filter((id) => !st.longform[id] && (st.failures[`long:${id}`] || 0) < MAX_FAILURES);
+  if (!ready.length) return `${lane.name}: no long-form ready`;
+  const comp = ready.find(hasPhotos);
+  if (!comp) return `${lane.name}: long-form ${ready.join(', ')} waiting for photos`;
   const doc = readJson(base(lane, 'scripts', `longform_${comp}.json`), { sections: [] });
-  const imgs = base(lane, 'reference', `${comp}-archival`);
-  if (!doc.sections.every((s) => (s.images || []).every((f) => fs.existsSync(path.join(imgs, f))))) {
-    return `${lane.name}: long-form ${comp} waiting for its photos`;
-  }
   log(`${lane.name}: long-form ${comp} — "${doc.title}"`);
   if (DRY) return `${lane.name}: would post long-form ${comp} "${doc.title}"`;
 

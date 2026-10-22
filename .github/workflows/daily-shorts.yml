@@ -160,9 +160,46 @@ jobs:
             gh issue create --title "$title" --body-file "$body"
           fi
 
-      - name: Update WHOP OS brain
-        if: always()
-        run: node scripts/youtube/push-brain.js || true
+      # The daily check. A run can finish green while posting nothing (the
+      # Edge TTS 403 did exactly that for ten days from 2026-10-12), so every
+      # channel that got no new public video today is named in an issue that
+      # @mentions the owner — GitHub emails it. A day where every channel posts
+      # closes the issue again.
+      - name: Daily check
+        # Skipped for dry runs and single-channel test runs.
+        if: always() && github.event.inputs.dry_run != 'true' && !github.event.inputs.lane
+        run: |
+          title="Channels did not post today"
+          summary=""
+          [ -f autopilot.log ] && summary="$(sed -n '/=== summary ===/,$p' autopilot.log | tail -n +2)"
+          channels="$(node -e "console.log(require('./scripts/autopilot/lanes').LANES.map(l=>l.name).join('\n'))")"
+          missing=""
+          while IFS= read -r ch; do
+            [ -n "$ch" ] || continue
+            printf '%s\n' "$summary" | grep -F "$ch:" | grep -q ' public https' || missing="$missing$ch"$'\n'
+          done <<< "$channels"
+          open="$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number' || true)"
+
+          if [ -z "$missing" ]; then
+            echo "every channel posted today"
+            [ -n "$open" ] && gh issue close "$open" --comment "All channels posted on $(date -u +%F). Closing."
+            exit 0
+          fi
+
+          body="$(mktemp)"
+          {
+            echo "@${{ github.repository_owner }} $(date -u +%F): these channels got **no new video** today:"
+            echo
+            printf '%s' "$missing" | sed 's/^/- **/; s/$/**/'
+            echo
+            echo "**What the run said:**"
+            echo '```'
+            if [ -n "$summary" ]; then printf '%s\n' "$summary"; else echo "(the run crashed before it reached the summary)"; fi
+            echo '```'
+            echo
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > "$body"
+          if [ -n "$open" ]; then gh issue comment "$open" --body-file "$body"; else gh issue create --title "$title" --body-file "$body"; fi
 
       - name: Save state
         if: always()

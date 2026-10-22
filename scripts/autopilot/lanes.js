@@ -7,9 +7,9 @@
  * it. What differs is the niche the planner is told to stay inside and the
  * titles it is shown as the shape that wins there.
  *
- * Viral Vault Clip is deliberately absent. Its format is third-party stream
- * footage, which is what throttled Football Files in September, and the
- * Reddit-over-gameplay replacement got 0 views on all six of its uploads.
+ * 2026-10-22: every lane now runs story shorts, short and punchy (20-50s),
+ * with plain fact-led titles (at most one emoji). Each lane has its own voice
+ * and caption colour so the four channels do not read as one template.
  */
 
 // Tuned to Football Files' own numbers (2026-10-08, 61 videos). Everything
@@ -18,14 +18,14 @@
 // mid-match and dies that same night." 1,278 views, 59% retention); the
 // best retention of all was a twist ("Ten days after scoring an own goal,
 // he was murdered." 95%). The 2-minute stories, news reposts and long-form
-// never did. So: famous names, dark turns, ~60-80 seconds, fact-led titles.
+// never did. So: famous names, dark turns, 30-50 seconds, fact-led titles.
 const DARK_FOOTBALL_STORY = {
   examples: [
     'A football legend collapses mid-match and dies that same night.  (1,278 views, 59% watched)',
     'Ten days after scoring an own goal, he was murdered.  (95% watched)',
     'A referee is assassinated after a controversial match.  (1,221 views)',
-    'When Balotelli Completely Lost His Mind 😭🔥  (another channel: 4.4M)',
-    'The Man Who DESTROYED the Galácticos 💀  (another channel: 1.1M)'
+    'When Balotelli Completely Lost His Mind  (another channel: 4.4M)',
+    'The Man Who DESTROYED the Galácticos  (another channel: 1.1M)'
   ],
   scope: 'About a FAMOUS footballer, manager, club or national team that casual fans\n'
     + '  worldwide know, at a DARK or shocking turn: a death, collapse, crime, scandal,\n'
@@ -34,7 +34,7 @@ const DARK_FOOTBALL_STORY = {
     + '  plain words (like the first three examples), optionally ending with one emoji.',
   captionExample: 'Mario Balotelli',
   tags: ['football', 'football story', 'football tragedy'],
-  words: { min: 140, target: 175, max: 220 }
+  words: { min: 75, target: 100, max: 120 }    // ~30-50s at Edge TTS pace
 };
 
 // All lanes share one Google project's 10,000 units/day (a short ~1,700), so
@@ -53,6 +53,7 @@ const LANES = [
     tokens: 'tokens.football2.json',
     categoryId: '27',             // Education
     voice: 'en-GB-RyanNeural',
+    captionHighlight: '&H0033CCFF&',   // gold
     storyShortsPerDay: 1,
     docShortsPerDay: 0,
     story: {
@@ -61,7 +62,7 @@ const LANES = [
         'The Battle of Cannae, 216 BCE.  (same channel: 695K)',
         'What Did People in Ancient Rome Actually Do All Day?  (45-day-old channel: 2.1M)',
         'The Library of Alexandria is Weirder Than You Think  (3-month-old channel: 2.1M)',
-        'The Emperor Who Made His Horse a Senator 💀'
+        'The Emperor Who Made His Horse a Senator'
       ],
       scope: 'A REAL, documented episode from the ancient world (Rome, Greece, Egypt, Carthage,\n'
         + '  Persia, the Bronze Age, Mesopotamia, the Celts and Germanic tribes) that a casual\n'
@@ -71,7 +72,9 @@ const LANES = [
         + '  (like the examples), optionally ending with one emoji.',
       captionExample: 'Hannibal',
       tags: ['ancient history', 'roman empire', 'history'],
-      words: { min: 110, target: 135, max: 165 }
+      // The 950K/695K battle shorts above run ~20s: 22-35s here (check-video
+      // rejects anything under 20s).
+      words: { min: 55, target: 70, max: 85 }
     }
   },
   {
@@ -80,6 +83,7 @@ const LANES = [
     tokens: 'tokens.json',
     categoryId: '17',             // Sports
     voice: 'en-US-BrianNeural',
+    captionHighlight: '&H004040FF&',   // red
     // Two story shorts a day. The compilation pipeline stays for long-form
     // and watch hours.
     storyShortsPerDay: 2,
@@ -100,9 +104,30 @@ const LANES = [
     dataRoot: 'state/aftercache',
     tokens: 'tokens.aftercache.json',
     categoryId: '27',             // Education
-    voice: 'en-US-BrianNeural',
-    storyShortsPerDay: 0,
-    docShortsPerDay: 1,
+    voice: 'en-US-AndrewNeural',
+    captionHighlight: '&H00FFFF00&',   // cyan
+    // Story shorts, not segments cut from compilations: the compilation
+    // builder ran dry and failed renders, which left this channel with nothing
+    // from 2026-10-12. Long-form still posts when a compilation is ready.
+    storyShortsPerDay: 1,
+    docShortsPerDay: 0,
+    story: {
+      examples: [
+        'The Website That Vanished Overnight',
+        'The Online Game That Shut Down While People Were Still Playing',
+        'The Console That Destroyed Its Own Company',
+        'How 1 YouTube Glitch Changed Lost Media Forever  (150K on a 1.8K-subscriber channel)',
+        'The Hack That Took Down an Entire Platform'
+      ],
+      scope: 'A REAL, documented episode from tech and internet history that casual viewers\n'
+        + '  half-remember: a website or app that died, an online game shut down, a console or\n'
+        + '  gadget that flopped and sank its maker, a famous hack or leak, a lost-media mystery,\n'
+        + '  a tech company\'s collapse.\n'
+        + '- One specific episode with a clear arc and a payoff. The title states the twist plainly.',
+      captionExample: 'Atari Jaguar',
+      tags: ['tech history', 'lost media', 'internet history'],
+      words: { min: 75, target: 95, max: 110 }    // ~30-45s
+    },
     niche: 'Digital investigations: lost media, shut-down online games, vanished websites, '
       + 'deleted platforms, failed consoles and gadgets, internet mysteries, hacks and leaks, '
       + 'and the companies and people behind them.',
@@ -126,22 +151,24 @@ const LANES = [
     tokens: 'tokens.clips.json',
     categoryId: '27',             // Education
     voice: 'en-US-ChristopherNeural',
+    captionHighlight: '&H0000FF80&',   // green
     storyShortsPerDay: 1,
     docShortsPerDay: 0,
     story: {
       examples: [
-        '3 War Stories That Really Happened 😳  (3.1M, 38-day-old channel)',
-        'He Jumped Into a Volcano to Prove He Was God 💀  (1.3M)',
-        '3 Creepy Real-Life Miracles That Will Give You Chills 😨  (1.9M)',
-        'The Soldier Who Kept Fighting 29 Years After the War Ended 🤯',
-        'He Survived Both Atomic Bombs 😳'
+        'This War Story Really Happened  (format: 3.1M, 38-day-old channel)',
+        'He Jumped Into a Volcano to Prove He Was God  (1.3M)',
+        'A Real-Life Miracle That Will Give You Chills  (format: 1.9M)',
+        'The Soldier Who Kept Fighting 29 Years After the War Ended',
+        'He Survived Both Atomic Bombs'
       ],
       scope: 'A REAL, documented event or person so unbelievable it sounds made up:\n'
         + '  war stories, impossible survivals, bizarre history, disasters, mysteries,\n'
         + '  heists, escapes, strange deaths, accidental discoveries. Any era, any country.\n'
-        + '- One specific episode with a clear arc and a payoff the viewer will not see coming.',
+        + '- One specific episode with a clear arc and a twist ending the viewer will not see coming.',
       captionExample: 'Hiroo Onoda',
-      tags: ['true story', 'history', 'unbelievable']
+      tags: ['true story', 'history', 'unbelievable'],
+      words: { min: 75, target: 95, max: 110 }    // ~30-45s
     }
   }
 ];

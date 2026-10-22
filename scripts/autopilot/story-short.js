@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * A ~2:40 story short about a famous player's most dramatic moment.
+ * A 20-50s story short about one dramatic, documented moment (each lane's
+ * story.words sets the length).
  *
  *   node scripts/autopilot/story-short.js "Football Files"            # make one
  *   node scripts/autopilot/story-short.js "Football Files" --dry-run  # pick + write, render nothing
@@ -24,6 +25,7 @@ require('dotenv').config();
 const fs = require('fs');
 const fsp = fs.promises;
 const path = require('path');
+const axios = require('axios');
 const { AITextService } = require('../../utils/ai-text-service');
 const { ResearchService } = require('../../utils/research-service');
 const { ArchivalImageService } = require('../../utils/archival-images');
@@ -36,7 +38,8 @@ const logger = new Logger('StoryShort');
 
 // ~1:50-2:55 at Edge TTS pace; a lane can set its own via story.words.
 const DEFAULT_WORDS = { min: 250, target: 360, max: 420 };
-const SECONDS_PER_IMAGE = 6;
+// A cut every ~3.5s: at 20-50s, 6s holds left a short with four slow stills.
+const SECONDS_PER_IMAGE = 3.5;
 
 const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const slug = (s, max = 30) => fold(s).replace(/\([^)]*\)/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, max).replace(/-$/, '');
@@ -72,20 +75,49 @@ const DEFAULT_STORY = {
   tags: ['football', 'football story']
 };
 
-async function propose(ai, lane, avoid) {
+/**
+ * What the world looked up on Wikipedia yesterday — the cheapest honest signal
+ * of what people care about today. A story about a name people are already
+ * searching gets pushed by search and the Shorts feed's freshness; a 1995
+ * Cantona story competes with everything. Never fatal: [] on any failure.
+ */
+async function trending(limit = 150) {
+  const d = new Date(Date.now() - 86400000);
+  const ymd = `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${String(d.getUTCDate()).padStart(2, '0')}`;
+  try {
+    const { data: json } = await axios.get(`https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${ymd}`, {
+      headers: { 'User-Agent': 'youtube-automation-engine/1.0 (autopilot trending check)' },
+      timeout: 15000
+    });
+    return (json.items?.[0]?.articles || [])
+      .map((a) => a.article.replace(/_/g, ' '))
+      .filter((t) => !/^(Main Page|Special:|Wikipedia:|Portal:|File:|Help:|Talk:|Category:|Template:|Deaths in |List of |\d{4} in )/.test(t))
+      .slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
+async function propose(ai, lane, avoid, hot = []) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
 The format that is winning right now (titles and views from young channels):
 ${story.examples.map((e) => `- ${e}`).join('\n')}
-
+${hot.length ? `
+TRENDING — yesterday's most-read English Wikipedia articles, i.e. what people are
+searching for right now. If any of these fits this channel's scope (a person,
+club, event or thing it would cover), make your FIRST proposals about them:
+${hot.join(' | ')}
+` : ''}
 Propose 10 stories like these. Rules:
 - ${story.scope}
 - It must be documented in that subject's English Wikipedia article.
 - "article": the EXACT English Wikipedia article title of the person, event or thing.
 - "subject": the name a photo caption would use (e.g. "${story.captionExample}"), no parentheses.
 - "moment": one sentence naming the episode, with its year.
-- "title": under 55 characters, curiosity gap, ends with 1-2 of these emojis 😭🔥💀🤯🥶😳.
+- "title": under 55 characters, states the shocking fact or twist in plain words,
+  curiosity gap. Usually NO emoji; at most ONE, and only where it truly fits.
   Capitalise like the examples. Never promise something the article cannot back.
 - Do NOT reuse anything already posted:
 ${avoid.map((t) => `  - ${t}`).join('\n') || '  (nothing yet)'}
@@ -288,11 +320,14 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
     ...Object.entries(ledger).filter(([id]) => !id.startsWith('reddit-')).map(([, v]) => String(v.title || '').replace(/\s*#Shorts$/i, ''))].slice(-120);
   // Same subject at most once a fortnight, so the feed is not one player.
   const recent = new Set(done.filter((d) => Date.now() - Date.parse(d.at) < 14 * 86400000).map((d) => fold(d.subject)));
+  const hot = await trending();
+  if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
 
   for (let round = 1; round <= 2; round++) {
     let stories;
     try {
-      stories = await propose(ai, lane, avoid);
+      // Round 2 drops the trending list, in case it pulled round 1 off-scope.
+      stories = await propose(ai, lane, avoid, round === 1 ? hot : []);
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
@@ -313,7 +348,11 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
       const text = await narrate(ai, { ...story, subject }, brief, writer, lane.story?.words || DEFAULT_WORDS);
       if (!text) { logger.info(`skip ${subject}: no clean narration`); continue; }
 
-      const title = String(story.title).replace(/\s+/g, ' ').trim().slice(0, 80);
+      // The model still stacks emojis ("😳💀") despite the rule; keep the first.
+      let seen = false;
+      const title = String(story.title)
+        .replace(/\p{Extended_Pictographic}️?/gu, (e) => (seen ? '' : ((seen = true), e)))
+        .replace(/\s+/g, ' ').trim().slice(0, 80);
       let id = `story-${slug(subject, 20)}-${slug(story.moment, 16)}`;
       while (ledger[id]) id += 'x';
       logger.success(`${id}: "${title}" — ${words(text)} words`);
@@ -332,11 +371,13 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
       const narration = await factory.narrateWithTiming(text, lane.voice, audio);
       const seconds = await factory.probeDuration(audio);
       if (seconds > 178) { logger.warn(`${id}: ${seconds.toFixed(0)}s is over the 3-minute Shorts limit`); continue; }
+      if (seconds < 20.5) { logger.warn(`${id}: ${seconds.toFixed(0)}s is under the 20s quality gate`); continue; }
 
       const captions = path.join(dirs.captions, `${id}_short.ass`);
       // Captions never wrap (WrapStyle 2), so three long words ran off the frame
       // ("CONSULTED HIS ASSISTANT"); two words at 84px stays inside 1080px.
-      await fsp.writeFile(captions, factory.buildCaptions(narration.words, { wordsPerChunk: 2, fontSize: 84 }));
+      await fsp.writeFile(captions, factory.buildCaptions(narration.words,
+        { wordsPerChunk: 2, fontSize: 84, ...(lane.captionHighlight ? { highlightColor: lane.captionHighlight } : {}) }));
 
       const count = Math.max(saved.length, Math.ceil(seconds / SECONDS_PER_IMAGE));
       const per = seconds / count;
@@ -377,4 +418,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, unsupportedSentences };
+module.exports = { makeStoryShort, unsupportedSentences, trending };
