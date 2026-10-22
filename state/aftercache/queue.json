@@ -502,6 +502,93 @@
       "voice": "en-US-BrianNeural",
       "article": "Google Talk",
       "plannedBy": "autopilot"
+    },
+    {
+      "id": "suprnova",
+      "topic": "A popular torrent index that closed voluntarily after legal pressure.",
+      "angle": "Its shutdown marked one of the first major voluntary closures of a torrent hub.",
+      "keywords": [
+        "Suprnova",
+        "2005‑2008",
+        "Internet"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Suprnova.org",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "rapidshare",
+      "topic": "A once‑dominant file‑hosting service that closed after years of legal battles.",
+      "angle": "Its closure signaled the end of the era of free file‑hosting for the masses.",
+      "keywords": [
+        "RapidShare",
+        "2002‑2015",
+        "Internet"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "RapidShare",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "kickasstorrents",
+      "topic": "A leading torrent site that went offline after a US seizure of its domain.",
+      "angle": "The raid on KAT became a landmark moment in the fight against online piracy.",
+      "keywords": [
+        "KickassTorrents",
+        "2008‑2016",
+        "Internet"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "KickassTorrents",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "megaupload",
+      "topic": "A massive file‑sharing platform shut down by US authorities in 2012.",
+      "angle": "Its takedown was one of the biggest ever coordinated actions against a digital service.",
+      "keywords": [
+        "Megaupload",
+        "2005‑2012",
+        "Internet"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Megaupload",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "napster",
+      "topic": "The pioneering music‑sharing network that was forced to cease operations after a series of lawsuits.",
+      "angle": "Napster’s collapse sparked the modern debate over digital music distribution and copyright.",
+      "keywords": [
+        "Napster",
+        "1999‑2001",
+        "United States"
+      ],
+      "status": "held",
+      "attempts": 0,
+      "voice": "en-US-BrianNeural",
+      "article": "Napster",
+      "plannedBy": "autopilot"
+    },
+    {
+      "id": "doc-rapidshare",
+      "topic": "A once‑dominant file‑hosting service that closed after years of legal battles.",
+      "keywords": [
+        "RapidShare",
+        "2002‑2015",
+        "Internet"
+      ],
+      "status": "short",
+      "sourceCompilation": "every-file-sharing-site-that-shut-down",
+      "sourceSegment": "rapidshare"
     }
   ]
 }

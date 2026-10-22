@@ -1,0 +1,131 @@
+{
+  "title": "Every File‑Sharing Site That Shut Down After Legal Action",
+  "angle": "All of these services vanished because courts and governments forced them offline.",
+  "keywords": [
+    "RapidShare",
+    "2002‑2015",
+    "Internet",
+    "KickassTorrents",
+    "2008‑2016",
+    "Megaupload",
+    "2005‑2012",
+    "Napster",
+    "1999‑2001",
+    "United States"
+  ],
+  "sections": [
+    {
+      "id": "cold-open",
+      "title": "Every File‑Sharing Site That Shut Down After Legal Action",
+      "images": [
+        "Baar_Rapidshare_Hauptsitz.jpg"
+      ],
+      "text": "In 2002 RapidShare launched as an online file‑hosting service, and by 2009 it ranked among the Internet’s 20 most visited sites, boasting ten petabytes of user‑uploaded data and the capacity to serve three million users at once. Over the next decade legal battles and the 2012 takedown of a rival forced the platform to abandon its free, mass‑sharing model in favor of a subscription‑only cloud service, a shift that precipitated a rapid decline. By March 2015 the once‑dominant host shut down, leaving only a single support employee on the payroll. This pattern of rise and forced closure echoes across three other notorious platforms: a leading torrent site whose domain was seized in a U.S. raid, a massive file‑sharing network dismantled by coordinated authorities in 2012, and a pioneering music‑sharing network collapsed after a cascade of lawsuits. Each story illustrates how legal pressure reshaped the landscape of digital file distribution.",
+      "cueText": "In 2002 RapidShare launched as an online file‑hosting"
+    },
+    {
+      "id": "rapidshare",
+      "title": "A once‑dominant file‑hosting service that closed after years of legal battles.",
+      "images": [
+        "Baar_Rapidshare_Hauptsitz.jpg"
+      ],
+      "text": "RapidShare opened in 2002 as a modest file‑hosting service founded by Christian Schmid in Mülheim, Germany, and by 2009 it ranked among the Internet’s 20 most visited sites, claiming ten petabytes of user‑uploaded files and the capacity to serve three million users simultaneously. The platform offered unique download URLs, allowing anyone with a link to retrieve a file, while forbidding public searches of its servers. After the 2012 takedown of Megaupload, lawsuits from copyright owners forced RapidShare to abandon its free, anonymous sharing model and pivot to a subscription‑only, B2B cloud‑storage service. The shift crippled its popularity; by 2014 its Alexa rank fell below 1,400 and staffing was slashed from sixty to a single support employee. In March 2014 the company announced a 150 % price increase for paid accounts and sharply limited free users’ speeds and capacities. On 10 February 2015 RapidShare posted a notice that it would cease operations permanently on 31 March 2015, and on that date the homepage displayed the final announcement, marking the end of the era of free mass file‑hosting.",
+      "cueText": "RapidShare opened in 2002 as a modest file‑hosting",
+      "source": "https://en.wikipedia.org/wiki/RapidShare"
+    },
+    {
+      "id": "kickasstorrents",
+      "title": "A leading torrent site that went offline after a US seizure of its domain.",
+      "images": [
+        "KickassTorrents_Domain_seizure.jpg"
+      ],
+      "text": "KickassTorrents vanished on 20 July 2016 when U.S. authorities seized its domain and its staff shut down the proxy servers. The site had begun as kickasstorrents.com in November 2008, then migrated to the Philippine domain kat.ph in April 2011 after earlier Justice Department seizures of Demonoid and Torrentz. Over the next five years KAT hopped across ka.tt, kickass.to, kickass.so, kickasstorrents.im and kat.cr, planning a new address roughly every six months to evade blocks. By November 2014 it topped the Alexa rankings, overtaking The Pirate Bay as the world’s most visited BitTorrent directory. Governments and rights groups repeatedly targeted it: a UK High Court order in February 2013 forced ISP blocking, Google delisted it in June 2013, Belgian ISPs blocked it in August 2013, Irish providers followed in January 2014, and Malaysia acted in June 2014. The site added an official .onion address in June 2016, but the raid came weeks later. When the seizure hit, the domain disappeared from the internet, and the network of mirrors and proxies was deliberately taken offline, cutting off access to the torrent index that had become a symbol of the ongoing battle between file‑sharing communities and copyright enforcement.",
+      "cueText": "KickassTorrents vanished on 20 July 2016 when U.S.",
+      "source": "https://en.wikipedia.org/wiki/KickassTorrents"
+    },
+    {
+      "id": "megaupload",
+      "title": "A massive file‑sharing platform shut down by US authorities in 2012.",
+      "images": [
+        "MegaUploadIndictment.jpg",
+        "MegaUpload_FBI_Banner.jpg"
+      ],
+      "text": "Megaupload’s downfall began on 19 January 2012 when the United States Department of Justice, acting through the Federal Bureau of Investigation, seized the site’s domain names and shut down its network of services. The operation coincided with the arrest and indictment of founder Kim Dotcom and several executives, who were accused of running a criminal enterprise dedicated to large‑scale copyright infringement. Within hours, Hong Kong’s Customs and Excise Department froze assets worth HK$330 million, roughly US$42 million, as authorities moved to dismantle the company’s financial base. The takedown triggered a cascade of denial‑of‑service attacks launched by the hacktivist collective Anonymous against U.S. government and copyright‑holder websites, underscoring the global shock of the coordinated raid. In the immediate aftermath, users scrambled to retrieve files from cached copies on Google and the Internet Archive, only to see those mirrors removed the following day to avoid legal liability. The abrupt closure marked one of the largest simultaneous actions against a digital platform, abruptly ending a service that had once hosted 12 billion unique files for over 100 million users.",
+      "cueText": "Megaupload’s downfall began on 19 January 2012 when",
+      "source": "https://en.wikipedia.org/wiki/Megaupload"
+    },
+    {
+      "id": "napster",
+      "title": "The pioneering music‑sharing network that was forced to cease operations after a series of lawsuits.",
+      "images": [
+        "Napster_Laser_1197204_.jpg"
+      ],
+      "text": "Napster, launched in June 1999 by Shawn Fanning and Sean Parker, introduced a user‑friendly Windows client that let college students swap MP3s across a centralized index. By December 1999 the service expanded to Mac users after Black Hole Media’s Macster was acquired and rebranded as Napster for the Mac. The platform’s popularity surged, and in February 2001 it peaked at 26.4 million users worldwide, with unofficial estimates reaching 80 million. That same month the company offered record labels a $1 billion settlement tied to a subscription relaunch, but the proposal was dismissed. Legal pressure mounted earlier; A&M Records and the RIAA sued in December 1999, and Metallica filed its own suit in April 2000 after a demo of “I Disappear” circulated on the network. In July 2000 U.S. District Judge Marilyn Hall Patel issued a preliminary injunction forcing Napster to block copyrighted files, a decision temporarily stayed by the Ninth Circuit. Napster appealed and petitioned for an en banc review, which the appeals court denied, cementing the injunction’s terms. In July 2001 the company settled the lawsuits from Metallica and Dr. Dre, paving the way for its shutdown later that month.",
+      "cueText": "Napster, launched in June 1999 by Shawn Fanning",
+      "source": "https://en.wikipedia.org/wiki/Napster"
+    },
+    {
+      "id": "outro",
+      "title": "Closing",
+      "images": [
+        "Napster_Laser_1197204_.jpg"
+      ],
+      "text": "Their rise and fall traced a single arc: innovators built services that sidestepped traditional distribution, users flooded them with content, and governments responded with lawsuits and seizures that stripped each platform of its core infrastructure. In every case, the legal pressure reshaped the ecosystem, pushing creators toward newer, more resilient models while leaving a permanent imprint on how digital media is regulated. The legacy of those vanished sites lives on in the safeguards and workarounds that define today’s online sharing landscape for future generations of digital archivists and scholars.",
+      "cueText": "Their rise and fall traced a single arc:"
+    }
+  ],
+  "attribution": [
+    {
+      "file": "Baar Rapidshare Hauptsitz.jpg",
+      "license": "CC BY-SA 3.0",
+      "author": "Schulerst",
+      "source": "https://commons.wikimedia.org/wiki/File:Baar_Rapidshare_Hauptsitz.jpg"
+    },
+    {
+      "file": "KickassTorrents Domain seizure.jpg",
+      "license": "Public domain",
+      "author": "Homeland Security Investigations, US Department of Justice, US Department of Treasury, International Organized Crime Intelligence &amp; Operations Center, National Intellectual Property Rights Coordination Center",
+      "source": "https://commons.wikimedia.org/wiki/File:KickassTorrents_Domain_seizure.jpg"
+    },
+    {
+      "file": "MegaUploadIndictment.jpg",
+      "license": "Public domain",
+      "author": "Unknown",
+      "source": "https://commons.wikimedia.org/wiki/File:MegaUploadIndictment.jpg"
+    },
+    {
+      "file": "MegaUpload FBI-Banner.jpg",
+      "license": "Public domain",
+      "author": "FBI Anti-Piracy",
+      "source": "https://commons.wikimedia.org/wiki/File:MegaUpload_FBI-Banner.jpg"
+    },
+    {
+      "file": "Napster Laser (1197204).jpg",
+      "license": "CC BY 2.0",
+      "author": "Steve Jurvetson from Los Altos, USA",
+      "source": "https://commons.wikimedia.org/wiki/File:Napster_Laser_(1197204).jpg"
+    }
+  ],
+  "sources": [
+    {
+      "id": "rapidshare",
+      "article": "RapidShare",
+      "url": "https://en.wikipedia.org/wiki/RapidShare"
+    },
+    {
+      "id": "kickasstorrents",
+      "article": "KickassTorrents",
+      "url": "https://en.wikipedia.org/wiki/KickassTorrents"
+    },
+    {
+      "id": "megaupload",
+      "article": "Megaupload",
+      "url": "https://en.wikipedia.org/wiki/Megaupload"
+    },
+    {
+      "id": "napster",
+      "article": "Napster",
+      "url": "https://en.wikipedia.org/wiki/Napster"
+    }
+  ]
+}

@@ -20,7 +20,8 @@
     "short:wii-u": 2,
     "short:philips-cd-i": 2,
     "build:every-online-game-shut-down-while": 2,
-    "build:every-major-social-platform-that-was": 2
+    "build:every-major-social-platform-that-was": 2,
+    "long:every-file-sharing-site-that-shut-down": 1
   },
   "history": [
     {
@@ -86,6 +87,23 @@
       "event": "planned",
       "id": "every-major-social-platform-that-was",
       "title": "Every Major Social Platform That Was Shut Down After 2010"
+    },
+    {
+      "at": "2026-10-22T15:01:43.652Z",
+      "event": "planned",
+      "id": "every-file-sharing-site-that-shut-down",
+      "title": "Every File‑Sharing Site That Shut Down After Legal Action"
+    },
+    {
+      "at": "2026-10-22T15:02:26.037Z",
+      "event": "built",
+      "id": "every-file-sharing-site-that-shut-down"
+    },
+    {
+      "at": "2026-10-22T15:07:42.725Z",
+      "event": "short",
+      "id": "doc-rapidshare",
+      "url": "https://www.youtube.com/watch?v=TpG5DunIwcM"
     }
   ]
 }

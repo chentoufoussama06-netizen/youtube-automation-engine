@@ -1,0 +1,61 @@
+{
+  "rapidshare": {
+    "files": [
+      "Baar_Rapidshare_Hauptsitz.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Baar Rapidshare Hauptsitz.jpg",
+        "license": "CC BY-SA 3.0",
+        "author": "Schulerst",
+        "source": "https://commons.wikimedia.org/wiki/File:Baar_Rapidshare_Hauptsitz.jpg"
+      }
+    ]
+  },
+  "kickasstorrents": {
+    "files": [
+      "KickassTorrents_Domain_seizure.jpg"
+    ],
+    "credits": [
+      {
+        "file": "KickassTorrents Domain seizure.jpg",
+        "license": "Public domain",
+        "author": "Homeland Security Investigations, US Department of Justice, US Department of Treasury, International Organized Crime Intelligence &amp; Operations Center, National Intellectual Property Rights Coordination Center",
+        "source": "https://commons.wikimedia.org/wiki/File:KickassTorrents_Domain_seizure.jpg"
+      }
+    ]
+  },
+  "megaupload": {
+    "files": [
+      "MegaUploadIndictment.jpg",
+      "MegaUpload_FBI_Banner.jpg"
+    ],
+    "credits": [
+      {
+        "file": "MegaUploadIndictment.jpg",
+        "license": "Public domain",
+        "author": "Unknown",
+        "source": "https://commons.wikimedia.org/wiki/File:MegaUploadIndictment.jpg"
+      },
+      {
+        "file": "MegaUpload FBI-Banner.jpg",
+        "license": "Public domain",
+        "author": "FBI Anti-Piracy",
+        "source": "https://commons.wikimedia.org/wiki/File:MegaUpload_FBI-Banner.jpg"
+      }
+    ]
+  },
+  "napster": {
+    "files": [
+      "Napster_Laser_1197204_.jpg"
+    ],
+    "credits": [
+      {
+        "file": "Napster Laser (1197204).jpg",
+        "license": "CC BY 2.0",
+        "author": "Steve Jurvetson from Los Altos, USA",
+        "source": "https://commons.wikimedia.org/wiki/File:Napster_Laser_(1197204).jpg"
+      }
+    ]
+  }
+}
