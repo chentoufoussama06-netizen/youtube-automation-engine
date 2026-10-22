@@ -302,7 +302,7 @@ Rules:
             await tts.setMetadata(voice, FORMAT, { wordBoundaryEnabled: true, sentenceBoundaryEnabled: false });
           } catch (error) {
             requested = false;
-            await tts.setMetadata(voice, FORMAT);
+            await tts.setMetadata(voice, FORMAT, {});
           }
 
           const { audioStream, metadataStream } = await withTimeout(tts.toStream(piece), 'Edge TTS connect');
