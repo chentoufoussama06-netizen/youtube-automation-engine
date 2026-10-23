@@ -6,6 +6,13 @@
       "title": "Every Football Team Destroyed By A Plane Crash",
       "uploadedAt": "2026-10-07T00:31:39.029Z",
       "thumbnail": true
+    },
+    "pitch-deaths": {
+      "videoId": "IXK8fm7db2Q",
+      "url": "https://www.youtube.com/watch?v=IXK8fm7db2Q",
+      "title": "Every Footballer Who Collapsed On The Pitch",
+      "uploadedAt": "2026-10-23T12:57:54.396Z",
+      "thumbnail": true
     }
   },
   "failures": {},
@@ -110,6 +117,24 @@
       "event": "story",
       "id": "story-eric-cantona-in-january-1995",
       "url": "https://www.youtube.com/watch?v=vV96BEkGM_c"
+    },
+    {
+      "at": "2026-10-23T12:49:31.297Z",
+      "event": "story",
+      "id": "story-grande-torino-on-4-may-1949-a",
+      "url": "https://www.youtube.com/watch?v=MKwOnvu5GNk"
+    },
+    {
+      "at": "2026-10-23T12:51:13.675Z",
+      "event": "story",
+      "id": "story-john-terry-in-2012-terry-wa",
+      "url": "https://www.youtube.com/watch?v=0EBCbUi7H8o"
+    },
+    {
+      "at": "2026-10-23T12:58:00.978Z",
+      "event": "longform",
+      "id": "pitch-deaths",
+      "url": "https://www.youtube.com/watch?v=IXK8fm7db2Q"
     }
   ]
 }

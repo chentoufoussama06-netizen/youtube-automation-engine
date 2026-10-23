@@ -589,6 +589,20 @@
       "status": "short",
       "sourceCompilation": "every-file-sharing-site-that-shut-down",
       "sourceSegment": "rapidshare"
+    },
+    {
+      "id": "story-theranos-in-2016-the-comp",
+      "topic": "In 2016 the company collapsed after a Wall Street Journal investigation exposed massive fraud.",
+      "keywords": [
+        "Theranos",
+        "tech history",
+        "lost media",
+        "internet history"
+      ],
+      "status": "short",
+      "shortTitle": "How Theranos’ Biggest Lie Crashed a $9 Billion Startup",
+      "article": "Theranos",
+      "categoryId": "27"
     }
   ]
 }

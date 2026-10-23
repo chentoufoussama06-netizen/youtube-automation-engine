@@ -1130,6 +1130,34 @@
       "shortTitle": "Eric Cantona’s Kung‑Fu Kick on Fan in 1995 😳🤯",
       "article": "Eric Cantona",
       "categoryId": "17"
+    },
+    {
+      "id": "story-grande-torino-on-4-may-1949-a",
+      "topic": "On 4 May 1949 a plane crashed into the Superga hill, killing the entire Torino football team known as the Grande Torino.",
+      "keywords": [
+        "Grande Torino",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Superga Crash Erases the Legendary Grande Torino",
+      "article": "Superga air disaster",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-john-terry-in-2012-terry-wa",
+      "topic": "In 2012, Terry was accused of racially abusing Anton Ferdinand; he was found guilty of using abusive language but cleared of racism.",
+      "keywords": [
+        "John Terry",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "John Terry found guilty of abusive language",
+      "article": "John Terry",
+      "categoryId": "17"
     }
   ]
 }
