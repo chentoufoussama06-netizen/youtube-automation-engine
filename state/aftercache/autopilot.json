@@ -21,7 +21,7 @@
     "short:philips-cd-i": 2,
     "build:every-online-game-shut-down-while": 2,
     "build:every-major-social-platform-that-was": 2,
-    "long:every-file-sharing-site-that-shut-down": 1
+    "long:every-file-sharing-site-that-shut-down": 2
   },
   "history": [
     {
@@ -110,6 +110,12 @@
       "event": "story",
       "id": "story-theranos-in-2016-the-comp",
       "url": "https://www.youtube.com/watch?v=kYUbGKlUs0g"
+    },
+    {
+      "at": "2026-10-24T12:11:12.360Z",
+      "event": "story",
+      "id": "story-vine-vine-launched-in",
+      "url": "https://www.youtube.com/watch?v=MPh9A2PcFks"
     }
   ]
 }
