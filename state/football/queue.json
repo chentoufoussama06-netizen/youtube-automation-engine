@@ -1158,6 +1158,20 @@
       "shortTitle": "John Terry found guilty of abusive language",
       "article": "John Terry",
       "categoryId": "17"
+    },
+    {
+      "id": "story-zinedine-zidane-in-the-2006-fifa",
+      "topic": "In the 2006 FIFA World Cup final, Zidane head‑butted Marco Materazzi and was sent off, ending his career on a violent note.",
+      "keywords": [
+        "Zinedine Zidane",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Zidane’s career ends with a World Cup head-butt",
+      "article": "Zinedine Zidane",
+      "categoryId": "17"
     }
   ]
 }
