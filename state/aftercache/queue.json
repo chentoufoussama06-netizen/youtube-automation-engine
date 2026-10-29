@@ -617,6 +617,20 @@
       "shortTitle": "Why the 6-Second Video App Vanished Overnight",
       "article": "Vine (service)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-facebook-in-2018-the-camb",
+      "topic": "In 2018 the Cambridge Analytica scandal exposed that data from millions of users had been harvested without consent.",
+      "keywords": [
+        "Facebook",
+        "tech history",
+        "lost media",
+        "internet history"
+      ],
+      "status": "short",
+      "shortTitle": "How a Data Scandal Crumbled Facebook’s Trust",
+      "article": "Facebook",
+      "categoryId": "27"
     }
   ]
 }
