@@ -51,6 +51,11 @@ jobs:
       AI_TEXT_PROVIDER: groq
       RESEARCH_WIKI_LANG: en
       GH_TOKEN: ${{ github.token }}
+      # Offline TTS fallback. When Edge's websocket refuses the runner's IP
+      # (the "finish green, post nothing" failure noted below), shorts-factory
+      # narrates with Piper from these instead, so the channels still post.
+      PIPER_BIN: ${{ github.workspace }}/.piper/piper/piper
+      PIPER_VOICES_DIR: ${{ github.workspace }}/data/piper-voices
     steps:
       - uses: actions/checkout@v4
 
@@ -64,6 +69,47 @@ jobs:
           npm ci --no-audit --no-fund
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core > /dev/null
           ffmpeg -version | head -1
+
+      # Piper binary + voice models (~250 MB). Cached so the download happens
+      # once, not every day. Bump the key suffix to force a refetch.
+      - name: Cache Piper
+        id: piper-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .piper
+            data/piper-voices
+          key: piper-v1-linux-x86_64
+
+      - name: Install Piper (offline TTS fallback)
+        if: steps.piper-cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          mkdir -p .piper data/piper-voices
+          echo "Downloading Piper binary..."
+          curl -sL https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz \
+            | tar -xz -C .piper
+          echo "Downloading voice models..."
+          base="https://huggingface.co/rhasspy/piper-voices/resolve/main/en"
+          dl() { curl -sL -o "data/piper-voices/$2" "$1?download=true"; }
+          dl "$base/en_US/ryan/high/en_US-ryan-high.onnx"        en_US-ryan-high.onnx
+          dl "$base/en_US/ryan/high/en_US-ryan-high.onnx.json"   en_US-ryan-high.onnx.json
+          dl "$base/en_GB/alan/medium/en_GB-alan-medium.onnx"      en_GB-alan-medium.onnx
+          dl "$base/en_GB/alan/medium/en_GB-alan-medium.onnx.json" en_GB-alan-medium.onnx.json
+          dl "$base/en_US/amy/medium/en_US-amy-medium.onnx"        en_US-amy-medium.onnx
+          dl "$base/en_US/amy/medium/en_US-amy-medium.onnx.json"   en_US-amy-medium.onnx.json
+
+      # Non-fatal self-check: prove the binary runs and a voice synthesises.
+      # If it fails the run still proceeds on Edge; the fallback just won't fire.
+      - name: Verify Piper
+        run: |
+          chmod +x "$PIPER_BIN" || true
+          ls -la data/piper-voices
+          if echo "Piper self check." | "$PIPER_BIN" --model data/piper-voices/en_US-ryan-high.onnx --output_file /tmp/piper-check.wav 2>/tmp/piper-err; then
+            echo "piper ok: $(stat -c%s /tmp/piper-check.wav) bytes"
+          else
+            echo "WARN piper self-check failed:"; cat /tmp/piper-err || true
+          fi
 
       - name: Credentials
         env:

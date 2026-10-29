@@ -329,17 +329,36 @@ Rules:
     };
 
     const pieces = splitForTts(text);
-    const audioParts = [];
+    let audioParts = [];
     const boundaries = [];
     let offset = 0;
+    let usedPiper = false;
 
-    for (const [i, piece] of pieces.entries()) {
-      const { audio, bounds } = await synthesize(piece, i, pieces.length);
-      audioParts.push(audio);
-      // Each chunk's offsets restart at zero, so later chunks are shifted by
-      // everything already spoken, or their captions would all stack at 0:00.
-      for (const b of bounds) boundaries.push({ word: b.word, start: b.start + offset, end: b.end + offset });
-      offset += bounds.length ? Math.max(...bounds.map((b) => b.end)) : 0;
+    try {
+      for (const [i, piece] of pieces.entries()) {
+        const { audio, bounds } = await synthesize(piece, i, pieces.length);
+        audioParts.push(audio);
+        // Each chunk's offsets restart at zero, so later chunks are shifted by
+        // everything already spoken, or their captions would all stack at 0:00.
+        for (const b of bounds) boundaries.push({ word: b.word, start: b.start + offset, end: b.end + offset });
+        offset += bounds.length ? Math.max(...bounds.map((b) => b.end)) : 0;
+      }
+    } catch (edgeError) {
+      // Edge is all-or-nothing here: if it could not speak every chunk, narrate
+      // the WHOLE short offline with Piper instead, so the voice stays
+      // consistent (a half-Edge, half-Piper narration is audibly stitched).
+      // Piper emits no word boundaries, so captions drop to proportional timing.
+      // When no Piper voice is installed the fallback is unavailable and the
+      // original Edge error stands — behaviour is unchanged from before.
+      const piper = require('./piper-tts');
+      if (!piper.available(voice)) throw edgeError;
+      this.logger.warn(`Edge TTS failed (${String(edgeError.message).slice(0, 60)}); narrating offline with Piper`);
+      audioParts = [];
+      boundaries.length = 0;
+      for (const piece of pieces) {
+        audioParts.push(await piper.synthesizeToMp3(piece, voice, this.logger));
+      }
+      usedPiper = true;
     }
 
     await fs.mkdir(path.dirname(audioPath), { recursive: true });
@@ -364,7 +383,7 @@ Rules:
       return entry;
     });
     this.logger.warn(
-      `No word boundaries${requested ? '' : ' (not supported)'}; captions estimated from ${duration.toFixed(1)}s audio`
+      `${usedPiper ? 'Piper narration' : `No word boundaries${requested ? '' : ' (not supported)'}`}; captions estimated from ${duration.toFixed(1)}s audio`
     );
     return { audioPath, words, timed: false };
   }

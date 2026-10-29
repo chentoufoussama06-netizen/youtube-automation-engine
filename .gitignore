@@ -104,3 +104,7 @@ state/**/work/
 state/**/videos/
 state/**/production/
 state/**/thumbnails/
+
+# Offline Piper TTS fallback — binary + voice models are downloaded in CI, never committed
+.piper/
+data/piper-voices/
