@@ -81,7 +81,17 @@ class ArchivalImageService {
     if (!response.ok || !body.trimStart().startsWith('{')) {
       throw new Error(`Commons HTTP ${response.status}: ${body.slice(0, 90).replace(/\s+/g, ' ')}`);
     }
-    return JSON.parse(body);
+    const json = JSON.parse(body);
+    // A busy search cluster answers 200 with an error object, not a 429, so the
+    // back-off above never fired: on 2026-10-30 one "too busy" reply left the
+    // requested Mbappé story with zero photos and it was dropped. Same wait.
+    if (/too-busy|maxlag|ratelimited/i.test(json.error?.code || '') && attempt < 5) {
+      const wait = 4000 * attempt * attempt;
+      this.logger.warn(`Commons busy (${json.error.code}); waiting ${(wait / 1000).toFixed(0)}s (attempt ${attempt})`);
+      await new Promise((resolve) => setTimeout(resolve, wait));
+      return this._api(params, attempt + 1);
+    }
+    return json;
   }
 
   /**
