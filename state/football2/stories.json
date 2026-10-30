@@ -78,5 +78,16 @@
     "moment": "In 410 CE the Visigoth king Alaric I sacked Rome for three days, marking the first time the city fell to a foreign enemy in 800 years.",
     "title": "When Visigoths Plundered Rome for the First Time",
     "at": "2026-10-29T14:34:36.929Z"
+  },
+  {
+    "id": "story-elagabalus-p2-222-ce",
+    "subject": "Elagabalus",
+    "article": "Elagabalus",
+    "moment": "222 CE",
+    "title": "Grandmother Maesa engineers his downfall (Part 2)",
+    "at": "2026-10-30T14:25:48.963Z",
+    "sequelOf": "story-elagabalus-in-221-ce-the-te",
+    "part": 2,
+    "root": "story-elagabalus-in-221-ce-the-te"
   }
 ]

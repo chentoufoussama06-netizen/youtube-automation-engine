@@ -147,6 +147,33 @@
       "event": "story",
       "id": "story-harry-kane-on-26-october-20",
       "url": "https://www.youtube.com/watch?v=Z8POzAc-y1M"
+    },
+    {
+      "at": "2026-10-30T14:26:53.080Z",
+      "event": "sequel",
+      "id": "story-john-terry-p2-2012-terry-r",
+      "url": "https://www.youtube.com/watch?v=imguW0HMOOg"
+    },
+    {
+      "at": "2026-10-30T14:27:59.234Z",
+      "event": "story",
+      "id": "story-roberto-baggio-in-the-1994-worl",
+      "url": "https://www.youtube.com/watch?v=8V8eUjEmmNk"
     }
-  ]
+  ],
+  "pendingLinks": [
+    {
+      "root": "story-john-terry-in-2012-terry-wa",
+      "prev": "0EBCbUi7H8o",
+      "next": "imguW0HMOOg",
+      "part": 2,
+      "subject": "John Terry",
+      "tries": 1
+    }
+  ],
+  "series": {
+    "story-john-terry-in-2012-terry-wa": {
+      "playlistId": "PLBtX8AND14sc"
+    }
+  }
 }

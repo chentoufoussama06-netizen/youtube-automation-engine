@@ -134,5 +134,24 @@
     "moment": "On 26 October 2026, Harry Kane won the 2026 Ballon d'Or after scoring 61 goals in the 2025-26 season and helping Bayern Munich win the double, the first Englishman to win it since Michael Owen in 2001.",
     "title": "Why Harry Kane Finally Won the Ballon d'Or",
     "at": "2026-10-30T03:27:12.224Z"
+  },
+  {
+    "id": "story-john-terry-p2-2012-terry-r",
+    "subject": "John Terry",
+    "article": "John Terry",
+    "moment": "2012 – Terry retires from England",
+    "title": "England captain quits after FA ban (Part 2)",
+    "at": "2026-10-30T14:26:45.887Z",
+    "sequelOf": "story-john-terry-in-2012-terry-wa",
+    "part": 2,
+    "root": "story-john-terry-in-2012-terry-wa"
+  },
+  {
+    "id": "story-roberto-baggio-in-the-1994-worl",
+    "subject": "Roberto Baggio",
+    "article": "Roberto Baggio",
+    "moment": "In the 1994 World Cup final, Baggio missed the decisive penalty that gave Brazil the title, and the miss haunted him for the rest of his career.",
+    "title": "Baggio’s Missed Penalty Cursed His Career",
+    "at": "2026-10-30T14:27:52.195Z"
   }
 ]

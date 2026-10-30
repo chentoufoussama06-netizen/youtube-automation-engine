@@ -61,6 +61,27 @@
       "event": "story",
       "id": "story-sack-of-rome-in-410-ce-the-vi",
       "url": "https://www.youtube.com/watch?v=ROFf4rAvFDc"
+    },
+    {
+      "at": "2026-10-30T14:25:56.490Z",
+      "event": "sequel",
+      "id": "story-elagabalus-p2-222-ce",
+      "url": "https://www.youtube.com/watch?v=iLCxdt6fN9M"
     }
-  ]
+  ],
+  "pendingLinks": [
+    {
+      "root": "story-elagabalus-in-221-ce-the-te",
+      "prev": "C9L38C7SWzQ",
+      "next": "iLCxdt6fN9M",
+      "part": 2,
+      "subject": "Elagabalus",
+      "tries": 1
+    }
+  ],
+  "series": {
+    "story-elagabalus-in-221-ce-the-te": {
+      "playlistId": "PLepoJrBZ6DSE"
+    }
+  }
 }

@@ -1186,6 +1186,34 @@
       "shortTitle": "Why Harry Kane Finally Won the Ballon d'Or",
       "article": "Harry Kane",
       "categoryId": "17"
+    },
+    {
+      "id": "story-john-terry-p2-2012-terry-r",
+      "topic": "2012 – Terry retires from England",
+      "keywords": [
+        "John Terry",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "England captain quits after FA ban (Part 2)",
+      "article": "John Terry",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-roberto-baggio-in-the-1994-worl",
+      "topic": "In the 1994 World Cup final, Baggio missed the decisive penalty that gave Brazil the title, and the miss haunted him for the rest of his career.",
+      "keywords": [
+        "Roberto Baggio",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Baggio’s Missed Penalty Cursed His Career",
+      "article": "Roberto Baggio",
+      "categoryId": "17"
     }
   ]
 }

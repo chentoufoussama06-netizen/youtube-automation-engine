@@ -631,6 +631,20 @@
       "shortTitle": "How a Data Scandal Crumbled Facebook’s Trust",
       "article": "Facebook",
       "categoryId": "27"
+    },
+    {
+      "id": "story-bebo-after-being-sold",
+      "topic": "After being sold for $850 million in 2008, Bebo was sold again for $1 million in 2013 and eventually shut down.",
+      "keywords": [
+        "Bebo",
+        "tech history",
+        "lost media",
+        "internet history"
+      ],
+      "status": "short",
+      "shortTitle": "Bebo’s $850 Million Sale to a $1 Million Exit",
+      "article": "Bebo",
+      "categoryId": "27"
     }
   ]
 }
