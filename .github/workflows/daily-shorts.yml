@@ -137,7 +137,7 @@ jobs:
 
       - name: Install v2 render deps
         continue-on-error: true
-        run: python -m pip install --quiet --disable-pip-version-check numpy opencv-python-headless
+        run: python -m pip install --quiet --disable-pip-version-check "numpy>=2,<3" "opencv-python-headless~=4.13.0"
 
       - name: Cache face models
         id: face-cache
@@ -161,7 +161,7 @@ jobs:
         continue-on-error: true
         run: |
           ls -la data/face-models || true
-          python -P -c "import cv2, numpy; d=cv2.FaceDetectorYN.create('data/face-models/face_detection_yunet_2023mar.onnx','',(320,320)); r=cv2.FaceRecognizerSF.create('data/face-models/face_recognition_sface_2021dec.onnx',''); print('v2 ok: opencv', cv2.__version__)"
+          python -P -c "import cv2, numpy; d=cv2.FaceDetectorYN.create('data/face-models/face_detection_yunet_2023mar.onnx','',(320,320)); r=cv2.FaceRecognizerSF.create('data/face-models/face_recognition_sface_2021dec.onnx',''); assert hasattr(cv2, 'FaceRecognizerSF_FR_COSINE'); print('v2 ok: opencv', cv2.__version__)"
 
       - name: Credentials
         env:
