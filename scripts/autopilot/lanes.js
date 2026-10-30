@@ -10,6 +10,14 @@
  * 2026-10-22: every lane now runs story shorts, short and punchy (20-50s),
  * with plain fact-led titles (at most one emoji). Each lane has its own voice
  * and caption colour so the four channels do not read as one template.
+ *
+ * 2026-10-30: the five daily story slots went where the audience is. In the
+ * week to 2026-10-27 Football Files drew 1,945 views (89 the week before) and
+ * Ancient History 1,345 (4), while AFTER CACHE drew 4 and Viral Vault Clip 3
+ * — their best story shorts sat at 2 and 13 views. So Football Files 3,
+ * Ancient History 2, and the other two post long-form only. The total stays
+ * five because the upload quota (see below) does not stretch to six. A lane
+ * at 0 shorts is also left out of the workflow's "did not post" check.
  */
 
 // Tuned to Football Files' own numbers (2026-10-08, 61 videos). Everything
@@ -47,14 +55,15 @@ const LANES = [
     // 2026-10-08 scan, so it is the topic and not luck: historicalmiracles
     // (15 days old) put 950K and 695K on its first 20-second battle shorts,
     // Rome Unscrolled (45 days) gets 20K-2M on every upload, Nils History
-    // (3 months) 56K subs. One short a day, on purpose.
+    // (3 months) 56K subs. Two a day from 2026-10-30, once it proved itself
+    // (Elagabalus, 1,316 views).
     name: 'Ancient History',
     dataRoot: 'state/football2',
     tokens: 'tokens.football2.json',
     categoryId: '27',             // Education
     voice: 'en-GB-RyanNeural',
     captionHighlight: '&H0033CCFF&',   // gold
-    storyShortsPerDay: 1,
+    storyShortsPerDay: 2,
     docShortsPerDay: 0,
     story: {
       examples: [
@@ -84,9 +93,9 @@ const LANES = [
     categoryId: '17',             // Sports
     voice: 'en-US-BrianNeural',
     captionHighlight: '&H004040FF&',   // red
-    // Two story shorts a day. The compilation pipeline stays for long-form
-    // and watch hours.
-    storyShortsPerDay: 2,
+    // Three story shorts a day (two until 2026-10-30). The compilation
+    // pipeline stays for long-form and watch hours.
+    storyShortsPerDay: 3,
     docShortsPerDay: 0,
     story: DARK_FOOTBALL_STORY,
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
@@ -109,7 +118,9 @@ const LANES = [
     // Story shorts, not segments cut from compilations: the compilation
     // builder ran dry and failed renders, which left this channel with nothing
     // from 2026-10-12. Long-form still posts when a compilation is ready.
-    storyShortsPerDay: 1,
+    // Story shorts paused 2026-10-30 (best one: 2 views); its slot went to
+    // the lanes with an audience. Set back to 1 to resume.
+    storyShortsPerDay: 0,
     docShortsPerDay: 0,
     story: {
       examples: [
@@ -152,7 +163,9 @@ const LANES = [
     categoryId: '27',             // Education
     voice: 'en-US-ChristopherNeural',
     captionHighlight: '&H0000FF80&',   // green
-    storyShortsPerDay: 1,
+    // Story shorts paused 2026-10-30 (best one: 13 views); its slot went to
+    // the lanes with an audience. Set back to 1 to resume.
+    storyShortsPerDay: 0,
     docShortsPerDay: 0,
     story: {
       examples: [

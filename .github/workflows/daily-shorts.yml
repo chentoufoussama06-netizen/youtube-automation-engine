@@ -233,7 +233,9 @@ jobs:
           title="Channels did not post today"
           summary=""
           [ -f autopilot.log ] && summary="$(sed -n '/=== summary ===/,$p' autopilot.log | tail -n +2)"
-          channels="$(node -e "console.log(require('./scripts/autopilot/lanes').LANES.map(l=>l.name).join('\n'))")"
+          # Only lanes that are meant to post shorts; a paused lane (0 a day) is
+          # not news, and would otherwise reopen this issue every single day.
+          channels="$(node -e "console.log(require('./scripts/autopilot/lanes').LANES.filter(l=>(l.storyShortsPerDay||0)+(l.docShortsPerDay??1)>0).map(l=>l.name).join('\n'))")"
           missing=""
           while IFS= read -r ch; do
             [ -n "$ch" ] || continue

@@ -161,16 +161,7 @@
       "url": "https://www.youtube.com/watch?v=8V8eUjEmmNk"
     }
   ],
-  "pendingLinks": [
-    {
-      "root": "story-john-terry-in-2012-terry-wa",
-      "prev": "0EBCbUi7H8o",
-      "next": "imguW0HMOOg",
-      "part": 2,
-      "subject": "John Terry",
-      "tries": 1
-    }
-  ],
+  "pendingLinks": [],
   "series": {
     "story-john-terry-in-2012-terry-wa": {
       "playlistId": "PLBtX8AND14sc"

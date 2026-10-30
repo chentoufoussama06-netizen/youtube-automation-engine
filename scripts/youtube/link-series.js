@@ -59,14 +59,31 @@ async function ensurePlaylist(youtube, playlistId, title, dryRun) {
   return data.id;
 }
 
-async function addToPlaylist(youtube, playlistId, videoIds, dryRun) {
+// A playlist created a second ago answers "cannot be found" for a little
+// while (2026-10-30: both first series died here, right after playlists.insert
+// succeeded), so a 404 on a fresh playlist is waited out, not believed.
+async function withFreshPlaylistRetry(call) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await call();
+    } catch (error) {
+      if (attempt >= 4 || !/cannot be found|playlistNotFound/i.test(String(error.message))) throw error;
+      await new Promise((r) => setTimeout(r, 5000 * attempt));
+    }
+  }
+}
+
+async function addToPlaylist(youtube, playlistId, videoIds, { dryRun, fresh }) {
+  // A playlist this run just created is empty by definition; listing it is
+  // both wasted quota and the call most likely to hit the not-found window.
   const have = new Set();
   let pageToken;
-  do {
+  while (!fresh) {
     const { data } = await youtube.playlistItems.list({ part: 'snippet', playlistId, maxResults: 50, pageToken });
     for (const item of data.items || []) have.add(item.snippet.resourceId.videoId);
     pageToken = data.nextPageToken;
-  } while (pageToken);
+    if (!pageToken) break;
+  }
 
   for (const videoId of videoIds) {
     if (have.has(videoId)) continue;
@@ -74,10 +91,10 @@ async function addToPlaylist(youtube, playlistId, videoIds, dryRun) {
       logger.info(`[dry-run] would add ${videoId} to playlist ${playlistId}`);
       continue;
     }
-    await youtube.playlistItems.insert({
+    await withFreshPlaylistRetry(() => youtube.playlistItems.insert({
       part: 'snippet',
       requestBody: { snippet: { playlistId, resourceId: { kind: 'youtube#video', videoId } } }
-    });
+    }));
     logger.success(`added ${videoId} to playlist ${playlistId}`);
   }
 }
@@ -115,13 +132,18 @@ async function main() {
   const dryRun = args.includes('--dry-run');
   const youtube = authorize();
 
-  // Playlist first, so its id is printed and kept even if quota runs out after.
-  const playlistId = await ensurePlaylist(youtube, flag('--playlist'), flag('--playlist-title') || 'The full story', dryRun);
+  // The description link first: it is what a viewer finishing Part 1 sees, so
+  // nothing about the playlist may stand in its way.
+  await addNextLink(youtube, prevId, nextId, part, dryRun);
+
+  // The id is printed the moment the playlist exists, so a retry after a
+  // later failure reuses it instead of making a second one.
+  const given = flag('--playlist');
+  const playlistId = await ensurePlaylist(youtube, given, flag('--playlist-title') || 'The full story', dryRun);
   if (playlistId) {
     console.log(`SERIES_PLAYLIST=${playlistId}`);
-    await addToPlaylist(youtube, playlistId, [prevId, nextId], dryRun);
+    await addToPlaylist(youtube, playlistId, [prevId, nextId], { dryRun, fresh: !given });
   }
-  await addNextLink(youtube, prevId, nextId, part, dryRun);
 }
 
 if (require.main === module) {

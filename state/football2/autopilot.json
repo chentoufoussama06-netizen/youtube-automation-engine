@@ -69,16 +69,7 @@
       "url": "https://www.youtube.com/watch?v=iLCxdt6fN9M"
     }
   ],
-  "pendingLinks": [
-    {
-      "root": "story-elagabalus-in-221-ce-the-te",
-      "prev": "C9L38C7SWzQ",
-      "next": "iLCxdt6fN9M",
-      "part": 2,
-      "subject": "Elagabalus",
-      "tries": 1
-    }
-  ],
+  "pendingLinks": [],
   "series": {
     "story-elagabalus-in-221-ce-the-te": {
       "playlistId": "PLepoJrBZ6DSE"
