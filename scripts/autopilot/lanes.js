@@ -96,6 +96,11 @@ const LANES = [
     // Three story shorts a day (two until 2026-10-30). The compilation
     // pipeline stays for long-form and watch hours.
     storyShortsPerDay: 3,
+    // The story picker also reads the last two days of football headlines
+    // (Wikipedia must still document the episode), and on Sundays the week's
+    // Fabrizio Romano reporting goes out as one roundup (romano-weekly.js).
+    news: true,
+    romanoWeekly: true,
     docShortsPerDay: 0,
     story: DARK_FOOTBALL_STORY,
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '

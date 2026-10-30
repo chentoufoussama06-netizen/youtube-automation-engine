@@ -35,6 +35,7 @@ const { ArchivalImageService } = require('../../utils/archival-images');
 const { ShortsFactory } = require('../../utils/shorts-factory');
 const { Logger } = require('../../utils/logger');
 const { LANES } = require('./lanes');
+const { footballNews } = require('../../utils/news-feed');
 
 const ROOT = path.join(__dirname, '..', '..');
 const logger = new Logger('StoryShort');
@@ -101,13 +102,19 @@ async function trending(limit = 150) {
   }
 }
 
-async function propose(ai, lane, avoid, hot = []) {
+async function propose(ai, lane, avoid, hot = [], news = []) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
 The format that is winning right now (titles and views from young channels):
 ${story.examples.map((e) => `- ${e}`).join('\n')}
-${hot.length ? `
+${news.length ? `
+IN THE NEWS — this channel's headlines from the last two days. A story about
+one of these beats any old one (Kane's Ballon d'Or, posted the morning after,
+outran every short before it) — but ONLY if the episode is already written up
+in the subject's English Wikipedia article, because it will be checked there:
+${news.map((n) => `- ${n.title} (${n.outlet})`).join('\n')}
+` : ''}${hot.length ? `
 TRENDING — yesterday's most-read English Wikipedia articles, i.e. what people are
 searching for right now. If any of these fits this channel's scope (a person,
 club, event or thing it would cover), make your FIRST proposals about them:
@@ -355,6 +362,44 @@ emojis, no stage directions. ${WORDS.min}-${WORDS.max} words. Return only the na
   return null;
 }
 
+/**
+ * Narrate `text` in the lane's voice and cut it over `photos` (downloaded
+ * Commons files) into <dataRoot>/shorts/video/<id>_short.mp4. Shared by the
+ * story shorts and the Sunday roundup, so a change of look happens in one place.
+ * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
+ */
+async function renderStills(lane, id, text, photos) {
+  const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
+  const factory = new ShortsFactory({});
+  const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
+  for (const d of Object.values(dirs)) await fsp.mkdir(d, { recursive: true });
+
+  const audio = path.join(dirs.audio, `${id}_short.mp3`);
+  const narration = await factory.narrateWithTiming(text, lane.voice, audio);
+  const seconds = await factory.probeDuration(audio);
+  if (seconds > 178) return { skip: `${seconds.toFixed(0)}s is over the 3-minute Shorts limit` };
+  if (seconds < 20.5) return { skip: `${seconds.toFixed(0)}s is under the 20s quality gate` };
+
+  const captions = path.join(dirs.captions, `${id}_short.ass`);
+  // Captions never wrap (WrapStyle 2), so three long words ran off the frame
+  // ("CONSULTED HIS ASSISTANT"); two words at 84px stays inside 1080px.
+  await fsp.writeFile(captions, factory.buildCaptions(narration.words,
+    { wordsPerChunk: 2, fontSize: 84, ...(lane.captionHighlight ? { highlightColor: lane.captionHighlight } : {}) }));
+
+  const count = Math.max(photos.length, Math.ceil(seconds / SECONDS_PER_IMAGE));
+  const per = seconds / count;
+  const clips = [];
+  for (let i = 0; i < count; i++) {
+    const clip = path.join(dirs.work, `${id}_${i}.mp4`);
+    await factory.stillToClip(photos[i % photos.length].path, per, clip);
+    clips.push(clip);
+  }
+  const video = path.join(dirs.video, `${id}_short.mp4`);
+  await factory.renderShort({ storyClips: clips, motionClip: null, layout: 'full', audioPath: audio, captionPath: captions, outputPath: video });
+  await Promise.all(clips.map((c) => fsp.unlink(c).catch(() => {})));
+  return { video, seconds };
+}
+
 // Subjects any lane picked in this process. Every lane sees the same trending
 // list, and on 2026-10-22 AFTER CACHE and Viral Vault Clip both chose
 // Elizabeth Holmes; one channel per subject per day.
@@ -382,6 +427,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
   const recent = new Set(done.filter((d) => Date.now() - Date.parse(d.at) < 14 * 86400000).map((d) => fold(d.subject)));
   const hot = sequelOf || pinned ? [] : await trending();
   if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
+  const news = sequelOf || pinned || !lane.news ? [] : (await footballNews()).slice(0, 30);
+  if (news.length) logger.info(`news: ${news.length} headlines, e.g. ${news.slice(0, 3).map((n) => n.title).join(' | ')}`);
 
   // A sequel continues one story, so its article is fixed and read once, and
   // Part 1's own narration tells the planner and the writer what not to repeat.
@@ -404,7 +451,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       stories = pinned ? [pinned] : sequel
         ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 11500)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
-        : await propose(ai, lane, avoid, round === 1 ? hot : []);
+        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : []);
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
@@ -455,33 +502,10 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const saved = await archival.downloadArchivalImages(found, imgDir);
       if (saved.length < 3) { logger.info(`skip ${subject}: photo downloads failed`); continue; }
 
-      const factory = new ShortsFactory({});
-      const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
-      for (const d of Object.values(dirs)) await fsp.mkdir(d, { recursive: true });
-
-      const audio = path.join(dirs.audio, `${id}_short.mp3`);
-      const narration = await factory.narrateWithTiming(text, lane.voice, audio);
-      const seconds = await factory.probeDuration(audio);
-      if (seconds > 178) { logger.warn(`${id}: ${seconds.toFixed(0)}s is over the 3-minute Shorts limit`); continue; }
-      if (seconds < 20.5) { logger.warn(`${id}: ${seconds.toFixed(0)}s is under the 20s quality gate`); continue; }
-
-      const captions = path.join(dirs.captions, `${id}_short.ass`);
-      // Captions never wrap (WrapStyle 2), so three long words ran off the frame
-      // ("CONSULTED HIS ASSISTANT"); two words at 84px stays inside 1080px.
-      await fsp.writeFile(captions, factory.buildCaptions(narration.words,
-        { wordsPerChunk: 2, fontSize: 84, ...(lane.captionHighlight ? { highlightColor: lane.captionHighlight } : {}) }));
-
-      const count = Math.max(saved.length, Math.ceil(seconds / SECONDS_PER_IMAGE));
-      const per = seconds / count;
-      const clips = [];
-      for (let i = 0; i < count; i++) {
-        const clip = path.join(dirs.work, `${id}_${i}.mp4`);
-        await factory.stillToClip(saved[i % saved.length].path, per, clip);
-        clips.push(clip);
-      }
-      const video = path.join(dirs.video, `${id}_short.mp4`);
-      await factory.renderShort({ storyClips: clips, motionClip: null, layout: 'full', audioPath: audio, captionPath: captions, outputPath: video });
-      await Promise.all(clips.map((c) => fsp.unlink(c).catch(() => {})));
+      const rendered = await renderStills(lane, id, text, saved);
+      if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
+      const { video, seconds } = rendered;
+      const dirs = { copy: base('shorts', 'copy') };
       // The photos are only needed for this render, and their credits are in the copy.
       await fsp.rm(imgDir, { recursive: true, force: true });
 
@@ -529,4 +553,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, unsupportedSentences, trending };
+module.exports = { makeStoryShort, renderStills, unsupportedSentences, parseJson, trending };

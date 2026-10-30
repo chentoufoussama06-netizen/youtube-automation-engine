@@ -44,6 +44,7 @@ const { makeThumbnail } = require('./autopilot/make-thumbnail');
 const { plan } = require('./autopilot/plan-compilation');
 const { makeStoryShort } = require('./autopilot/story-short');
 const { pickSequel } = require('./autopilot/sequels');
+const { makeRomanoRoundup } = require('./autopilot/romano-weekly');
 
 const ROOT = path.join(__dirname, '..');
 const LONGFORM_GAP_DAYS = Number(process.env.LONGFORM_GAP_DAYS) || 2;
@@ -281,6 +282,17 @@ async function postStoryShort(lane, st, sequelOf = null, pinned = null) {
   }
   if (DRY) return { ok: true, msg: `${lane.name}: would post ${kind} "${made.title}"` };
 
+  const res = publishMade(lane, st, made, kind, sequelOf ? 'sequel' : 'story');
+  if (res.ok && sequelOf) {
+    // Linked at the end of the run, once every lane has had its uploads.
+    st.pendingLinks = st.pendingLinks || [];
+    st.pendingLinks.push({ root: made.root, prev: sequelOf.videoId, next: res.entry.videoId, part: made.part, subject: sequelOf.subject });
+  }
+  return res;
+}
+
+/** Gate, upload and publish a rendered short ({ id, video, title }). */
+function publishMade(lane, st, made, kind, event) {
   const gate = check(made.video, 'short');
   if (!gate.ok) {
     fs.rmSync(made.video, { force: true });
@@ -290,13 +302,29 @@ async function postStoryShort(lane, st, sequelOf = null, pinned = null) {
   if (!ledgerOf(lane)[made.id]) return { ok: false, uploaded: true, msg: `${lane.name}: ${kind} ${made.id} rendered but upload failed` };
   run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', made.id], 10);
   const entry = ledgerOf(lane)[made.id];
-  st.history.push({ at: new Date().toISOString(), event: sequelOf ? 'sequel' : 'story', id: made.id, url: entry.url });
-  if (sequelOf) {
-    // Linked at the end of the run, once every lane has had its uploads.
-    st.pendingLinks = st.pendingLinks || [];
-    st.pendingLinks.push({ root: made.root, prev: sequelOf.videoId, next: entry.videoId, part: made.part, subject: sequelOf.subject });
+  st.history.push({ at: new Date().toISOString(), event, id: made.id, url: entry.url });
+  return { ok: true, entry, msg: `${lane.name}: ${kind} ${entry.privacyStatus} ${entry.url} "${entry.title}"` };
+}
+
+/**
+ * Sundays (UTC), for a lane with `romanoWeekly`: the week's football news as
+ * Fabrizio Romano reported it (autopilot/romano-weekly.js). On top of the
+ * day's stories — uploads have their own 100-a-day bucket now — and at most
+ * once a day, so a second run that Sunday does not post it twice.
+ */
+async function postRomano(lane, st) {
+  const day = new Date().toISOString().slice(0, 10);
+  if (st.romano?.day === day) return null;
+  let made;
+  try {
+    made = await makeRomanoRoundup(lane.name, { dryRun: DRY });
+  } catch (error) {
+    return `${lane.name}: no Romano roundup — ${error.message}`;
   }
-  return { ok: true, msg: `${lane.name}: ${kind} ${entry.privacyStatus} ${entry.url} "${entry.title}"` };
+  if (DRY) return `${lane.name}: would post Romano roundup "${made.title}" (${made.picks.map((p) => p.subject).join(', ')})`;
+  const res = publishMade(lane, st, made, 'Romano roundup', 'romano');
+  if (res.ok) st.romano = { day, id: made.id, url: res.entry.url };
+  return res.msg;
 }
 
 /** A story short that pulled a crowd, due its next part today, or null. */
@@ -448,6 +476,16 @@ async function main() {
     if (stuck.length && !DRY) {
       log(`${lane.name}: publishing ${stuck.length} short(s) left private: ${stuck.join(', ')}`);
       run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', ...stuck], 10);
+    }
+    // The workflow's "romano" input forces it on any day, for a test.
+    if (lane.romanoWeekly && (new Date().getUTCDay() === 0 || process.env.FORCE_ROMANO === 'true')) {
+      try {
+        const msg = await postRomano(lane, st);
+        if (msg) summary.push(msg);
+      } catch (error) {
+        summary.push(`${lane.name}: Romano roundup crashed — ${error.message}`);
+      }
+      saveState(lane, st);
     }
     // A winner's next part takes the first story slot; if no part survives the
     // fact-check, that slot still gets a fresh story.

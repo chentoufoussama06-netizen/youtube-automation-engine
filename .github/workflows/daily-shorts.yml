@@ -43,6 +43,10 @@ on:
       title:
         description: "One story: the video title"
         default: ""
+      romano:
+        description: "Post the Fabrizio Romano weekly roundup now (normally Sundays)"
+        type: boolean
+        default: false
 
 concurrency:
   group: daily-shorts
@@ -157,6 +161,7 @@ jobs:
           PIN_ARTICLE: ${{ github.event.inputs.article }}
           PIN_MOMENT: ${{ github.event.inputs.moment }}
           PIN_TITLE: ${{ github.event.inputs.title }}
+          FORCE_ROMANO: ${{ github.event.inputs.romano }}
         run: |
           set -o pipefail
           node scripts/autopilot.js \
