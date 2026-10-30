@@ -68,19 +68,43 @@ class AIVideoGenerator {
         }
       }
 
-      // Try ElevenLabs first (higher quality)
+      // Try ElevenLabs first (higher quality). Each remaining provider falls
+      // through on failure instead of throwing, the same way the image chain
+      // does, so one dead provider never skips the free offline net below.
       if (this.elevenLabsApiKey && this.elevenLabsVoiceId) {
-        return await this.generateElevenLabsTTS(text, outputPath);
+        try {
+          return await this.generateElevenLabsTTS(text, outputPath);
+        } catch (elevenError) {
+          this.logger.warn(`ElevenLabs TTS failed (${String(elevenError.message).slice(0, 80)}); trying other providers`);
+        }
       }
-      
+
       // Fallback to OpenAI TTS
       if (this.openai) {
-        return await this.generateOpenAITTS(text, outputPath);
+        try {
+          return await this.generateOpenAITTS(text, outputPath);
+        } catch (openaiError) {
+          this.logger.warn(`OpenAI TTS failed (${String(openaiError.message).slice(0, 80)}); trying other providers`);
+        }
       }
 
       // Fallback to Gemini native TTS (free tier)
       if (this.gemini) {
-        return await this.generateGeminiTTS(text, outputPath);
+        try {
+          return await this.generateGeminiTTS(text, outputPath);
+        } catch (geminiError) {
+          this.logger.warn(`Gemini TTS failed (${String(geminiError.message).slice(0, 80)}); trying offline Piper`);
+        }
+      }
+
+      // Offline net before silence. Piper needs no key and no network, so it
+      // speaks even when Edge is blocked and the paid providers are unset or
+      // exhausted — the exact state a blocked runner hits. Simulation (a silent
+      // track) is only reached when no Piper voice model is installed.
+      try {
+        return await this.generatePiperTTS(text, outputPath);
+      } catch (piperError) {
+        this.logger.warn(`Piper TTS unavailable (${String(piperError.message).slice(0, 80)}); simulating`);
       }
 
       // Final fallback to simulation
@@ -265,6 +289,47 @@ class AIVideoGenerator {
     }
 
     this.logger.info('Edge TTS generation complete');
+    return outputPath;
+  }
+
+  // Offline neural TTS via Piper — the same fallback the daily shorts use,
+  // extended here to long compilations. Edge intermittently refuses the
+  // datacenter IPs the autopilot runs on; Piper runs on the runner's own CPU
+  // from a downloaded voice model, so there is no endpoint left to block.
+  // Chunked and concatenated exactly like the Edge path. The Edge voice name
+  // maps to a Piper model inside utils/piper-tts.js, falling back to a default.
+  async generatePiperTTS(text, outputPath) {
+    const piper = require('./piper-tts');
+    const voice = process.env.EDGE_TTS_VOICE || 'en-US-AndrewNeural';
+    if (!piper.available(voice)) {
+      throw new Error('no piper voice model installed');
+    }
+
+    const chunks = this.splitNarrationForTTS(text, 1800);
+    this.logger.info(`Piper TTS: ${chunks.length} chunk(s), voice ${voice}`);
+
+    const partPaths = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const partPath = `${outputPath}.part${i}.mp3`;
+      const buffer = await piper.synthesizeToMp3(chunks[i], voice, this.logger);
+      await fs.writeFile(partPath, buffer);
+      partPaths.push(partPath);
+      this.logger.info(`Piper TTS chunk ${i + 1}/${chunks.length} ok (${Math.round(buffer.length / 1024)} KB)`);
+    }
+
+    if (partPaths.length === 1) {
+      await fs.rename(partPaths[0], outputPath);
+    } else {
+      // Same concat-demuxer join as the Edge path: the list file sits beside
+      // the parts, so each entry is a basename resolved from the list's dir.
+      const listPath = `${outputPath}.concat.txt`;
+      await fs.writeFile(listPath, partPaths.map(p => `file '${path.basename(p)}'`).join('\n'));
+      await runFFmpeg(['-y', '-f', 'concat', '-safe', '0', '-i', listPath, '-c:a', 'libmp3lame', '-q:a', '2', outputPath]);
+      await fs.unlink(listPath).catch(() => {});
+      await Promise.all(partPaths.map(p => fs.unlink(p).catch(() => {})));
+    }
+
+    this.logger.info('Piper TTS generation complete');
     return outputPath;
   }
 
