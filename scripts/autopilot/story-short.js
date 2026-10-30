@@ -168,9 +168,15 @@ Return ONLY JSON: {"stories": [{"moment": "...", "title": "..."}]}`;
  * first 12,000 meant writing from memory, and the fact-check then cut 12 of 14
  * sentences. The lead paragraph plus the paragraphs that mention the episode's
  * own words, in article order, is what the writer and checker both see.
+ *
+ * maxChars stays under what supported() and narrate() actually read (9,000).
+ * At 10,000, a late-article episode — the very kind this exists for — was
+ * kept and then sliced off: Mbappé's "Chinese dictator" paragraph (2026-10-30)
+ * sat at characters 8,000-9,400, so the checker saw the quote but not the
+ * apology, answered NO, and the story was dropped.
  */
 const STOP = new Set('with that this from their after when which into over about were have been they them then than also what while where there would could his her the and for its was who how why one two'.split(' '));
-function focusBrief(brief, story, maxChars = 10000) {
+function focusBrief(brief, story, maxChars = 8500) {
   const paras = brief.text.split(/\n{2,}|\n(?=[A-Z])/).map((p) => p.trim()).filter((p) => p.length > 40);
   const keys = [...new Set(fold(`${story.moment} ${story.title || ''}`).match(/[a-z0-9]{4,}/g) || [])].filter((k) => !STOP.has(k));
   const scored = paras.map((p, i) => {
@@ -396,7 +402,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       // A pinned story (asked for by name) skips the proposal step entirely,
       // and still goes through the same article check, fact-check and render.
       stories = pinned ? [pinned] : sequel
-        ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 14000)))
+        ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 11500)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
         : await propose(ai, lane, avoid, round === 1 ? hot : []);
     } catch (error) {
