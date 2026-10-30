@@ -140,7 +140,8 @@ async function makeRomanoRoundup(laneName, { dryRun = false } = {}) {
   const imgDir = base('reference', id);
   const saved = await archival.downloadArchivalImages(found, imgDir);
   if (saved.length < 4) throw new Error('photo downloads failed');
-  const rendered = await renderStills(lane, id, text, saved);
+  // Not part of the look A/B (only story shorts are), so it gets the new look wherever a lane has it.
+  const rendered = await renderStills(lane, id, text, saved, { style: ['on', 'ab'].includes(lane.v2) ? 'v2' : 'v1', title, tag: 'Weekly roundup' });
   await fsp.rm(imgDir, { recursive: true, force: true });
   if (rendered.skip) throw new Error(rendered.skip);
 

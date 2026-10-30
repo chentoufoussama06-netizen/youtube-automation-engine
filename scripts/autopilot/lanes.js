@@ -18,6 +18,11 @@
  * Ancient History 2, and the other two post long-form only. The total stays
  * five because the upload quota (see below) does not stretch to six. A lane
  * at 0 shorts is also left out of the workflow's "did not post" check.
+ *
+ * Later the same day: YouTube's quota table now gives videos.insert its own
+ * bucket of 100 calls a day instead of 1,600 of the shared 10,000 units, so
+ * that ceiling is gone. AFTER CACHE and Viral Vault Clip post again (one a
+ * day each), and every lane uses the v2 look (utils/short-style-v2.js).
  */
 
 // Tuned to Football Files' own numbers (2026-10-08, 61 videos). Everything
@@ -64,6 +69,9 @@ const LANES = [
     voice: 'en-GB-RyanNeural',
     captionHighlight: '&H0033CCFF&',   // gold
     storyShortsPerDay: 2,
+    // The v2 look (utils/short-style-v2.js) with a warm, grained grade.
+    look: 'ancient',
+    v2: 'on',
     docShortsPerDay: 0,
     story: {
       examples: [
@@ -101,6 +109,10 @@ const LANES = [
     // Fabrizio Romano reporting goes out as one roundup (romano-weekly.js).
     news: true,
     romanoWeekly: true,
+    // The v2 look (utils/short-style-v2.js) on every short. 'ab' alternates it
+    // with the first look by count, if a side-by-side measure is ever wanted.
+    look: 'football',
+    v2: 'on',
     docShortsPerDay: 0,
     story: DARK_FOOTBALL_STORY,
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
@@ -123,9 +135,12 @@ const LANES = [
     // Story shorts, not segments cut from compilations: the compilation
     // builder ran dry and failed renders, which left this channel with nothing
     // from 2026-10-12. Long-form still posts when a compilation is ready.
-    // Story shorts paused 2026-10-30 (best one: 2 views); its slot went to
-    // the lanes with an audience. Set back to 1 to resume.
-    storyShortsPerDay: 0,
+    // Paused for most of 2026-10-30 (best story short: 2 views), then back:
+    // uploads now have their own 100-a-day bucket, so a slot here no longer
+    // costs another channel's, and the v2 look is a fair fresh test.
+    storyShortsPerDay: 1,
+    look: 'football',
+    v2: 'on',
     docShortsPerDay: 0,
     story: {
       examples: [
@@ -168,9 +183,13 @@ const LANES = [
     categoryId: '27',             // Education
     voice: 'en-US-ChristopherNeural',
     captionHighlight: '&H0000FF80&',   // green
-    // Story shorts paused 2026-10-30 (best one: 13 views); its slot went to
-    // the lanes with an audience. Set back to 1 to resume.
-    storyShortsPerDay: 0,
+    // Paused for most of 2026-10-30 (best story short: 13 views), then back:
+    // uploads now have their own 100-a-day bucket, so a slot here no longer
+    // costs another channel's, and the v2 look is a fair fresh test. The warm
+    // grade suits its wartime and archive photographs.
+    storyShortsPerDay: 1,
+    look: 'ancient',
+    v2: 'on',
     docShortsPerDay: 0,
     story: {
       examples: [

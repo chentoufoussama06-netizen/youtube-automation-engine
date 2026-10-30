@@ -36,6 +36,7 @@ const { ShortsFactory } = require('../../utils/shorts-factory');
 const { Logger } = require('../../utils/logger');
 const { LANES } = require('./lanes');
 const { footballNews } = require('../../utils/news-feed');
+const { renderStoryV2 } = require('../../utils/short-style-v2');
 
 const ROOT = path.join(__dirname, '..', '..');
 const logger = new Logger('StoryShort');
@@ -302,7 +303,9 @@ Structure:
 
 Style: spoken, energetic storytelling, short sentences, present the facts
 vividly. Past tense. No "you", no "imagine", no "subscribe", no headings, no
-emojis, no stage directions. ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
+emojis, no stage directions. Never name the structure out loud: no "hook",
+"payoff", "stakes" or "twist" (the Kane short said "the incredible payoff
+arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const raw = await writer.generateText(attempt === 1 ? base
@@ -368,7 +371,7 @@ emojis, no stage directions. ${WORDS.min}-${WORDS.max} words. Return only the na
  * story shorts and the Sunday roundup, so a change of look happens in one place.
  * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
  */
-async function renderStills(lane, id, text, photos) {
+async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
@@ -379,6 +382,25 @@ async function renderStills(lane, id, text, photos) {
   const seconds = await factory.probeDuration(audio);
   if (seconds > 178) return { skip: `${seconds.toFixed(0)}s is over the 3-minute Shorts limit` };
   if (seconds < 20.5) return { skip: `${seconds.toFixed(0)}s is under the 20s quality gate` };
+  const video = path.join(dirs.video, `${id}_short.mp4`);
+
+  // The second look (utils/short-style-v2.js). Anything going wrong in it —
+  // Python missing on a runner, a model download that failed — falls back to
+  // the v1 render below on the same narration, so a post is never lost to it.
+  if (style === 'v2') {
+    const workDir = path.join(dirs.work, id);
+    try {
+      await renderStoryV2({
+        words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag,
+        look: lane.look || 'football', accent: lane.captionHighlight, outputPath: video, workDir, logger
+      });
+      return { video, seconds, style: 'v2' };
+    } catch (error) {
+      logger.warn(`${id}: v2 render failed (${String(error.message).slice(0, 160)}); rendering the v1 look`);
+    } finally {
+      await fsp.rm(workDir, { recursive: true, force: true });
+    }
+  }
 
   const captions = path.join(dirs.captions, `${id}_short.ass`);
   // Captions never wrap (WrapStyle 2), so three long words ran off the frame
@@ -394,10 +416,22 @@ async function renderStills(lane, id, text, photos) {
     await factory.stillToClip(photos[i % photos.length].path, per, clip);
     clips.push(clip);
   }
-  const video = path.join(dirs.video, `${id}_short.mp4`);
   await factory.renderShort({ storyClips: clips, motionClip: null, layout: 'full', audioPath: audio, captionPath: captions, outputPath: video });
   await Promise.all(clips.map((c) => fsp.unlink(c).catch(() => {})));
-  return { video, seconds };
+  return { video, seconds, style: 'v1' };
+}
+
+/**
+ * Which look a lane's next story gets. `lane.v2`: 'on', 'off' (default), or
+ * 'ab' — the two looks alternate by count, so after two weeks they have the
+ * same number of posts and their views and average-watched can be compared
+ * straight from stories.json's `style` field.
+ */
+function chooseStyle(lane, done) {
+  if (lane.v2 === 'on') return 'v2';
+  if (lane.v2 !== 'ab') return 'v1';
+  const n = (s) => done.filter((d) => d.style === s).length;
+  return n('v2') <= n('v1') ? 'v2' : 'v1';
 }
 
 // Subjects any lane picked in this process. Every lane sees the same trending
@@ -429,6 +463,14 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
   if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
   const news = sequelOf || pinned || !lane.news ? [] : (await footballNews()).slice(0, 30);
   if (news.length) logger.info(`news: ${news.length} headlines, e.g. ${news.slice(0, 3).map((n) => n.title).join(' | ')}`);
+
+  // Posted is posted. A story asked for by name skips the fortnight rule, so
+  // asking twice for the same news in other words would post it twice; the
+  // same article within a week is refused instead.
+  if (pinned) {
+    const again = done.find((d) => fold(d.article) === fold(pinned.article) && Date.now() - Date.parse(d.at) < 7 * 86400000);
+    if (again) throw new Error(`already posted from "${pinned.article}" on ${again.at.slice(0, 10)}: "${again.title}"`);
+  }
 
   // A sequel continues one story, so its article is fixed and read once, and
   // Part 1's own narration tells the planner and the writer what not to repeat.
@@ -502,7 +544,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const saved = await archival.downloadArchivalImages(found, imgDir);
       if (saved.length < 3) { logger.info(`skip ${subject}: photo downloads failed`); continue; }
 
-      const rendered = await renderStills(lane, id, text, saved);
+      const rendered = await renderStills(lane, id, text, saved,
+        { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null });
       if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
       const { video, seconds } = rendered;
       const dirs = { copy: base('shorts', 'copy') };
@@ -522,7 +565,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       await fsp.writeFile(queuePath, JSON.stringify(queue, null, 2));
 
       const series = sequel ? { sequelOf: sequelOf.id, part: sequel.part, root: sequel.root } : {};
-      done.push({ id, subject, article: brief.title, moment: story.moment, title, at: new Date().toISOString(), ...series });
+      done.push({ id, subject, article: brief.title, moment: story.moment, title, at: new Date().toISOString(), style: rendered.style, ...series });
       await fsp.writeFile(storiesPath, JSON.stringify(done, null, 2));
       return { id, title, video, seconds, ...series };
     }
@@ -553,4 +596,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, renderStills, unsupportedSentences, parseJson, trending };
+module.exports = { makeStoryShort, renderStills, chooseStyle, unsupportedSentences, parseJson, trending };

@@ -126,6 +126,43 @@ jobs:
             echo "WARN piper self-check failed:"; cat /tmp/piper-err || true
           fi
 
+      # The v2 video look (utils/short-style-v2.js) renders frames with Python +
+      # OpenCV and finds each story's subject with two OpenCV Zoo face models
+      # (~39 MB, cached). None of these may stop the run: if any of them fails,
+      # story-short.js falls back to the v1 render on the same narration.
+      - uses: actions/setup-python@v5
+        continue-on-error: true
+        with:
+          python-version: "3.12"
+
+      - name: Install v2 render deps
+        continue-on-error: true
+        run: python -m pip install --quiet --disable-pip-version-check numpy opencv-python-headless
+
+      - name: Cache face models
+        id: face-cache
+        continue-on-error: true
+        uses: actions/cache@v4
+        with:
+          path: data/face-models
+          key: face-models-v1
+
+      - name: Download face models
+        if: steps.face-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p data/face-models
+          base=https://github.com/opencv/opencv_zoo/raw/main/models
+          curl -sSL -o data/face-models/face_detection_yunet_2023mar.onnx "$base/face_detection_yunet/face_detection_yunet_2023mar.onnx"
+          curl -sSL -o data/face-models/face_recognition_sface_2021dec.onnx "$base/face_recognition_sface/face_recognition_sface_2021dec.onnx"
+
+      - name: Verify v2 render deps
+        continue-on-error: true
+        run: |
+          ls -la data/face-models || true
+          python -P -c "import cv2, numpy; d=cv2.FaceDetectorYN.create('data/face-models/face_detection_yunet_2023mar.onnx','',(320,320)); r=cv2.FaceRecognizerSF.create('data/face-models/face_recognition_sface_2021dec.onnx',''); print('v2 ok: opencv', cv2.__version__)"
+
       - name: Credentials
         env:
           ENV_FILE: ${{ secrets.ENV_FILE }}

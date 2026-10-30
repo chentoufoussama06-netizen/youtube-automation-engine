@@ -108,3 +108,6 @@ state/**/thumbnails/
 # Offline Piper TTS fallback — binary + voice models are downloaded in CI, never committed
 .piper/
 data/piper-voices/
+
+# Face models for the v2 short look (downloaded and cached by the workflow)
+data/face-models/
