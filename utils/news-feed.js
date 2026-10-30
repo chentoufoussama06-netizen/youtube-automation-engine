@@ -60,7 +60,14 @@ async function newsSearch(query, { days = 7, limit = 60, lang = 'en-GB', region 
 // European club football, not the NFL.
 const FOOTBALL_QUERY = 'football ("Premier League" OR "La Liga" OR "Champions League" OR "Serie A" OR Bundesliga OR "Ligue 1" OR FIFA OR UEFA)';
 
-/** The last two days of football headlines. */
-const footballNews = (opts = {}) => newsSearch(FOOTBALL_QUERY, { days: 2, limit: 40, ...opts });
+// Headlines that are about the business of watching football, not football
+// stories: the first cloud run's top three were ticket news, a weekly show
+// and accumulator tips, and the story picker rightly ignored all of them.
+const NOT_A_STORY = /\b(tips?|odds|accumulator|acca|bets?|betting|predictions?|tickets?|live stream|how to watch|tv channel|kick-?off time|podcast|weekly show|show\b|fantasy|fpl|line-?ups?|player ratings|preview)\b/i;
+
+/** The last two days of football headlines, without the betting and listings noise. */
+const footballNews = async (opts = {}) => (await newsSearch(FOOTBALL_QUERY, { days: 2, limit: 60, ...opts }))
+  .filter((n) => !NOT_A_STORY.test(n.title))
+  .slice(0, 40);
 
 module.exports = { newsSearch, footballNews, FOOTBALL_QUERY };
