@@ -105,8 +105,12 @@ function buildMetadata(copy, job) {
   }
   const title = hook + SUFFIX;
 
+  // A sequel's copy opens with its "◀ Part 1: <link>" line, which stays a line
+  // of its own instead of running into the narration.
+  const [, back = '', body = copy] = /^(◀[^\n]*)\n+([\s\S]*)$/.exec(String(copy)) || [];
   const description = [
-    String(copy).replace(/\s+/g, ' ').trim(),
+    ...(back ? [back, ''] : []),
+    String(body).replace(/\s+/g, ' ').trim(),
     '',
     `Subject: ${job.topic}`,
     '',

@@ -5,6 +5,7 @@
  *
  *   node scripts/autopilot/story-short.js "Football Files"            # make one
  *   node scripts/autopilot/story-short.js "Football Files" --dry-run  # pick + write, render nothing
+ *   node scripts/autopilot/story-short.js "Football Files" --sequel <story id> --dry-run   # its next part
  *
  * Why this format. Measured 2026-10-07 across ~2,000 recent videos in 30
  * niches: the fastest-growing young football channel, GOATED90 (created
@@ -44,7 +45,7 @@ const SECONDS_PER_IMAGE = 3.5;
 const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const slug = (s, max = 30) => fold(s).replace(/\([^)]*\)/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, max).replace(/-$/, '');
 const words = (t) => String(t).trim().split(/\s+/).filter(Boolean).length;
-const readJson = (p, fb) => { try { return JSON.parse(fs.readFileSync(p, 'utf8').replace(/^﻿/, '')); } catch { return fb; } };
+const readJson = (p, fb) => { try { return JSON.parse(fs.readFileSync(p, 'utf8').replace(/^\uFEFF/, '')); } catch { return fb; } };
 
 function parseJson(raw) {
   const text = String(raw || '').replace(/```(?:json)?/gi, '');
@@ -124,6 +125,38 @@ ${avoid.map((t) => `  - ${t}`).join('\n') || '  (nothing yet)'}
 
 Return ONLY JSON: {"stories": [{"article": "...", "subject": "...", "moment": "...", "title": "..."}]}`;
   return parseJson(await ai.generateText(prompt, { maxTokens: 3000, temperature: 0.95 })).stories || [];
+}
+
+/**
+ * Follow-up episodes for a short that did well: what happened AFTER its moment,
+ * taken from the same article, so Part 2 is verified exactly the way Part 1 was.
+ */
+async function proposeSequel(ai, lane, parent, previously, brief) {
+  const prompt = `You plan sequels for the YouTube Shorts channel "${lane.name}".
+
+A short about ${parent.subject} did well with viewers. Its episode: ${parent.moment}
+Its narration:
+"""
+${previously}
+"""
+
+Wikipedia article "${brief.title}":
+"""
+${brief.text.slice(0, 12000)}
+"""
+
+Propose up to 4 follow-up episodes for the next part. Rules:
+- Each must happen AFTER that episode and continue the same story: the fallout,
+  the consequence, the next chapter, how it ended for them.
+- It must be stated in the article above, and not already told in the narration.
+- Most dramatic first: the one a viewer of the first part would most want to
+  know. The first one that passes the fact-check is the one that gets made.
+- "moment": one sentence naming the follow-up episode, with its year.
+- "title": under 50 characters, states the twist in plain words, and makes sense
+  to a viewer who never saw the first part. No emoji, no "Part" (added later).
+
+Return ONLY JSON: {"stories": [{"moment": "...", "title": "..."}]}`;
+  return parseJson(await ai.generateText(prompt, { maxTokens: 2000, temperature: 0.7 })).stories || [];
 }
 
 /**
@@ -223,9 +256,19 @@ function writerAI() {
 }
 
 async function narrate(ai, story, brief, writer = writerAI(), WORDS = DEFAULT_WORDS) {
+  // A sequel is told as the next chapter: what Part 1 said is shown so it is
+  // not retold, and one reconnecting line lets a viewer who missed it follow.
+  const sequel = story.previously ? `
+This is PART ${story.part} of a series. The previous part already told the story
+below, so do NOT retell it. Open with ONE sentence that reconnects the viewer to
+it, then tell what happened NEXT:
+"""
+${story.previously}
+"""
+` : '';
   const base = `Write the narration for a ${WORDS.target}-word YouTube Short about ${story.subject}.
 The episode: ${story.moment}
-
+${sequel}
 SOURCE — the only place you may take names, dates, numbers, clubs, scores and
 quotes from. If a detail is not here, it does not exist:
 """
@@ -309,7 +352,11 @@ emojis, no stage directions. ${WORDS.min}-${WORDS.max} words. Return only the na
 // Elizabeth Holmes; one channel per subject per day.
 const takenThisRun = new Set();
 
-async function makeStoryShort(laneName, { dryRun = false } = {}) {
+/**
+ * `sequelOf` is a stories.json entry (with its videoId) to continue: the next
+ * part of that story replaces a fresh pick. See scripts/autopilot/sequels.js.
+ */
+async function makeStoryShort(laneName, { dryRun = false, sequelOf = null } = {}) {
   const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
   if (!lane) throw new Error(`no lane "${laneName}"`);
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
@@ -325,45 +372,73 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
     ...Object.entries(ledger).filter(([id]) => !id.startsWith('reddit-')).map(([, v]) => String(v.title || '').replace(/\s*#Shorts$/i, ''))].slice(-120);
   // Same subject at most once a fortnight, so the feed is not one player.
   const recent = new Set(done.filter((d) => Date.now() - Date.parse(d.at) < 14 * 86400000).map((d) => fold(d.subject)));
-  const hot = await trending();
+  const hot = sequelOf ? [] : await trending();
   if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
 
-  for (let round = 1; round <= 2; round++) {
+  // A sequel continues one story, so its article is fixed and read once, and
+  // Part 1's own narration tells the planner and the writer what not to repeat.
+  let sequel = null;
+  if (sequelOf) {
+    const full = await research.buildBriefFromArticle(sequelOf.article, { maxChars: 150000 }).catch(() => null);
+    if (!full || full.text.length < 3000) throw new Error(`no usable article text for ${sequelOf.article}`);
+    const copy = await fsp.readFile(base('shorts', 'copy', `${sequelOf.id}_short.txt`), 'utf8').catch(() => '');
+    const previously = copy.split(/\n\nSource:/)[0].replace(/^◀.*\n+/, '').trim() || sequelOf.moment;
+    sequel = { full, previously, part: (sequelOf.part || 1) + 1, root: sequelOf.root || sequelOf.id };
+    logger.info(`sequel: Part ${sequel.part} of ${sequelOf.id}`);
+  }
+
+  for (let round = 1; round <= (sequel ? 1 : 2); round++) {
     let stories;
     try {
       // Round 2 drops the trending list, in case it pulled round 1 off-scope.
-      stories = await propose(ai, lane, avoid, round === 1 ? hot : []);
+      stories = sequel
+        ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 14000)))
+          .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
+        : await propose(ai, lane, avoid, round === 1 ? hot : []);
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
     }
     for (const story of stories) {
       const subject = String(story.subject || '').replace(/\([^)]*\)/g, '').trim();
-      if (!story.article || !subject || recent.has(fold(subject)) || takenThisRun.has(fold(subject))) continue;
+      if (!story.article || !subject) continue;
+      // The fortnight-per-subject rule is for fresh picks; a sequel is the same subject by design.
+      if (!sequel && (recent.has(fold(subject)) || takenThisRun.has(fold(subject)))) continue;
       if (done.some((d) => fold(d.moment) === fold(story.moment))) continue;
 
-      const full = await research.buildBriefFromArticle(story.article, { maxChars: 150000 }).catch(() => null);
-      if (!full || full.text.length < 3000) { logger.info(`skip ${story.article}: thin or missing article`); continue; }
-      const brief = focusBrief(full, story);
+      let brief;
+      if (sequel) {
+        // Keyed on both episodes, so the line reconnecting to Part 1 is in the
+        // source the fact-checker reads instead of being cut as unsupported.
+        brief = focusBrief(sequel.full, { moment: `${sequelOf.moment} ${story.moment}`, title: story.title });
+      } else {
+        const full = await research.buildBriefFromArticle(story.article, { maxChars: 150000 }).catch(() => null);
+        if (!full || full.text.length < 3000) { logger.info(`skip ${story.article}: thin or missing article`); continue; }
+        brief = focusBrief(full, story);
+      }
       if (!(await supported(ai, story, brief))) { logger.info(`skip "${story.moment}": not in the article`); continue; }
 
       const found = await archival.gatherForTopic([subject], { must: [subject], bonus: [] }, { perQuery: 30, total: 10 }).catch(() => []);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
-      const text = await narrate(ai, { ...story, subject }, brief, writer, lane.story?.words || DEFAULT_WORDS);
+      const text = await narrate(ai, { ...story, subject, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
+        brief, writer, lane.story?.words || DEFAULT_WORDS);
       if (!text) { logger.info(`skip ${subject}: no clean narration`); continue; }
 
       // The model still stacks emojis ("😳💀") despite the rule; keep the first.
       let seen = false;
-      const title = String(story.title)
+      let title = String(story.title)
         .replace(/\p{Extended_Pictographic}️?/gu, (e) => (seen ? '' : ((seen = true), e)))
         .replace(/[‐-‒]/g, '-')   // non-breaking hyphens, as in the narration
-        .replace(/\s+/g, ' ').trim().slice(0, 80);
-      let id = `story-${slug(subject, 20)}-${slug(story.moment, 16)}`;
+        .replace(/\s+/g, ' ').trim().slice(0, sequel ? 70 : 80);
+      if (sequel) title = `${title.replace(/[.!?]+$/, '')} (Part ${sequel.part})`;
+      let id = sequel
+        ? `story-${slug(subject, 20)}-p${sequel.part}-${slug(story.moment, 12)}`
+        : `story-${slug(subject, 20)}-${slug(story.moment, 16)}`;
       while (ledger[id]) id += 'x';
       takenThisRun.add(fold(subject));
       logger.success(`${id}: "${title}" — ${words(text)} words`);
-      if (dryRun) return { id, title, text, subject, article: brief.title, photos: found.length };
+      if (dryRun) return { id, title, text, subject, article: brief.title, photos: found.length, ...(sequel ? { part: sequel.part } : {}) };
 
       // ---- render
       const imgDir = base('reference', id);
@@ -402,17 +477,20 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
 
       // The description is the copy file; CC BY photos are only legal credited.
       const credits = saved.map((s) => `• ${s.title.replace(/^File:/, '')} — ${String(s.artist || 'unknown').slice(0, 80)}, ${s.license}`);
+      // A sequel's first description line points back, for anyone who lands here first.
+      const back = sequel ? `◀ Part ${sequel.part - 1}: https://youtube.com/shorts/${sequelOf.videoId}\n\n` : '';
       await fsp.writeFile(path.join(dirs.copy, `${id}_short.txt`),
-        `${text}\n\nSource: ${brief.url}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}`);
+        `${back}${text}\n\nSource: ${brief.url}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}`);
 
       const queuePath = base('queue.json');
       const queue = readJson(queuePath, { topics: [] });
       queue.topics.push({ id, topic: story.moment, keywords: [subject, ...(lane.story || DEFAULT_STORY).tags], status: 'short', shortTitle: title, article: brief.title, categoryId: lane.categoryId });
       await fsp.writeFile(queuePath, JSON.stringify(queue, null, 2));
 
-      done.push({ id, subject, article: brief.title, moment: story.moment, title, at: new Date().toISOString() });
+      const series = sequel ? { sequelOf: sequelOf.id, part: sequel.part, root: sequel.root } : {};
+      done.push({ id, subject, article: brief.title, moment: story.moment, title, at: new Date().toISOString(), ...series });
       await fsp.writeFile(storiesPath, JSON.stringify(done, null, 2));
-      return { id, title, video, seconds };
+      return { id, title, video, seconds, ...series };
     }
   }
   throw new Error('no story survived verification this run');
@@ -420,7 +498,17 @@ async function makeStoryShort(laneName, { dryRun = false } = {}) {
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  makeStoryShort(args.find((a) => !a.startsWith('--')), { dryRun: args.includes('--dry-run') })
+  const laneName = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--sequel');
+  let sequelOf = null;
+  if (args.includes('--sequel')) {
+    const sid = args[args.indexOf('--sequel') + 1];
+    const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
+    const story = lane && readJson(path.join(ROOT, lane.dataRoot, 'stories.json'), []).find((s) => s.id === sid);
+    const entry = lane && readJson(path.join(ROOT, lane.dataRoot, 'shorts', 'uploads.json'), {})[sid];
+    if (!story || !entry?.videoId) { logger.error(`no uploaded story "${sid}" in ${laneName}`); process.exit(1); }
+    sequelOf = { ...story, videoId: entry.videoId, url: entry.url };
+  }
+  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf })
     .then((r) => console.log(JSON.stringify({ ...r, text: r.text ? `${r.text.slice(0, 400)}…` : undefined }, null, 2)))
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }

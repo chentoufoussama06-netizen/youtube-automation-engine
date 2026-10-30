@@ -17,6 +17,9 @@
  *   supply   when no segment is left to cut, a new compilation is planned
  *            (plan-compilation.js) and built (build-compilation.js), so the
  *            pipeline never runs dry and never repeats a subject.
+ *   sequel   a story short that pulled a crowd (autopilot/sequels.js) gets its
+ *            Part 2, then Part 3, in the lane's first story slot; each part is
+ *            linked from the one before and kept in a series playlist.
  *
  * Every render passes check-video.js before it is uploaded. Anything that fails
  * is skipped and counted; after two failures a segment or compilation is
@@ -38,6 +41,7 @@ const { check } = require('./autopilot/check-video');
 const { makeThumbnail } = require('./autopilot/make-thumbnail');
 const { plan } = require('./autopilot/plan-compilation');
 const { makeStoryShort } = require('./autopilot/story-short');
+const { pickSequel } = require('./autopilot/sequels');
 
 const ROOT = path.join(__dirname, '..');
 const LONGFORM_GAP_DAYS = Number(process.env.LONGFORM_GAP_DAYS) || 2;
@@ -49,7 +53,7 @@ const DRY = args.includes('--dry-run');
 const onlyLane = args.includes('--lane') ? args[args.indexOf('--lane') + 1] : null;
 
 const readJson = (p, fallback) => {
-  try { return JSON.parse(fs.readFileSync(p, 'utf8').replace(/^﻿/, '')); } catch { return fallback; }
+  try { return JSON.parse(fs.readFileSync(p, 'utf8').replace(/^\uFEFF/, '')); } catch { return fallback; }
 };
 const writeJson = (p, v) => { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, `${JSON.stringify(v, null, 2)}\n`); };
 const log = (...a) => console.log(`[autopilot ${new Date().toISOString().slice(11, 19)}]`, ...a);
@@ -259,27 +263,82 @@ async function postShort(lane, st, ai) {
   return `${lane.name}: no short (every candidate failed the quality gate)`;
 }
 
-/** One famous-player story short: write, render, gate, upload, publish. */
-async function postStoryShort(lane, st) {
+/**
+ * One famous-player story short: write, render, gate, upload, publish. With
+ * `sequelOf`, the next part of that story instead (see autopilot/sequels.js).
+ * Returns { ok, uploaded, msg }; `uploaded` says an upload was attempted, so a
+ * failure there (usually quota) is not retried with a fresh story.
+ */
+async function postStoryShort(lane, st, sequelOf = null) {
+  const kind = sequelOf ? `Part ${(sequelOf.part || 1) + 1} of ${sequelOf.id}` : 'story short';
   let made;
   try {
-    made = await makeStoryShort(lane.name, { dryRun: DRY });
+    made = await makeStoryShort(lane.name, { dryRun: DRY, sequelOf });
   } catch (error) {
-    return `${lane.name}: no story short — ${error.message}`;
+    return { ok: false, msg: `${lane.name}: no ${kind} — ${error.message}` };
   }
-  if (DRY) return `${lane.name}: would post story short "${made.title}"`;
+  if (DRY) return { ok: true, msg: `${lane.name}: would post ${kind} "${made.title}"` };
 
   const gate = check(made.video, 'short');
   if (!gate.ok) {
     fs.rmSync(made.video, { force: true });
-    return `${lane.name}: story short ${made.id} rejected — ${gate.problems.join('; ')}`;
+    return { ok: false, msg: `${lane.name}: ${kind} ${made.id} rejected — ${gate.problems.join('; ')}` };
   }
   run(lane, 'scripts/youtube/upload-shorts.js', ['--no-subs', '--limit', '1'], 15);
-  if (!ledgerOf(lane)[made.id]) return `${lane.name}: story short ${made.id} rendered but upload failed`;
+  if (!ledgerOf(lane)[made.id]) return { ok: false, uploaded: true, msg: `${lane.name}: ${kind} ${made.id} rendered but upload failed` };
   run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', made.id], 10);
   const entry = ledgerOf(lane)[made.id];
-  st.history.push({ at: new Date().toISOString(), event: 'story', id: made.id, url: entry.url });
-  return `${lane.name}: story short ${entry.privacyStatus} ${entry.url} "${entry.title}"`;
+  st.history.push({ at: new Date().toISOString(), event: sequelOf ? 'sequel' : 'story', id: made.id, url: entry.url });
+  if (sequelOf) {
+    // Linked at the end of the run, once every lane has had its uploads.
+    st.pendingLinks = st.pendingLinks || [];
+    st.pendingLinks.push({ root: made.root, prev: sequelOf.videoId, next: entry.videoId, part: made.part, subject: sequelOf.subject });
+  }
+  return { ok: true, msg: `${lane.name}: ${kind} ${entry.privacyStatus} ${entry.url} "${entry.title}"` };
+}
+
+/** A story short that pulled a crowd, due its next part today, or null. */
+async function sequelDue(lane, st) {
+  if (!lane.storyShortsPerDay) return null;
+  try {
+    const parent = await pickSequel(lane, st);
+    if (parent) log(`${lane.name}: ${parent.id} earned a sequel — ${parent.views} views, ${parent.avgPct.toFixed(0)}% watched`);
+    return parent;
+  } catch (error) {
+    // Analytics down or a token without its scope: the day's stories go ahead as usual.
+    log(`${lane.name}: sequel check skipped — ${String(error.message).slice(0, 120)}`);
+    return null;
+  }
+}
+
+/**
+ * Point each part at the next and gather the series into one playlist. Runs
+ * after every lane has posted: these edits draw on the same 10,000-unit quota
+ * as the uploads (~200 units to start a series), so they must never cost a
+ * post. A link that fails waits in state and is retried on the next run.
+ */
+function linkSeries(lane, st) {
+  const pending = st.pendingLinks || [];
+  if (!pending.length || DRY) return [];
+  st.series = st.series || {};
+  const out = [];
+  st.pendingLinks = pending.filter((job) => {
+    const series = st.series[job.root] || {};
+    const res = run(lane, 'scripts/youtube/link-series.js', [job.prev, job.next, String(job.part),
+      ...(series.playlistId ? ['--playlist', series.playlistId] : ['--playlist-title', `${job.subject}: the full story`])], 5);
+    // Kept even when the run failed later on, so a retry does not make a second playlist.
+    const m = /SERIES_PLAYLIST=([\w-]+)/.exec(res.out);
+    if (m) st.series[job.root] = { ...series, playlistId: m[1] };
+    if (res.ok) {
+      out.push(`${lane.name}: linked Part ${job.part - 1} to Part ${job.part}${m ? `, playlist https://www.youtube.com/playlist?list=${m[1]}` : ''}`);
+      return false;
+    }
+    job.tries = (job.tries || 0) + 1;
+    if (job.tries < 5) return true;
+    out.push(`${lane.name}: gave up linking Part ${job.part} of ${job.root}`);
+    return false;
+  });
+  return out;
 }
 
 // All channels share one Google project's 10,000 units a day. Five shorts
@@ -365,9 +424,21 @@ async function main() {
       log(`${lane.name}: publishing ${stuck.length} short(s) left private: ${stuck.join(', ')}`);
       run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', ...stuck], 10);
     }
+    // A winner's next part takes the first story slot; if no part survives the
+    // fact-check, that slot still gets a fresh story.
+    const sequelOf = await sequelDue(lane, st);
     for (let i = 0; i < (lane.storyShortsPerDay ?? 0); i++) {
       try {
-        summary.push(await postStoryShort(lane, st));
+        let res = null;
+        if (i === 0 && sequelOf) {
+          res = await postStoryShort(lane, st, sequelOf);
+          if (!res.ok && !res.uploaded) {
+            st.failures[`sequel:${sequelOf.id}`] = (st.failures[`sequel:${sequelOf.id}`] || 0) + 1;
+            log(`${res.msg}; posting a fresh story instead`);
+            res = null;
+          }
+        }
+        summary.push((res || await postStoryShort(lane, st)).msg);
       } catch (error) {
         summary.push(`${lane.name}: story short crashed — ${error.message}`);
       }
@@ -385,6 +456,16 @@ async function main() {
       summary.push(await postLongform(lane, st));
     } catch (error) {
       summary.push(`${lane.name}: long-form crashed — ${error.message}`);
+    }
+    saveState(lane, st);
+  }
+
+  for (const lane of lanes) {
+    const st = stateOf(lane);
+    try {
+      summary.push(...linkSeries(lane, st));
+    } catch (error) {
+      summary.push(`${lane.name}: series linking crashed — ${error.message}`);
     }
     saveState(lane, st);
   }
