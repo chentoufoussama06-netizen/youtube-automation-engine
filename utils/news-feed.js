@@ -63,7 +63,7 @@ const FOOTBALL_QUERY = 'football ("Premier League" OR "La Liga" OR "Champions Le
 // Headlines that are about the business of watching football, not football
 // stories: the first cloud run's top three were ticket news, a weekly show
 // and accumulator tips, and the story picker rightly ignored all of them.
-const NOT_A_STORY = /\b(tips?|odds|accumulator|acca|bets?|betting|predictions?|tickets?|live stream|how to watch|tv channel|kick-?off time|podcast|weekly show|show\b|fantasy|fpl|line-?ups?|player ratings|preview)\b/i;
+const NOT_A_STORY = /\b(tips?|odds|accumulator|acca|bets?|betting|predictions?|tickets?|live stream|how to watch|tv channel|kick-?off time|podcast|weekly show|show\b|fantasy|fpl|line-?ups?|player ratings|preview|college football|ncaa|nfl|big 12|big ten|quarterback|touchdown)\b/i;
 
 /** The last two days of football headlines, without the betting and listings noise. */
 const footballNews = async (opts = {}) => (await newsSearch(FOOTBALL_QUERY, { days: 2, limit: 60, ...opts }))
