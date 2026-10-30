@@ -32,6 +32,17 @@ on:
         description: "Plan only: render and post nothing"
         type: boolean
         default: false
+      # Post ONE story by name instead of the day's run (needs a lane). The
+      # article is the exact English Wikipedia title the facts are checked against.
+      article:
+        description: "One story: Wikipedia article (blank = normal run)"
+        default: ""
+      moment:
+        description: "One story: the episode, one sentence with its year"
+        default: ""
+      title:
+        description: "One story: the video title"
+        default: ""
 
 concurrency:
   group: daily-shorts
@@ -142,6 +153,10 @@ jobs:
           echo "$YT_TOKENS_FOOTBALL2" | base64 -d > config/tokens.football2.json
 
       - name: Make and post
+        env:
+          PIN_ARTICLE: ${{ github.event.inputs.article }}
+          PIN_MOMENT: ${{ github.event.inputs.moment }}
+          PIN_TITLE: ${{ github.event.inputs.title }}
         run: |
           set -o pipefail
           node scripts/autopilot.js \

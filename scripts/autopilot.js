@@ -6,6 +6,8 @@
  *   node scripts/autopilot.js --lane "AFTER CACHE"
  *   node scripts/autopilot.js --dry-run       # say what would happen, post nothing
  *   node scripts/autopilot.js --save-refs     # push every local photo set to the release
+ *   PIN_ARTICLE="Harry Kane" PIN_MOMENT="..." PIN_TITLE="..." node scripts/autopilot.js --lane "Football Files"
+ *                                             # post one named story, nothing else
  *
  * Replaces the Reddit-over-gameplay loop in daily.js, which posted 18 shorts
  * for 27 views. Each lane now makes ONE product and feeds it every day:
@@ -269,11 +271,11 @@ async function postShort(lane, st, ai) {
  * Returns { ok, uploaded, msg }; `uploaded` says an upload was attempted, so a
  * failure there (usually quota) is not retried with a fresh story.
  */
-async function postStoryShort(lane, st, sequelOf = null) {
+async function postStoryShort(lane, st, sequelOf = null, pinned = null) {
   const kind = sequelOf ? `Part ${(sequelOf.part || 1) + 1} of ${sequelOf.id}` : 'story short';
   let made;
   try {
-    made = await makeStoryShort(lane.name, { dryRun: DRY, sequelOf });
+    made = await makeStoryShort(lane.name, { dryRun: DRY, sequelOf, story: pinned });
   } catch (error) {
     return { ok: false, msg: `${lane.name}: no ${kind} — ${error.message}` };
   }
@@ -402,6 +404,29 @@ async function main() {
 
   if (args.includes('--save-refs')) {
     for (const lane of lanes) for (const id of built(lane)) saveRefs(lane, id);
+    return;
+  }
+
+  // One story asked for by name (the workflow's "article" input): post just
+  // that on the one lane given, through the same fact-check, gate and upload.
+  // Read from the environment so a title like "Ballon d'Or" never meets a shell.
+  if (process.env.PIN_ARTICLE) {
+    const lane = lanes.length === 1 ? lanes[0] : null;
+    if (!lane) throw new Error('a pinned story needs --lane');
+    const article = process.env.PIN_ARTICLE.trim();
+    const pinned = {
+      article,
+      subject: (process.env.PIN_SUBJECT || article.replace(/\([^)]*\)/g, '')).trim(),
+      moment: String(process.env.PIN_MOMENT || '').trim(),
+      title: String(process.env.PIN_TITLE || '').trim()
+    };
+    if (!pinned.moment || !pinned.title) throw new Error('a pinned story needs a moment and a title');
+    const st = stateOf(lane);
+    const res = await postStoryShort(lane, st, null, pinned);
+    saveState(lane, st);
+    console.log('\n=== summary ===');
+    console.log(res.msg);
+    if (!res.ok) process.exit(1);
     return;
   }
 

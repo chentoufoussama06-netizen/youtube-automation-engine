@@ -6,6 +6,8 @@
  *   node scripts/autopilot/story-short.js "Football Files"            # make one
  *   node scripts/autopilot/story-short.js "Football Files" --dry-run  # pick + write, render nothing
  *   node scripts/autopilot/story-short.js "Football Files" --sequel <story id> --dry-run   # its next part
+ *   node scripts/autopilot/story-short.js "Football Files" --article "Harry Kane" \
+ *     --moment "On 26 October 2026 Kane won the Ballon d'Or." --title "Why Harry Kane Won the Ballon d'Or"
  *
  * Why this format. Measured 2026-10-07 across ~2,000 recent videos in 30
  * niches: the fastest-growing young football channel, GOATED90 (created
@@ -356,7 +358,7 @@ const takenThisRun = new Set();
  * `sequelOf` is a stories.json entry (with its videoId) to continue: the next
  * part of that story replaces a fresh pick. See scripts/autopilot/sequels.js.
  */
-async function makeStoryShort(laneName, { dryRun = false, sequelOf = null } = {}) {
+async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story: pinned = null } = {}) {
   const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
   if (!lane) throw new Error(`no lane "${laneName}"`);
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
@@ -372,7 +374,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null } = {}
     ...Object.entries(ledger).filter(([id]) => !id.startsWith('reddit-')).map(([, v]) => String(v.title || '').replace(/\s*#Shorts$/i, ''))].slice(-120);
   // Same subject at most once a fortnight, so the feed is not one player.
   const recent = new Set(done.filter((d) => Date.now() - Date.parse(d.at) < 14 * 86400000).map((d) => fold(d.subject)));
-  const hot = sequelOf ? [] : await trending();
+  const hot = sequelOf || pinned ? [] : await trending();
   if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
 
   // A sequel continues one story, so its article is fixed and read once, and
@@ -387,11 +389,13 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null } = {}
     logger.info(`sequel: Part ${sequel.part} of ${sequelOf.id}`);
   }
 
-  for (let round = 1; round <= (sequel ? 1 : 2); round++) {
+  for (let round = 1; round <= (sequel || pinned ? 1 : 2); round++) {
     let stories;
     try {
       // Round 2 drops the trending list, in case it pulled round 1 off-scope.
-      stories = sequel
+      // A pinned story (asked for by name) skips the proposal step entirely,
+      // and still goes through the same article check, fact-check and render.
+      stories = pinned ? [pinned] : sequel
         ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 14000)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
         : await propose(ai, lane, avoid, round === 1 ? hot : []);
@@ -403,7 +407,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null } = {}
       const subject = String(story.subject || '').replace(/\([^)]*\)/g, '').trim();
       if (!story.article || !subject) continue;
       // The fortnight-per-subject rule is for fresh picks; a sequel is the same subject by design.
-      if (!sequel && (recent.has(fold(subject)) || takenThisRun.has(fold(subject)))) continue;
+      if (!sequel && !pinned && (recent.has(fold(subject)) || takenThisRun.has(fold(subject)))) continue;
       if (done.some((d) => fold(d.moment) === fold(story.moment))) continue;
 
       let brief;
@@ -498,7 +502,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null } = {}
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const laneName = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--sequel');
+  const valueFlags = ['--sequel', '--article', '--subject', '--moment', '--title'];
+  const laneName = args.find((a, i) => !a.startsWith('--') && !valueFlags.includes(args[i - 1]));
   let sequelOf = null;
   if (args.includes('--sequel')) {
     const sid = args[args.indexOf('--sequel') + 1];
@@ -508,7 +513,12 @@ if (require.main === module) {
     if (!story || !entry?.videoId) { logger.error(`no uploaded story "${sid}" in ${laneName}`); process.exit(1); }
     sequelOf = { ...story, videoId: entry.videoId, url: entry.url };
   }
-  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf })
+  const opt = (n) => (args.includes(n) ? args[args.indexOf(n) + 1] : null);
+  const pinned = opt('--article')
+    ? { article: opt('--article'), subject: opt('--subject') || opt('--article').replace(/\([^)]*\)/g, '').trim(), moment: opt('--moment'), title: opt('--title') }
+    : null;
+  if (pinned && (!pinned.moment || !pinned.title)) { logger.error('--article needs --moment and --title'); process.exit(1); }
+  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned })
     .then((r) => console.log(JSON.stringify({ ...r, text: r.text ? `${r.text.slice(0, 400)}…` : undefined }, null, 2)))
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
