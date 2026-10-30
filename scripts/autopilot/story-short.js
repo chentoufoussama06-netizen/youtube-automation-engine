@@ -518,6 +518,14 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       if (!(await supported(ai, story, brief))) { logger.info(`skip "${story.moment}": not in the article`); continue; }
 
       const found = await archival.gatherForTopic([subject], { must: [subject], bonus: [] }, { perQuery: 30, total: 10 }).catch(() => []);
+      // Events rarely carry their name in Commons filenames; the article's own
+      // photographs fill the gap (see fetchArticleImages).
+      if (found.length < 6) {
+        const seen = new Set(found.map((f) => f.title));
+        for (const img of await archival.fetchArticleImages(brief.title || story.article).catch(() => [])) {
+          if (!seen.has(img.title) && found.length < 10) { found.push(img); seen.add(img.title); }
+        }
+      }
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
       const text = await narrate(ai, { ...story, subject, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },

@@ -58,8 +58,8 @@ class ArchivalImageService {
     this.requestDelayMs = Number(process.env.ARCHIVAL_DELAY_MS) || 1200;
   }
 
-  async _api(params, attempt = 1) {
-    const url = `${COMMONS_API}?${new URLSearchParams({ format: 'json', ...params })}`;
+  async _api(params, attempt = 1, endpoint = COMMONS_API) {
+    const url = `${endpoint}?${new URLSearchParams({ format: 'json', ...params })}`;
     const response = await fetch(url, {
       headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
       signal: AbortSignal.timeout(30000)
@@ -76,7 +76,7 @@ class ArchivalImageService {
       const wait = Math.max(retryAfter || 0, 4000 * attempt * attempt);
       this.logger.warn(`Commons rate limit; waiting ${(wait / 1000).toFixed(0)}s (attempt ${attempt})`);
       await new Promise((resolve) => setTimeout(resolve, wait));
-      return this._api(params, attempt + 1);
+      return this._api(params, attempt + 1, endpoint);
     }
     if (!response.ok || !body.trimStart().startsWith('{')) {
       throw new Error(`Commons HTTP ${response.status}: ${body.slice(0, 90).replace(/\s+/g, ' ')}`);
@@ -89,7 +89,7 @@ class ArchivalImageService {
       const wait = 4000 * attempt * attempt;
       this.logger.warn(`Commons busy (${json.error.code}); waiting ${(wait / 1000).toFixed(0)}s (attempt ${attempt})`);
       await new Promise((resolve) => setTimeout(resolve, wait));
-      return this._api(params, attempt + 1);
+      return this._api(params, attempt + 1, endpoint);
     }
     return json;
   }
@@ -229,6 +229,51 @@ class ArchivalImageService {
     );
 
     return chosen;
+  }
+
+  /**
+   * The photographs a Wikipedia article itself uses. For an EVENT the filename
+   * search above needs the event's name in a file's title, and "Molasses flood
+   * in Boston" or "Dyatlov Pass hikers" match nothing: on 2026-10-30 Viral
+   * Vault Clip dropped ten stories that way. The article's own images are about
+   * the event by definition, and pass the same licence and size checks (so the
+   * non-free logos and posters English Wikipedia hosts are still refused).
+   */
+  async fetchArticleImages(articleTitle, opts = {}) {
+    const limit = opts.limit || 10;
+    const lang = process.env.RESEARCH_WIKI_LANG || 'en';
+    let data;
+    try {
+      data = await this._api({
+        action: 'query',
+        titles: articleTitle,
+        redirects: '1',
+        generator: 'images',
+        gimlimit: '50',
+        prop: 'imageinfo',
+        iiprop: 'url|size|extmetadata',
+        iiurlwidth: '1920'
+      }, 1, `https://${lang}.wikipedia.org/w/api.php`);
+    } catch (error) {
+      this.logger.warn(`Article images failed for "${articleTitle}" (${error.message.slice(0, 70)})`);
+      return [];
+    }
+    const accepted = [];
+    for (const page of Object.values(data.query?.pages || {})) {
+      const info = page.imageinfo?.[0];
+      const title = String(page.title || '').replace(/^File:/, '');
+      if (!info || !USABLE_EXTENSION.test(title)) continue;
+      const license = this._checkLicense(info.extmetadata);
+      if (!license.ok || (info.width || 0) < this.minWidth) continue;
+      accepted.push({
+        title, score: 3, width: info.width, height: info.height,
+        url: info.thumburl || info.url, descriptionUrl: info.descriptionurl,
+        license: license.license, artist: license.artist, credit: license.credit
+      });
+    }
+    accepted.sort((a, b) => b.width - a.width);
+    this.logger.info(`Article "${articleTitle}": ${Math.min(accepted.length, limit)} usable image(s)`);
+    return accepted.slice(0, limit);
   }
 
   /**
