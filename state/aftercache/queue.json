@@ -645,6 +645,20 @@
       "shortTitle": "Bebo’s $850 Million Sale to a $1 Million Exit",
       "article": "Bebo",
       "categoryId": "27"
+    },
+    {
+      "id": "story-netscape-navigator-netscape-s-flags",
+      "topic": "Netscape’s flagship browser lost market share to Internet Explorer and was officially discontinued in 2008.",
+      "keywords": [
+        "Netscape Navigator",
+        "tech history",
+        "lost media",
+        "internet history"
+      ],
+      "status": "short",
+      "shortTitle": "Why Netscape Navigator Vanished From the Web",
+      "article": "Netscape Navigator",
+      "categoryId": "27"
     }
   ]
 }

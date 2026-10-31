@@ -153,6 +153,34 @@
       "shortTitle": "Grandmother Maesa engineers his downfall (Part 2)",
       "article": "Elagabalus",
       "categoryId": "27"
+    },
+    {
+      "id": "story-battle-of-the-eclips-during-the-battl",
+      "topic": "During the Battle of the Eclipse in 585 BCE a sudden solar eclipse forced the warring Lydians and Medes to halt fighting and sign a peace treaty.",
+      "keywords": [
+        "Battle of the Eclipse",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "A Solar Eclipse Ended an Ancient War",
+      "article": "Eclipse of Thales",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-masada-jewish-rebels-co",
+      "topic": "Jewish rebels commit mass suicide rather than surrender to Romans at Masada in 73‑74 CE.",
+      "keywords": [
+        "Masada",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "The Last Stand at Masada: Suicide Over Surrender",
+      "article": "Masada",
+      "categoryId": "27"
     }
   ]
 }
