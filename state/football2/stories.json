@@ -89,5 +89,23 @@
     "sequelOf": "story-elagabalus-in-221-ce-the-te",
     "part": 2,
     "root": "story-elagabalus-in-221-ce-the-te"
+  },
+  {
+    "id": "story-battle-of-the-eclips-during-the-battl",
+    "subject": "Battle of the Eclipse",
+    "article": "Eclipse of Thales",
+    "moment": "During the Battle of the Eclipse in 585 BCE a sudden solar eclipse forced the warring Lydians and Medes to halt fighting and sign a peace treaty.",
+    "title": "A Solar Eclipse Ended an Ancient War",
+    "at": "2026-10-31T13:51:47.965Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-masada-jewish-rebels-co",
+    "subject": "Masada",
+    "article": "Masada",
+    "moment": "Jewish rebels commit mass suicide rather than surrender to Romans at Masada in 73‑74 CE.",
+    "title": "The Last Stand at Masada: Suicide Over Surrender",
+    "at": "2026-10-31T13:56:29.841Z",
+    "style": "v2"
   }
 ]

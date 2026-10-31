@@ -1228,6 +1228,48 @@
       "shortTitle": "Mbappé Laughed at a Mao Meme. China Struck Back",
       "article": "Kylian Mbappé",
       "categoryId": "17"
+    },
+    {
+      "id": "story-marc-vivien-foe-foe-collapsed-an",
+      "topic": "Foé collapsed and died on the pitch during a 2003 FIFA Confederations Cup match against Colombia.",
+      "keywords": [
+        "Marc‑Vivien Foé",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Marc-Vivien Foé Dies Mid-Match in 2003",
+      "article": "Marc-Vivien Foé",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-manchester-united-the-1958-munich",
+      "topic": "The 1958 Munich air disaster killed eight United players and staff as the team returned from a European match.",
+      "keywords": [
+        "Manchester United",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Munich Air Disaster Kills 8 Manchester United Stars",
+      "article": "Manchester United F.C.",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-cristiano-ronaldo-in-2018-ronaldo",
+      "topic": "In 2018, Ronaldo was convicted of tax fraud in Spain and received a two‑year suspended sentence.",
+      "keywords": [
+        "Cristiano Ronaldo",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Cristiano Ronaldo convicted of tax fraud in 2018",
+      "article": "Cristiano Ronaldo",
+      "categoryId": "17"
     }
   ]
 }
