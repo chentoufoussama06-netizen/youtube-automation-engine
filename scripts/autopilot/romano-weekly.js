@@ -49,6 +49,10 @@ Pick the 5 biggest DISTINCT football stories Romano reported this week. Rules:
 - A story carried by several outlets beats one carried by one.
 - Skip betting tips, podcasts, adverts, opinion pieces, and anything that is
   only "linked" without a claim attributed to Romano.
+- Prefer headlines that STATE what he reported — a club tried and failed, an
+  agreement, a bid, a refusal, a decision and what it was, "here we go". Skip
+  headlines that only promise "updates", "latest", "news" or "the truth"
+  without saying what it is: a story with nothing concrete to say is no story.
 - "subject": the player, manager or club at the centre, as their English
   Wikipedia article is titled (used to find a photo).
 - "claim": ONE sentence saying what Romano reported, using only what the
@@ -74,7 +78,11 @@ ${corpus}
 Structure:
 1. Open in under 15 words: Fabrizio Romano's biggest stories this week, counted down.
 2. "Number five" down to "Number one", one or two short sentences each, every one
-   ATTRIBUTED to Romano ("Romano says", "according to Fabrizio Romano").
+   ATTRIBUTED to Romano ("Romano says", "according to Fabrizio Romano"), and
+   each one saying WHAT he reported: who, which club, what happened. Never
+   "provided updates", "revealed their stance" or "shared news" without the
+   update or the stance itself (the first draft said only that, five times).
+   Name the player or club right after "Number <n>:" so the picture matches.
 3. Close with one short line that lands the week.
 
 Style: spoken, punchy, short sentences, present tense. No "you", no "subscribe",
@@ -103,6 +111,30 @@ async function verifiedScript(ai, picks, corpus) {
   return null;
 }
 
+/**
+ * Photos for the countdown, downloaded to `dir`: Romano himself for the intro,
+ * then each story's own subject (gatherForArticle — the person's own pictures,
+ * not filename matches on a surname, which gave a metal pole for "López").
+ * Returns { saved, chapters } with chapters as [{ cue: 'five', photos }].
+ */
+async function roundupPhotos(archival, picks, dir) {
+  const CUES = ['five', 'four', 'three', 'two', 'one'];
+  const groups = [{ cue: null, found: await archival.gatherForArticle('Fabrizio Romano', 'Fabrizio Romano', { total: 2 }).catch(() => []) }];
+  for (const [i, p] of picks.entries()) {
+    const subject = String(p.subject).replace(/\([^)]*\)/g, '').trim();
+    groups.push({ cue: CUES[i], found: await archival.gatherForArticle(subject, subject, { total: 3 }).catch(() => []) });
+  }
+  const all = groups.flatMap((g) => g.found);
+  if (all.length < 4) throw new Error(`only ${all.length} usable photos`);
+  const saved = await archival.downloadArchivalImages(all, dir);
+  if (saved.length < 4) throw new Error('photo downloads failed');
+  const pathOf = new Map(saved.map((s) => [s.title, s.path]));
+  const chapters = groups.filter((g) => g.cue)
+    .map((g) => ({ cue: g.cue, photos: g.found.map((f) => pathOf.get(f.title)).filter(Boolean) }))
+    .filter((c) => c.photos.length);
+  return { saved, chapters };
+}
+
 async function makeRomanoRoundup(laneName, { dryRun = false } = {}) {
   const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
   if (!lane) throw new Error(`no lane "${laneName}"`);
@@ -121,27 +153,17 @@ async function makeRomanoRoundup(laneName, { dryRun = false } = {}) {
   const text = await verifiedScript(ai, picks, corpus);
   if (!text) throw new Error('no narration survived the fact-check');
 
-  // Two photos per subject, so the picture follows the countdown.
-  const archival = new ArchivalImageService();
-  const found = [];
-  for (const p of picks) {
-    const subject = String(p.subject).replace(/\([^)]*\)/g, '').trim();
-    const last = subject.split(/\s+/).pop();
-    found.push(...await archival.gatherForTopic([subject], { must: [last], bonus: [subject] }, { perQuery: 15, total: 2 }).catch(() => []));
-  }
-  if (found.length < 4) throw new Error(`only ${found.length} usable photos`);
-
   const day = new Date().toISOString().slice(0, 10);
   const id = `story-romano-week-${day}`;
   const title = "Fabrizio Romano's 5 Biggest Stories This Week";
-  logger.success(`${id}: "${title}" — ${words(text)} words, ${found.length} photos`);
-  if (dryRun) return { id, title, text, picks, photos: found.length };
+  logger.success(`${id}: "${title}" — ${words(text)} words`);
+  if (dryRun) return { id, title, text, picks, items };
 
   const imgDir = base('reference', id);
-  const saved = await archival.downloadArchivalImages(found, imgDir);
-  if (saved.length < 4) throw new Error('photo downloads failed');
+  const { saved, chapters } = await roundupPhotos(new ArchivalImageService(), picks, imgDir);
   // Not part of the look A/B (only story shorts are), so it gets the new look wherever a lane has it.
-  const rendered = await renderStills(lane, id, text, saved, { style: ['on', 'ab'].includes(lane.v2) ? 'v2' : 'v1', title, tag: 'Weekly roundup' });
+  const rendered = await renderStills(lane, id, text, saved,
+    { style: ['on', 'ab'].includes(lane.v2) ? 'v2' : 'v1', title, tag: 'Weekly roundup', chapters });
   await fsp.rm(imgDir, { recursive: true, force: true });
   if (rendered.skip) throw new Error(rendered.skip);
 
@@ -170,4 +192,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`romano-weekly failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeRomanoRoundup };
+module.exports = { makeRomanoRoundup, roundupPhotos };

@@ -101,18 +101,33 @@ function cutTimes(words, duration, { target = 2.1, min = 1.4, max = 2.9 } = {}) 
   return cuts;
 }
 
-function planShots(words, duration, ranked) {
-  const cuts = cutTimes(words, duration);
+/**
+ * `chapters` ([{ at, photos }], seconds and photo paths) pins each stretch of
+ * narration to its own photos — the roundup's "Number four: Fermín López"
+ * must show López, not whichever photo ranks best overall. Chapter starts are
+ * also forced cuts, so the picture changes on "Number four".
+ */
+function planShots(words, duration, ranked, chapters = []) {
+  const forced = chapters.map((c) => c.at).filter((t) => t > 0.5 && t < duration - 1);
+  // A regular cut just before a chapter start would leave a flash of a shot.
+  const cuts = [...new Set([...cutTimes(words, duration).filter((t) => t === 0 || !forced.some((f) => Math.abs(f - t) < 0.8)), ...forced])]
+    .sort((a, b) => a - b);
+  const chapterAt = (t) => [...chapters].reverse().find((c) => c.at <= t + 0.05);
+  // Before the first chapter (the intro), only the photos no chapter claims.
+  const intro = chapters.length ? { photos: ranked.map((r) => r.path).filter((p) => !chapters.some((c) => c.photos.includes(p))) } : null;
   const uses = new Map();
   const shots = [];
   let prev = null;
   for (let i = 0; i < cuts.length; i++) {
     const start = cuts[i];
     const end = i + 1 < cuts.length ? cuts[i + 1] : duration;
+    const ch = chapterAt(start) || intro;
+    const pool = ch ? ranked.filter((r) => ch.photos.includes(r.path)) : ranked;
+    const from = pool.length ? pool : ranked;
     // The opener is the best photo; after that, the least-used photo that is
     // not the one just shown, best-ranked first.
-    const pick = i === 0 ? opener(ranked) : [...ranked]
-      .filter((r) => r.path !== prev)
+    const pick = i === 0 && !ch ? opener(ranked) : [...from]
+      .filter((r) => r.path !== prev || from.length === 1)
       .sort((a, b) => (uses.get(a.path) || 0) - (uses.get(b.path) || 0) || b.score - a.score)[0] || ranked[0];
     const n = uses.get(pick.path) || 0;
     uses.set(pick.path, n + 1);
@@ -163,8 +178,11 @@ function chunkWords(words) {
     cur.push(words[i]);
     const w = words[i].word;
     const ends = /[.!?,;:—]["'”’]?$/.test(w);
-    const full = cur.length >= 3 || cur.map((c) => c.word).join(' ').length >= 15;
-    const dangling = STOP.has(bare(w)) && !ends && i + 1 < words.length && cur.length < 5;
+    const len = cur.map((c) => c.word).join(' ').length;
+    const full = cur.length >= 3 || len >= 14;
+    // Carrying a dangling "the" onto the next word is worth a slightly longer
+    // chunk, but not one that would have to shrink to fit (~20 characters).
+    const dangling = STOP.has(bare(w)) && !ends && i + 1 < words.length && cur.length < 5 && len < 20;
     if ((ends || full) && !dangling) {
       chunks.push(cur);
       cur = [];
@@ -183,17 +201,27 @@ function assTime(s) {
 
 const assText = (s) => String(s).replace(/[{}\\]/g, '').replace(/\s+/g, ' ').trim();
 
+// Anton's advance widths at size 100, measured from the font file. WrapStyle 2
+// never wraps, so a caption wider than the frame is simply cut off at both
+// edges — at size 124, "KANE DOMINATED THE OPPOSITION." measured 1,560px on a
+// 1,080px frame, and every preview had clipped lines. Each line is sized to fit.
+const ANTON = { ' ': 23, A: 49, B: 48, C: 47, D: 49, E: 41, F: 40, G: 48, H: 50, I: 23, J: 47, K: 47, L: 40, M: 75, N: 50, O: 49, P: 47, Q: 49, R: 48, S: 46, T: 40, U: 47, V: 47, W: 71, X: 48, Y: 45, Z: 41, 1: 33, '.': 23, ',': 24, '!': 23, "'": 21, '’': 23, '"': 43, '-': 31, ':': 24, ';': 25, '%': 106, '&': 52, '(': 29, ')': 29, '/': 41 };
+const textWidth = (s, size) => [...String(s).normalize('NFD').replace(/[̀-ͯ]/g, '')]
+  .reduce((w, ch) => w + (ANTON[ch] ?? (/\d/.test(ch) ? 49 : 47)), 0) * size / 100;
+/** The largest size up to `base` at which `text`, scaled by `pop`, fits `maxPx`. */
+const fitSize = (text, base, maxPx, pop = 1) => Math.max(40, Math.min(base, Math.floor(base * maxPx / (textWidth(text, base) * pop || 1))));
+
 /** Two balanced lines for the hook headline. */
 function twoLines(title) {
   const words = assText(title).toUpperCase().split(' ');
-  if (words.length < 4) return words.join(' ');
+  if (words.length < 4) return [words.join(' ')];
   let best = 1;
   let bestDiff = Infinity;
   for (let i = 1; i < words.length; i++) {
-    const diff = Math.abs(words.slice(0, i).join(' ').length - words.slice(i).join(' ').length);
+    const diff = Math.abs(textWidth(words.slice(0, i).join(' '), 100) - textWidth(words.slice(i).join(' '), 100));
     if (diff < bestDiff) { bestDiff = diff; best = i; }
   }
-  return `${words.slice(0, best).join(' ')}\\N${words.slice(best).join(' ')}`;
+  return [words.slice(0, best).join(' '), words.slice(best).join(' ')];
 }
 
 function buildAss({ words, title, accent, look, hookEnd, stats, tag }) {
@@ -213,17 +241,23 @@ function buildAss({ words, title, accent, look, hookEnd, stats, tag }) {
   ];
   const ev = [];
 
+  // The hook box adds 24px of padding a side inside 60px margins: 912px for text.
+  const hook = twoLines(title);
+  const hookSize = fitSize(hook.reduce((a, b) => (textWidth(a, 100) >= textWidth(b, 100) ? a : b)), 116, 900);
   ev.push(`Dialogue: 3,${assTime(0)},${assTime(hookEnd)},Hook,,0,0,0,,`
-    + `{\\pos(540,250)\\fscx125\\fscy125\\t(0,180,\\fscx100\\fscy100)\\fad(0,180)}${twoLines(title)}`);
+    + `{\\pos(540,250)\\fs${hookSize}\\fscx125\\fscy125\\t(0,180,\\fscx100\\fscy100)\\fad(0,180)}${hook.join('\\N')}`);
   if (tag) ev.push(`Dialogue: 2,${assTime(hookEnd)},${assTime(words.at(-1).end + 0.4)},Tag,,0,0,0,,{\\pos(540,230)\\fad(200,0)}${assText(tag).toUpperCase()}`);
 
   for (const s of stats) {
+    const text = assText(s.text);
     ev.push(`Dialogue: 4,${assTime(s.t)},${assTime(s.t + 1.5)},Stat,,0,0,0,,`
-      + `{\\pos(540,700)\\frz-3\\fscx150\\fscy150\\t(0,140,\\fscx100\\fscy100)\\fad(0,220)}${assText(s.text)}`);
+      + `{\\pos(540,700)\\fs${fitSize(text, 200, 960)}\\frz-3\\fscx150\\fscy150\\t(0,140,\\fscx100\\fscy100)\\fad(0,220)}${text}`);
   }
 
   for (const chunk of chunkWords(words)) {
     const clean = chunk.map((c) => assText(c.word).toUpperCase());
+    // Sized for the whole chunk with its spoken word popped to 114%.
+    const capSize = fitSize(clean.join(' '), 124, 980, 1.14);
     for (let i = 0; i < chunk.length; i++) {
       const start = chunk[i].start;
       const end = i < chunk.length - 1 ? chunk[i + 1].start : chunk.at(-1).end + 0.08;
@@ -231,7 +265,7 @@ function buildAss({ words, title, accent, look, hookEnd, stats, tag }) {
         ? `{\\c${accent}\\fscx100\\fscy100\\t(0,70,\\fscx114\\fscy114)\\t(70,160,\\fscx106\\fscy106)}${w}{\\c&HFFFFFF&\\fscx100\\fscy100}`
         : w)).join(' ');
       const enter = i === 0 ? '\\fscx88\\fscy88\\t(0,80,\\fscx100\\fscy100)' : '';
-      ev.push(`Dialogue: 1,${assTime(start)},${assTime(end)},Cap,,0,0,0,,{\\pos(540,1190)${enter}}${line}`);
+      ev.push(`Dialogue: 1,${assTime(start)},${assTime(end)},Cap,,0,0,0,,{\\pos(540,1190)\\fs${capSize}${enter}}${line}`);
     }
   }
   return [...header, ...ev].join('\n');
@@ -259,16 +293,38 @@ function bgrOf(assColour) {
  *   accent      ASS colour for highlights (a lane's captionHighlight)
  *   tag         optional persistent label after the hook, e.g. "Part 2"
  */
-async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, outputPath, workDir, logger = console }) {
+/**
+ * Countdown chapters ([{ cue: 'five', photos }]) -> [{ at, photos }], where
+ * `at` is when the narration says "Number five". Cues it never says are dropped.
+ */
+function resolveChapters(words, chapters) {
+  const out = [];
+  for (const c of chapters) {
+    const i = words.findIndex((w, k) => /^number$/i.test(bare(w.word)) && bare(words[k + 1]?.word || '') === c.cue);
+    if (i >= 0) out.push({ at: words[i].start, photos: c.photos });
+  }
+  return out.sort((a, b) => a.at - b.at);
+}
+
+/**
+ * Render a story short in the v2 look.
+ *   chapters  optional [{ cue, photos }]: a countdown's "Number <cue>" starts a
+ *             stretch shown only with its own photos (romano-weekly.js)
+ */
+async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, chapters = [], outputPath, workDir, logger = console }) {
   if (!words?.length) throw new Error('v2 render needs word timings');
   await fsp.mkdir(workDir, { recursive: true });
   const ffmpeg = getFFmpegPath();
 
   const lastWord = words.at(-1).end;
   const duration = Number((lastWord + 0.6).toFixed(3));
-  const ranked = rankPhotos(analyzePhotos(photos));
+  // Face matching assumes one subject per set, so a countdown's photos are
+  // analysed chapter by chapter — five people, five subjects.
+  const groups = chapters.length ? [...chapters.map((c) => c.photos), photos.filter((p) => !chapters.some((c) => c.photos.includes(p)))] : [photos];
+  const metas = Object.assign({}, ...groups.filter((g) => g.length).map((g) => analyzePhotos(g)));
+  const ranked = rankPhotos(metas);
   if (!ranked.length) throw new Error('no readable photos');
-  const shots = planShots(words, duration, ranked);
+  const shots = planShots(words, duration, ranked, resolveChapters(words, chapters));
 
   // The hook headline holds through the first sentence, 1.8-3.2s.
   const firstStop = words.find((w) => /[.!?]["'”’]?$/.test(w.word));

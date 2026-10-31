@@ -276,6 +276,83 @@ class ArchivalImageService {
     return accepted.slice(0, limit);
   }
 
+  /** imageinfo pages -> accepted image records (licence, size and format checked). */
+  _acceptPages(pages) {
+    const out = [];
+    for (const page of pages) {
+      const info = page.imageinfo?.[0];
+      const title = String(page.title || '').replace(/^File:/, '');
+      if (!info || !USABLE_EXTENSION.test(title)) continue;
+      const license = this._checkLicense(info.extmetadata);
+      if (!license.ok || (info.width || 0) < this.minWidth) continue;
+      out.push({
+        title, score: 3, width: info.width, height: info.height,
+        url: info.thumburl || info.url, descriptionUrl: info.descriptionurl,
+        license: license.license, artist: license.artist, credit: license.credit
+      });
+    }
+    return out;
+  }
+
+  /**
+   * The subject's own pictures, from the sources that are about it by
+   * construction, best first:
+   *   1. its Wikidata main image (P18) — the picture the encyclopedias use;
+   *   2. the photos its Wikipedia article uses;
+   *   3. its Commons category (P373) — files curated as being about it;
+   *   4. Commons filename search, and only for a multi-word name.
+   * Filename search alone put babies in the Bebo short ("bebo" is "baby" in
+   * Spanish and Portuguese) and a metal pole in the Romano roundup ("López"):
+   * a one-word name that is also a word matches anything.
+   */
+  async gatherForArticle(articleTitle, subject = articleTitle, opts = {}) {
+    const total = opts.total || 10;
+    const lang = process.env.RESEARCH_WIKI_LANG || 'en';
+    const wiki = `https://${lang}.wikipedia.org/w/api.php`;
+    const found = [];
+    const seen = new Set();
+    const add = (imgs) => {
+      for (const img of imgs) {
+        if (found.length >= total || seen.has(img.title)) continue;
+        seen.add(img.title);
+        found.push(img);
+      }
+    };
+    const fileInfo = { prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920' };
+
+    let p18 = null;
+    let category = null;
+    try {
+      const props = await this._api({ action: 'query', titles: articleTitle, redirects: '1', prop: 'pageprops', ppprop: 'wikibase_item' }, 1, wiki);
+      const qid = Object.values(props.query?.pages || {})[0]?.pageprops?.wikibase_item;
+      if (qid) {
+        const claims = (await this._api({ action: 'wbgetclaims', entity: qid }, 1, 'https://www.wikidata.org/w/api.php')).claims || {};
+        p18 = claims.P18?.[0]?.mainsnak?.datavalue?.value || null;
+        category = claims.P373?.[0]?.mainsnak?.datavalue?.value || null;
+      }
+    } catch (error) {
+      this.logger.warn(`Wikidata lookup failed for "${articleTitle}" (${String(error.message).slice(0, 60)})`);
+    }
+
+    if (p18) {
+      const data = await this._api({ action: 'query', titles: `File:${p18}`, ...fileInfo }).catch(() => null);
+      add(this._acceptPages(Object.values(data?.query?.pages || {})));
+    }
+    add(await this.fetchArticleImages(articleTitle, { limit: total }));
+    if (category && found.length < total) {
+      const data = await this._api({
+        action: 'query', generator: 'categorymembers', gcmtitle: `Category:${category}`, gcmtype: 'file', gcmlimit: '50', ...fileInfo
+      }).catch(() => null);
+      add(this._acceptPages(Object.values(data?.query?.pages || {})).sort((a, b) => b.width - a.width));
+    }
+    const multiWord = String(subject).trim().split(/\s+/).length >= 2;
+    if (found.length < total && multiWord) {
+      add(await this.gatherForTopic([subject], { must: [subject], bonus: [] }, { perQuery: 30, total }).catch(() => []));
+    }
+    this.logger.info(`"${articleTitle}": ${found.length} image(s) (main image ${p18 ? 'yes' : 'no'}, category ${category || 'none'}${multiWord ? '' : ', no filename search for a one-word name'})`);
+    return found;
+  }
+
   /**
    * Run several searches for one episode and merge the results, de-duplicated.
    * Topics are richer than a single phrase — the Escobar story wants the man,

@@ -371,7 +371,7 @@ arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
  * story shorts and the Sunday roundup, so a change of look happens in one place.
  * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
  */
-async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null } = {}) {
+async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, chapters = [] } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
@@ -391,7 +391,7 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
     const workDir = path.join(dirs.work, id);
     try {
       await renderStoryV2({
-        words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag,
+        words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, chapters,
         look: lane.look || 'football', accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       return { video, seconds, style: 'v2' };
@@ -517,15 +517,9 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       }
       if (!(await supported(ai, story, brief))) { logger.info(`skip "${story.moment}": not in the article`); continue; }
 
-      const found = await archival.gatherForTopic([subject], { must: [subject], bonus: [] }, { perQuery: 30, total: 10 }).catch(() => []);
-      // Events rarely carry their name in Commons filenames; the article's own
-      // photographs fill the gap (see fetchArticleImages).
-      if (found.length < 6) {
-        const seen = new Set(found.map((f) => f.title));
-        for (const img of await archival.fetchArticleImages(brief.title || story.article).catch(() => [])) {
-          if (!seen.has(img.title) && found.length < 10) { found.push(img); seen.add(img.title); }
-        }
-      }
+      // The subject's own pictures first (main image, article, Commons
+      // category), filename search last — see gatherForArticle.
+      const found = await archival.gatherForArticle(brief.title || story.article, subject, { total: 10 }).catch(() => []);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
       const text = await narrate(ai, { ...story, subject, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
