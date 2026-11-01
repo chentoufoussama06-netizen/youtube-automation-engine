@@ -19,9 +19,12 @@
  *   supply   when no segment is left to cut, a new compilation is planned
  *            (plan-compilation.js) and built (build-compilation.js), so the
  *            pipeline never runs dry and never repeats a subject.
+ *   series   a planned series (autopilot/series.js: Leicester 5000-1, Real
+ *            Madrid 2022, ...) posts one part a day in the lane's first story
+ *            slot, each part ending on "Part two is next".
  *   sequel   a story short that pulled a crowd (autopilot/sequels.js) gets its
- *            Part 2, then Part 3, in the lane's first story slot; each part is
- *            linked from the one before and kept in a series playlist.
+ *            Part 2, then Part 3, in the next story slot. Series parts and
+ *            sequels are linked from the part before and kept in a playlist.
  *
  * Every render passes check-video.js before it is uploaded. Anything that fails
  * is skipped and counted; after two failures a segment or compilation is
@@ -44,6 +47,7 @@ const { makeThumbnail } = require('./autopilot/make-thumbnail');
 const { plan } = require('./autopilot/plan-compilation');
 const { makeStoryShort } = require('./autopilot/story-short');
 const { pickSequel } = require('./autopilot/sequels');
+const { seriesPartDue, partId } = require('./autopilot/series');
 const { makeRomanoRoundup } = require('./autopilot/romano-weekly');
 
 const ROOT = path.join(__dirname, '..');
@@ -272,21 +276,23 @@ async function postShort(lane, st, ai) {
  * Returns { ok, uploaded, msg }; `uploaded` says an upload was attempted, so a
  * failure there (usually quota) is not retried with a fresh story.
  */
-async function postStoryShort(lane, st, sequelOf = null, pinned = null) {
-  const kind = sequelOf ? `Part ${(sequelOf.part || 1) + 1} of ${sequelOf.id}` : 'story short';
+async function postStoryShort(lane, st, sequelOf = null, pinned = null, seriesDue = null) {
+  const kind = seriesDue ? `${seriesDue.series.name} Part ${seriesDue.n}`
+    : sequelOf ? `Part ${(sequelOf.part || 1) + 1} of ${sequelOf.id}` : 'story short';
   let made;
   try {
-    made = await makeStoryShort(lane.name, { dryRun: DRY, sequelOf, story: pinned });
+    made = await makeStoryShort(lane.name, { dryRun: DRY, sequelOf, story: pinned, seriesDue });
   } catch (error) {
     return { ok: false, msg: `${lane.name}: no ${kind} — ${error.message}` };
   }
   if (DRY) return { ok: true, msg: `${lane.name}: would post ${kind} "${made.title}"` };
 
-  const res = publishMade(lane, st, made, kind, sequelOf ? 'sequel' : 'story');
-  if (res.ok && sequelOf) {
-    // Linked at the end of the run, once every lane has had its uploads.
+  const res = publishMade(lane, st, made, kind, seriesDue ? 'series' : sequelOf ? 'sequel' : 'story');
+  // Linked at the end of the run, once every lane has had its uploads.
+  const prev = seriesDue ? seriesDue.prev?.videoId : sequelOf?.videoId;
+  if (res.ok && prev) {
     st.pendingLinks = st.pendingLinks || [];
-    st.pendingLinks.push({ root: made.root, prev: sequelOf.videoId, next: res.entry.videoId, part: made.part, subject: sequelOf.subject });
+    st.pendingLinks.push({ root: made.root, prev, next: res.entry.videoId, part: made.part, subject: seriesDue ? seriesDue.series.name : sequelOf.subject });
   }
   return res;
 }
@@ -487,17 +493,23 @@ async function main() {
       }
       saveState(lane, st);
     }
-    // A winner's next part takes the first story slot; if no part survives the
-    // fact-check, that slot still gets a fresh story.
+    // The planned series part takes the first story slot and a winner's next
+    // part the one after; if either fails its checks, that slot still gets a
+    // fresh story (a series part is tried again the next day).
+    const seriesDue = lane.storyShortsPerDay ? seriesPartDue(lane) : null;
     const sequelOf = await sequelDue(lane, st);
+    const specials = [seriesDue && { seriesDue, key: `series:${partId(seriesDue.series, seriesDue.n)}` },
+      sequelOf && { sequelOf, key: `sequel:${sequelOf.id}` }].filter(Boolean);
     for (let i = 0; i < (lane.storyShortsPerDay ?? 0); i++) {
       try {
         let res = null;
-        if (i === 0 && sequelOf) {
-          res = await postStoryShort(lane, st, sequelOf);
+        const sp = specials[i];
+        if (sp) {
+          res = await postStoryShort(lane, st, sp.sequelOf || null, null, sp.seriesDue || null);
           if (!res.ok && !res.uploaded) {
-            st.failures[`sequel:${sequelOf.id}`] = (st.failures[`sequel:${sequelOf.id}`] || 0) + 1;
+            st.failures[sp.key] = (st.failures[sp.key] || 0) + 1;
             log(`${res.msg}; posting a fresh story instead`);
+            summary.push(res.msg);
             res = null;
           }
         }

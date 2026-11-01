@@ -109,6 +109,10 @@ const LANES = [
     // Fabrizio Romano reporting goes out as one roundup (romano-weekly.js).
     news: true,
     romanoWeekly: true,
+    // From 2026-10-31 the first story slot posts the planned series of
+    // legendary moments, one part a day (autopilot/series.js): Leicester
+    // 5000-1, Real Madrid 2022, Ajax 1995, Rogério Ceni, Pep Guardiola.
+    series: true,
     // The v2 look (utils/short-style-v2.js) on every short. 'ab' alternates it
     // with the first look by count, if a side-by-side measure is ever wanted.
     look: 'football',

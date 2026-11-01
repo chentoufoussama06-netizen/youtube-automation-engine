@@ -8,6 +8,7 @@
  *   node scripts/autopilot/story-short.js "Football Files" --sequel <story id> --dry-run   # its next part
  *   node scripts/autopilot/story-short.js "Football Files" --article "Harry Kane" \
  *     --moment "On 26 October 2026 Kane won the Ballon d'Or." --title "Why Harry Kane Won the Ballon d'Or"
+ *   node scripts/autopilot/story-short.js "Football Files" --series --dry-run  # the planned series part due (series.js)
  *
  * Why this format. Measured 2026-10-07 across ~2,000 recent videos in 30
  * niches: the fastest-growing young football channel, GOATED90 (created
@@ -37,6 +38,7 @@ const { Logger } = require('../../utils/logger');
 const { LANES } = require('./lanes');
 const { footballNews } = require('../../utils/news-feed');
 const { renderStoryV2 } = require('../../utils/short-style-v2');
+const { seriesPartDue, partId, NUMBER_WORDS } = require('./series');
 
 const ROOT = path.join(__dirname, '..', '..');
 const logger = new Logger('StoryShort');
@@ -282,9 +284,20 @@ it, then tell what happened NEXT:
 ${story.previously}
 """
 ` : '';
+  // A planned series part (series.js) tells its own act and no more: the next
+  // act is held back so this one can stop on its turning point.
+  const series = story.series ? `
+This is PART ${story.part} of ${story.series.of} of the series "${story.series.name}".
+Tell ONLY this part's episode, as its own complete mini-story.${story.series.nextMoment ? `
+The next part will tell this, so say NONE of it: "${story.series.nextMoment}"
+End this part on its moment of highest tension, not on a wrap-up of the series.
+(A line saying the next part is coming is added after your narration; do not write one.)` : ''}${story.series.note ? `
+${story.series.note}` : ''}
+Write scorelines and odds as digits with a dash, like 3–1 or 5000–1.
+` : '';
   const base = `Write the narration for a ${WORDS.target}-word YouTube Short about ${story.subject}.
 The episode: ${story.moment}
-${sequel}
+${sequel}${series}
 SOURCE — the only place you may take names, dates, numbers, clubs, scores and
 quotes from. If a detail is not here, it does not exist:
 """
@@ -371,7 +384,7 @@ arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
  * story shorts and the Sunday roundup, so a change of look happens in one place.
  * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
  */
-async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, chapters = [] } = {}) {
+async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [] } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
@@ -391,7 +404,7 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
     const workDir = path.join(dirs.work, id);
     try {
       await renderStoryV2({
-        words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, chapters,
+        words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, label, next, chapters,
         look: lane.look || 'football', accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       return { video, seconds, style: 'v2' };
@@ -443,9 +456,10 @@ const takenThisRun = new Set();
  * `sequelOf` is a stories.json entry (with its videoId) to continue: the next
  * part of that story replaces a fresh pick. See scripts/autopilot/sequels.js.
  */
-async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story: pinned = null } = {}) {
+async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story: pinned = null, seriesDue = null } = {}) {
   const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
   if (!lane) throw new Error(`no lane "${laneName}"`);
+  if (seriesDue) return makeSeriesPart(lane, seriesDue, { dryRun });
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
 
   const ai = new AITextService({});
@@ -575,6 +589,133 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
   throw new Error('no story survived verification this run');
 }
 
+/**
+ * One part's source: each of its articles cut to the paragraphs about this
+ * episode (focusBrief), together under the 8,500 characters the writer and the
+ * checker read, each headed by its title so the checker knows where it is.
+ */
+async function seriesBrief(research, part) {
+  const per = Math.floor(8500 / part.articles.length);
+  const briefs = [];
+  for (const article of part.articles) {
+    const full = await research.buildBriefFromArticle(article, { maxChars: 150000 }).catch(() => null);
+    if (!full || full.text.length < 1500) throw new Error(`no usable article text for "${article}"`);
+    briefs.push({ ...focusBrief(full, part, per), url: full.url });
+  }
+  return {
+    title: briefs[0].title,
+    url: briefs[0].url,
+    urls: briefs.map((b) => b.url),
+    text: briefs.map((b) => `${b.title}:\n${b.text}`).join('\n\n')
+  };
+}
+
+/**
+ * A part's photos, downloaded to `dir`, as { saved, chapters }: each group in
+ * part.photos fetched from its own article (gatherForArticle), and every group
+ * with `names` made a chapter, so the picture follows who the voice is naming.
+ */
+async function seriesPhotos(archival, part, dir) {
+  const groups = [];
+  for (const g of part.photos) {
+    const subject = g.article.replace(/\([^)]*\)/g, '').trim();
+    const skip = g.skip ? new RegExp(g.skip, 'i') : null;
+    const found = (await archival.gatherForArticle(g.article, subject, { total: g.n + (skip ? 3 : 0) }).catch(() => []))
+      .filter((x) => !skip || !skip.test(x.title)).slice(0, g.n);
+    groups.push({ ...g, found });
+  }
+  const all = groups.flatMap((g) => g.found);
+  if (all.length < 4) throw new Error(`only ${all.length} usable photos`);
+  const saved = await archival.downloadArchivalImages(all, dir);
+  if (saved.length < 4) throw new Error('photo downloads failed');
+  const pathOf = new Map(saved.map((p) => [p.title, p.path]));
+  const chapters = groups.filter((g) => g.names?.length)
+    .map((g) => ({ names: g.names, photos: g.found.map((x) => pathOf.get(x.title)).filter(Boolean) }))
+    .filter((c) => c.photos.length);
+  return { saved, chapters };
+}
+
+/**
+ * The planned series part `due` (series.js: { series, part, n, prev }):
+ * checked, written, teased, rendered and queued like any story short.
+ */
+async function makeSeriesPart(lane, due, { dryRun = false } = {}) {
+  const { series, part, n, prev } = due;
+  const of = series.parts.length;
+  const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
+  const id = partId(series, n);
+  const ledger = readJson(base('shorts', 'uploads.json'), {});
+  if (ledger[id]) throw new Error(`${id} is already posted`);
+
+  const ai = new AITextService({});
+  const research = new ResearchService();
+  const brief = await seriesBrief(research, part);
+  if (!(await supported(ai, part, brief))) throw new Error(`"${part.moment}" is not in its articles`);
+
+  // What Part n-1 said, so it is not retold.
+  const previously = prev
+    ? (await fsp.readFile(base('shorts', 'copy', `${prev.id}_short.txt`), 'utf8').catch(() => ''))
+      .split(/\n\nSource/)[0].replace(/^◀.*\n+/, '').trim() || series.parts[n - 2].moment
+    : null;
+  const nextPart = series.parts[n] || null;
+  // Parts tell a whole act, so they run a little longer than a one-off story.
+  const WORDS = { min: 85, target: 115, max: 150 };
+  const text = await narrate(ai, {
+    subject: part.subject, moment: part.moment, title: part.title,
+    ...(previously ? { previously, part: n } : { part: n }),
+    series: { name: series.name, of, nextMoment: nextPart?.moment || null, note: part.note || null }
+  }, brief, writerAI(), WORDS);
+  if (!text) throw new Error('no clean narration');
+
+  // The line that sells the next part, checked against the NEXT part's
+  // articles; one the checker cannot back is dropped, the promise is not.
+  let ending = '';
+  if (nextPart) {
+    let teaser = part.teaser || '';
+    if (teaser) {
+      const flagged = await unsupportedSentences(ai, teaser, await seriesBrief(research, nextPart)).catch(() => null);
+      if (!flagged || flagged.size) {
+        logger.info(`teaser dropped (${flagged ? 'unsupported' : 'check unavailable'}): "${teaser}"`);
+        teaser = '';
+      }
+    }
+    ending = ` ${teaser ? `${teaser} ` : ''}Part ${NUMBER_WORDS[n + 1] || n + 1} is next.`;
+  }
+  const full = `${text}${ending}`;
+  const title = (of > 1 ? `${part.title} (Part ${n})` : part.title).slice(0, 90);
+  logger.success(`${id}: "${title}" — ${words(full)} words`);
+  if (dryRun) return { id, title, text: full, subject: part.subject, article: brief.title, part: n, of };
+
+  const imgDir = base('reference', id);
+  const { saved, chapters } = await seriesPhotos(new ArchivalImageService(), part, imgDir);
+  const done = readJson(base('stories.json'), []);
+  const rendered = await renderStills(lane, id, full, saved, {
+    style: chooseStyle(lane, done), title: part.title,
+    tag: of > 1 ? `Part ${n} of ${of}` : null, label: part.label || null,
+    next: nextPart ? `Part ${n + 1}` : null, chapters
+  });
+  await fsp.rm(imgDir, { recursive: true, force: true });
+  if (rendered.skip) throw new Error(rendered.skip);
+
+  const credits = saved.map((p) => `• ${p.title.replace(/^File:/, '')} — ${String(p.artist || 'unknown').slice(0, 80)}, ${p.license}`);
+  const back = prev ? `◀ Part ${n - 1}: https://youtube.com/shorts/${prev.videoId}\n\n` : '';
+  await fsp.writeFile(base('shorts', 'copy', `${id}_short.txt`),
+    `${back}${full}\n\nSources:\n${brief.urls.join('\n')}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}`);
+
+  const queuePath = base('queue.json');
+  const queue = readJson(queuePath, { topics: [] });
+  queue.topics.push({ id, topic: part.moment, keywords: [part.subject, series.name, ...(lane.story || DEFAULT_STORY).tags], status: 'short', shortTitle: title, article: brief.title, categoryId: lane.categoryId });
+  await fsp.writeFile(queuePath, JSON.stringify(queue, null, 2));
+
+  const root = partId(series, 1);
+  done.push({
+    id, subject: part.subject, article: brief.title, moment: part.moment, title, at: new Date().toISOString(), style: rendered.style,
+    series: series.key, part: n, of, root, ...(prev ? { sequelOf: prev.id } : {})
+  });
+  await fsp.writeFile(base('stories.json'), JSON.stringify(done, null, 2));
+  return { id, title, video: rendered.video, seconds: rendered.seconds, part: n, root };
+}
+
 if (require.main === module) {
   const args = process.argv.slice(2);
   const valueFlags = ['--sequel', '--article', '--subject', '--moment', '--title'];
@@ -593,9 +734,13 @@ if (require.main === module) {
     ? { article: opt('--article'), subject: opt('--subject') || opt('--article').replace(/\([^)]*\)/g, '').trim(), moment: opt('--moment'), title: opt('--title') }
     : null;
   if (pinned && (!pinned.moment || !pinned.title)) { logger.error('--article needs --moment and --title'); process.exit(1); }
-  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned })
+  const seriesDue = args.includes('--series')
+    ? seriesPartDue(LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase()) || {})
+    : null;
+  if (args.includes('--series') && !seriesDue) { logger.error(`no series part due on ${laneName}`); process.exit(1); }
+  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned, seriesDue })
     .then((r) => console.log(JSON.stringify({ ...r, text: r.text ? `${r.text.slice(0, 400)}…` : undefined }, null, 2)))
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, renderStills, chooseStyle, unsupportedSentences, parseJson, trending };
+module.exports = { makeStoryShort, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };

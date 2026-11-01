@@ -114,19 +114,21 @@ function planShots(words, duration, ranked, chapters = []) {
     .sort((a, b) => a - b);
   const chapterAt = (t) => [...chapters].reverse().find((c) => c.at <= t + 0.05);
   // Before the first chapter (the intro), only the photos no chapter claims.
-  const intro = chapters.length ? { photos: ranked.map((r) => r.path).filter((p) => !chapters.some((c) => c.photos.includes(p))) } : null;
+  const intro = chapters.length ? { photos: ranked.map((r) => r.path).filter((p) => !chapters.some((c) => c.photos?.includes(p))) } : null;
   const uses = new Map();
   const shots = [];
   let prev = null;
   for (let i = 0; i < cuts.length; i++) {
     const start = cuts[i];
     const end = i + 1 < cuts.length ? cuts[i + 1] : duration;
-    const ch = chapterAt(start) || intro;
+    // A released name stretch (photos: null) is back to the intro's photos.
+    const found = chapterAt(start);
+    const ch = found?.photos ? found : intro;
     const pool = ch ? ranked.filter((r) => ch.photos.includes(r.path)) : ranked;
     const from = pool.length ? pool : ranked;
     // The opener is the best photo; after that, the least-used photo that is
     // not the one just shown, best-ranked first.
-    const pick = i === 0 && !ch ? opener(ranked) : [...from]
+    const pick = i === 0 ? opener(from) : [...from]
       .filter((r) => r.path !== prev || from.length === 1)
       .sort((a, b) => (uses.get(a.path) || 0) - (uses.get(b.path) || 0) || b.score - a.score)[0] || ranked[0];
     const n = uses.get(pick.path) || 0;
@@ -149,23 +151,45 @@ function planShots(words, duration, ranked, chapters = []) {
   return shots;
 }
 
-/** The story's numbers ("61 goals", "2001"), as big cards on the word that says them. */
+/**
+ * The story's numbers as big cards on the word that says them: plain numbers
+ * ("61 goals", "2001"), and for football what a match edit puts on screen — a
+ * scoreline ("3–1"), a match minute ("90th minute" -> 90'), a hat-trick. Only
+ * what the narration itself says, so a card is never a guess.
+ */
 function statCards(words, hookEnd) {
   const out = [];
   for (let i = 0; i < words.length; i++) {
-    // Only a word that IS a number. Edge sometimes hands a whole date over as
-    // one word ("26 October 2026,"), and stripping its letters made "262026".
-    const raw = words[i].word;
-    if (!/^\d[\d,.]*[.,!?;:]?$/.test(raw)) continue;
-    const num = raw.replace(/[.,!?;:]+$/, '');
-    if (num.replace(/\D/g, '').length < 2) continue;
-    const t = words[i].start;
-    if (t < hookEnd + 0.3 || out.some((c) => Math.abs(c.t - t) < 3)) continue;
-    const isYear = /^(1[89]|20)\d\d$/.test(num);
+    const raw = words[i].word.replace(/[.,!?;:]+$/, '');
     const next = words[i + 1] ? bare(words[i + 1].word) : '';
-    const label = !isYear && next && !STOP.has(next) && /^[a-z]+$/.test(next) ? ` ${next.toUpperCase()}` : '';
-    out.push({ t, text: `${num}${label}` });
-    if (out.length >= 4) break;
+    let text = null;
+    let strong = false;
+    // A scoreline or odds ("3–1", "5000–1"), never a season ("2014–15").
+    const score = /^(\d{1,4})[–-](\d{1,2})$/.exec(raw);
+    const minute = /^(\d{1,3})(st|nd|rd|th)$/i.exec(raw);
+    if (score && !/^(1[89]|20)\d\d$/.test(score[1])) {
+      text = `${score[1]}–${score[2]}`;
+      strong = true;
+    } else if (minute && /^minutes?$/.test(next)) {
+      text = `${minute[1]}'`;
+      strong = true;
+    } else if (/^hat-?tricks?$/i.test(raw)) {
+      text = 'HAT-TRICK';
+      strong = true;
+    } else if (/^\d[\d,.]*$/.test(raw) && raw.replace(/\D/g, '').length >= 2) {
+      // Only a word that IS a number. Edge sometimes hands a whole date over as
+      // one word ("26 October 2026,"), and stripping its letters made "262026".
+      const isYear = /^(1[89]|20)\d\d$/.test(raw);
+      const label = !isYear && next && !STOP.has(next) && /^[a-z]+$/.test(next) ? ` ${next.toUpperCase()}` : '';
+      text = `${raw}${label}`;
+    }
+    if (!text) continue;
+    const t = words[i].start;
+    // Match moments come thick and fast ("3–1 away, then 2–3 at home"), so they
+    // may sit closer together than the plain numbers.
+    if (t < hookEnd + 0.3 || out.some((c) => Math.abs(c.t - t) < (strong ? 1.6 : 3))) continue;
+    out.push({ t, text });
+    if (out.length >= 6) break;
   }
   return out;
 }
@@ -224,7 +248,7 @@ function twoLines(title) {
   return [words.slice(0, best).join(' '), words.slice(best).join(' ')];
 }
 
-function buildAss({ words, title, accent, look, hookEnd, stats, tag }) {
+function buildAss({ words, title, accent, look, hookEnd, stats, tag, label = null, next = null }) {
   const L = LOOKS[look] || LOOKS.football;
   const header = [
     '[Script Info]', 'ScriptType: v4.00+', 'PlayResX: 1080', 'PlayResY: 1920', 'WrapStyle: 2', 'ScaledBorderAndShadow: yes', '',
@@ -237,6 +261,8 @@ function buildAss({ words, title, accent, look, hookEnd, stats, tag }) {
     `Style: Hook,Anton,116,${L.hookText},&H000000FF,${L.hookBox},&H00000000,0,0,0,0,100,100,1,0,3,24,0,8,60,60,0,1`,
     `Style: Stat,Anton,200,${accent},&H000000FF,&H00000000,&H78000000,0,0,0,0,100,100,2,0,1,9,6,5,40,40,0,1`,
     'Style: Tag,Anton,54,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,2,0,1,4,0,8,60,60,0,1',
+    `Style: Label,Anton,46,${accent},&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,1,0,1,3,0,8,60,60,0,1`,
+    `Style: Next,Anton,150,${L.hookText},&H000000FF,${L.hookBox},&H00000000,0,0,0,0,100,100,2,0,3,30,0,5,60,60,0,1`,
     '', '[Events]', 'Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text'
   ];
   const ev = [];
@@ -247,6 +273,19 @@ function buildAss({ words, title, accent, look, hookEnd, stats, tag }) {
   ev.push(`Dialogue: 3,${assTime(0)},${assTime(hookEnd)},Hook,,0,0,0,,`
     + `{\\pos(540,250)\\fs${hookSize}\\fscx125\\fscy125\\t(0,180,\\fscx100\\fscy100)\\fad(0,180)}${hook.join('\\N')}`);
   if (tag) ev.push(`Dialogue: 2,${assTime(hookEnd)},${assTime(words.at(-1).end + 0.4)},Tag,,0,0,0,,{\\pos(540,230)\\fad(200,0)}${assText(tag).toUpperCase()}`);
+  // What match or season this is, under the tag ("REAL MADRID V PSG · 2022").
+  if (label) {
+    const text = assText(label).toUpperCase();
+    ev.push(`Dialogue: 2,${assTime(hookEnd)},${assTime(words.at(-1).end + 0.4)},Label,,0,0,0,,{\\pos(540,${tag ? 296 : 230})\\fs${fitSize(text, 46, 900)}\\fad(200,0)}${text}`);
+  }
+  // The next part, boxed like the hook, from when the voice says "Part two" to
+  // the last frame, with one pulse: the thing a viewer must not miss. Between
+  // the face and the captions (at 760 it sat on Vardy's face).
+  if (next) {
+    const text = assText(next.text).toUpperCase();
+    ev.push(`Dialogue: 5,${assTime(next.at)},${assTime(words.at(-1).end + 0.6)},Next,,0,0,0,,`
+      + `{\\pos(540,975)\\fs${fitSize(text, 150, 860)}\\fscx140\\fscy140\\t(0,200,\\fscx100\\fscy100)\\t(600,900,\\fscx106\\fscy106)\\t(900,1200,\\fscx100\\fscy100)}${text}`);
+  }
 
   for (const s of stats) {
     const text = assText(s.text);
@@ -292,18 +331,51 @@ function bgrOf(assColour) {
  *   look        'football' | 'ancient'
  *   accent      ASS colour for highlights (a lane's captionHighlight)
  *   tag         optional persistent label after the hook, e.g. "Part 2"
+ *   label       optional line under it naming the match or season
+ *   next        optional end card text, e.g. "Part 2", shown from the spoken "Part"
  */
 /**
- * Countdown chapters ([{ cue: 'five', photos }]) -> [{ at, photos }], where
- * `at` is when the narration says "Number five". Cues it never says are dropped.
+ * Chapters -> [{ at, photos }] for planShots. Two kinds:
+ *   { cue: 'five', photos }        a countdown: starts when the narration says
+ *                                  "Number five" (romano-weekly.js)
+ *   { names: ['rodrygo'], photos } a person or thing: starts EVERY time the
+ *                                  narration names it, so the picture follows
+ *                                  the story — "Rodrygo came off the bench" is
+ *                                  Rodrygo on screen, not whoever ranked best.
+ * Cues it never says are dropped. A name said again while its own photos are
+ * already up changes nothing, and a switch under 1.2s after the last one is
+ * skipped, so two names in one breath do not flash.
  */
 function resolveChapters(words, chapters) {
   const out = [];
   for (const c of chapters) {
-    const i = words.findIndex((w, k) => /^number$/i.test(bare(w.word)) && bare(words[k + 1]?.word || '') === c.cue);
-    if (i >= 0) out.push({ at: words[i].start, photos: c.photos });
+    if (c.cue) {
+      const i = words.findIndex((w, k) => /^number$/i.test(bare(w.word)) && bare(words[k + 1]?.word || '') === c.cue);
+      if (i >= 0) out.push({ at: words[i].start, photos: c.photos });
+      continue;
+    }
+    const names = (c.names || []).map((n) => bare(n)).filter(Boolean);
+    words.forEach((w) => { if (names.includes(bare(w.word).replace(/'s$/, ''))) out.push({ at: w.start, photos: c.photos, named: true }); });
   }
-  return out.sort((a, b) => a.at - b.at);
+  out.sort((a, b) => a.at - b.at);
+  // A name holds its photos for NAME_HOLD seconds after it was last said, then
+  // the picture goes back to the general shots (photos: null): in the first
+  // Leicester preview "table" put Schmeichel up for 25 seconds straight.
+  const NAME_HOLD = 6;
+  const kept = [];
+  for (const c of out) {
+    const last = kept.at(-1);
+    if (last && last.photos === c.photos && c.at < last.until) { last.until = c.at + NAME_HOLD; continue; }
+    if (last && c.at - last.at < 1.2) continue;
+    kept.push({ at: c.at, photos: c.photos, until: c.named ? c.at + NAME_HOLD : Infinity });
+  }
+  const withReleases = [];
+  kept.forEach((c, i) => {
+    withReleases.push({ at: c.at, photos: c.photos });
+    const nextAt = kept[i + 1]?.at ?? Infinity;
+    if (c.until < nextAt) withReleases.push({ at: c.until, photos: null });
+  });
+  return withReleases;
 }
 
 /**
@@ -311,7 +383,7 @@ function resolveChapters(words, chapters) {
  *   chapters  optional [{ cue, photos }]: a countdown's "Number <cue>" starts a
  *             stretch shown only with its own photos (romano-weekly.js)
  */
-async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, chapters = [], outputPath, workDir, logger = console }) {
+async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], outputPath, workDir, logger = console }) {
   if (!words?.length) throw new Error('v2 render needs word timings');
   await fsp.mkdir(workDir, { recursive: true });
   const ffmpeg = getFFmpegPath();
@@ -330,10 +402,16 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   const firstStop = words.find((w) => /[.!?]["'”’]?$/.test(w.word));
   const hookEnd = Math.min(3.2, Math.max(1.8, firstStop ? firstStop.end : 2.4));
   const stats = statCards(words, hookEnd);
-  // The riser builds into the last sentence.
-  let payoff = null;
-  for (let i = words.length - 2; i >= 0; i--) {
-    if (/[.!?]["'”’]?$/.test(words[i].word)) { payoff = words[i + 1].start; break; }
+  // The riser builds into the last sentence — or, when the video ends on
+  // "Part two is next.", into the teaser just before it.
+  const stops = words.map((w, i) => (/[.!?]["'”’]?$/.test(w.word) && i < words.length - 1 ? i : -1)).filter((i) => i >= 0);
+  const payoffIdx = stops.at(next ? -2 : -1);
+  const payoff = payoffIdx == null ? null : words[payoffIdx + 1].start;
+  // The end card lands on the spoken "Part", or the last 1.6s if it is never said.
+  let nextCard = null;
+  if (next) {
+    const k = words.map((w) => bare(w.word)).lastIndexOf('part');
+    nextCard = { text: next, at: k >= 0 && k >= words.length - 6 ? words[k].start : Math.max(0, words.at(-1).end - 1.6) };
   }
 
   const plan = {
@@ -348,7 +426,7 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   const planPath = path.join(workDir, 'plan.json');
   await fsp.writeFile(planPath, JSON.stringify(plan, null, 2));
   const assPath = path.join(workDir, 'captions.ass');
-  await fsp.writeFile(assPath, buildAss({ words, title, accent, look, hookEnd, stats, tag }));
+  await fsp.writeFile(assPath, buildAss({ words, title, accent, look, hookEnd, stats, tag, label, next: nextCard }));
 
   logger.info?.(`v2: ${shots.length} shots from ${ranked.length} photos, ${stats.length} number card(s), ${duration.toFixed(1)}s`);
   python(['render', planPath]);

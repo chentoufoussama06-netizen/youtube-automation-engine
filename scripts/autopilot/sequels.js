@@ -41,6 +41,8 @@ async function pickSequel(lane, st) {
   const now = Date.now();
 
   const candidates = stories.filter((s) => {
+    // A planned series (series.js) already has its parts.
+    if (s.series) return false;
     const entry = ledger[s.id];
     if (!entry?.videoId || entry.privacyStatus !== 'public') return false;
     const age = (now - Date.parse(entry.publishedAt || entry.uploadedAt || s.at)) / 86400000;
