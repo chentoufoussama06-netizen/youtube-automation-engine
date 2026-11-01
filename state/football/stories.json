@@ -188,5 +188,39 @@
     "title": "Cristiano Ronaldo convicted of tax fraud in 2018",
     "at": "2026-10-31T14:11:35.521Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-leicester-5000-1-p1",
+    "subject": "Leicester City",
+    "article": "2014–15 Leicester City F.C. season",
+    "moment": "In 2014–15 Leicester City spent four and a half months bottom of the Premier League and survived with seven wins from their last nine games; in July 2015 they appointed Claudio Ranieri to a sceptical reaction, and bookmakers made them 5000–1 to win the league.",
+    "title": "Bottom of the League, Then 5000-1 to Win It (Part 1)",
+    "at": "2026-11-01T14:43:56.733Z",
+    "style": "v2",
+    "series": "leicester-5000-1",
+    "part": 1,
+    "of": 4,
+    "root": "story-series-leicester-5000-1-p1"
+  },
+  {
+    "id": "story-harry-kane-p2-july-2026-wo",
+    "subject": "Harry Kane",
+    "article": "Harry Kane",
+    "moment": "July 2026 – World Cup semi‑final loss and bronze medal victory",
+    "title": "Kane's World Cup heartbreak and bronze triumph (Part 2)",
+    "at": "2026-11-01T14:47:48.690Z",
+    "style": "v2",
+    "sequelOf": "story-harry-kane-on-26-october-20",
+    "part": 2,
+    "root": "story-harry-kane-on-26-october-20"
+  },
+  {
+    "id": "story-gary-speed-speed-died-by-su",
+    "subject": "Gary Speed",
+    "article": "Gary Speed",
+    "moment": "Speed died by suicide in November 2011, shocking the football world.",
+    "title": "Gary Speed’s Tragic Suicide in 2011",
+    "at": "2026-11-01T14:52:08.032Z",
+    "style": "v2"
   }
 ]

@@ -183,12 +183,53 @@
       "event": "story",
       "id": "story-cristiano-ronaldo-in-2018-ronaldo",
       "url": "https://www.youtube.com/watch?v=wB0Q7kN52Sk"
+    },
+    {
+      "at": "2026-11-01T14:38:18.666Z",
+      "event": "romano",
+      "id": "story-romano-week-2026-11-01",
+      "url": "https://www.youtube.com/watch?v=paODy_IxaKk"
+    },
+    {
+      "at": "2026-11-01T14:44:11.269Z",
+      "event": "series",
+      "id": "story-series-leicester-5000-1-p1",
+      "url": "https://www.youtube.com/watch?v=Dsr9Xlc2waM"
+    },
+    {
+      "at": "2026-11-01T14:47:59.930Z",
+      "event": "sequel",
+      "id": "story-harry-kane-p2-july-2026-wo",
+      "url": "https://www.youtube.com/watch?v=p1QeKi1aLKA"
+    },
+    {
+      "at": "2026-11-01T14:52:19.997Z",
+      "event": "story",
+      "id": "story-gary-speed-speed-died-by-su",
+      "url": "https://www.youtube.com/watch?v=dLjur_VSHcw"
     }
   ],
-  "pendingLinks": [],
+  "pendingLinks": [
+    {
+      "root": "story-harry-kane-on-26-october-20",
+      "prev": "Z8POzAc-y1M",
+      "next": "p1QeKi1aLKA",
+      "part": 2,
+      "subject": "Harry Kane",
+      "tries": 1
+    }
+  ],
   "series": {
     "story-john-terry-in-2012-terry-wa": {
       "playlistId": "PLBtX8AND14sc"
+    },
+    "story-harry-kane-on-26-october-20": {
+      "playlistId": "PLPBTvDpRdAb4"
     }
+  },
+  "romano": {
+    "day": "2026-11-01",
+    "id": "story-romano-week-2026-11-01",
+    "url": "https://www.youtube.com/watch?v=paODy_IxaKk"
   }
 }

@@ -181,6 +181,34 @@
       "shortTitle": "The Last Stand at Masada: Suicide Over Surrender",
       "article": "Masada",
       "categoryId": "27"
+    },
+    {
+      "id": "story-the-library-of-alexa-the-library-is-a",
+      "topic": "The library is accidentally destroyed by Julius Caesar’s fire during the Alexandrian War, 48 BCE.",
+      "keywords": [
+        "The Library of Alexandria",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Caesar’s Fire That Burned the Library of Alexandria",
+      "article": "Library of Alexandria",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-archimedes-during-the-roman",
+      "topic": "During the Roman siege of Syracuse in 212 BCE, the mathematician Archimedes was killed by a Roman soldier despite orders to spare him.",
+      "keywords": [
+        "Archimedes",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "How Archimedes Died at the Hands of a Roman Soldier",
+      "article": "Siege of Syracuse (213–212 BC)",
+      "categoryId": "27"
     }
   ]
 }

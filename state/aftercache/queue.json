@@ -659,6 +659,20 @@
       "shortTitle": "Why Netscape Navigator Vanished From the Web",
       "article": "Netscape Navigator",
       "categoryId": "27"
+    },
+    {
+      "id": "story-xbox-one-x-the-high-end-con",
+      "topic": "The high‑end console launched in 2017, but its steep price and limited exclusive games led Microsoft to cut its production by 2020.",
+      "keywords": [
+        "Xbox One X",
+        "tech history",
+        "lost media",
+        "internet history"
+      ],
+      "status": "short",
+      "shortTitle": "How the Xbox One X Sank Its Own Sales",
+      "article": "Xbox One",
+      "categoryId": "27"
     }
   ]
 }
