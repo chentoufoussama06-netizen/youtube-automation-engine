@@ -61,13 +61,15 @@ async function ensurePlaylist(youtube, playlistId, title, dryRun) {
 
 // A playlist created a second ago answers "cannot be found" for a little
 // while (2026-10-30: both first series died here, right after playlists.insert
-// succeeded), so a 404 on a fresh playlist is waited out, not believed.
+// succeeded), so a 404 on a fresh playlist is waited out, not believed. On
+// 2026-11-02 the same first insert came back "The operation was aborted"
+// instead (Leicester and Mbappé both), so a dropped request is retried too.
 async function withFreshPlaylistRetry(call) {
   for (let attempt = 1; ; attempt++) {
     try {
       return await call();
     } catch (error) {
-      if (attempt >= 4 || !/cannot be found|playlistNotFound/i.test(String(error.message))) throw error;
+      if (attempt >= 4 || !/cannot be found|playlistNotFound|aborted|ECONNRESET|ETIMEDOUT|socket hang up/i.test(String(error.message))) throw error;
       await new Promise((r) => setTimeout(r, 5000 * attempt));
     }
   }
