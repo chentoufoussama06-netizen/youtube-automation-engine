@@ -227,24 +227,7 @@
       "url": "https://www.youtube.com/watch?v=SLO_Dm4IPw8"
     }
   ],
-  "pendingLinks": [
-    {
-      "root": "story-series-leicester-5000-1-p1",
-      "prev": "Dsr9Xlc2waM",
-      "next": "X8B7Y6IDFyU",
-      "part": 2,
-      "subject": "Leicester City 5000-1",
-      "tries": 1
-    },
-    {
-      "root": "story-kylian-mbappe-on-26-october-20",
-      "prev": "SDrFA3V0pIY",
-      "next": "PGTr_l0Rowk",
-      "part": 2,
-      "subject": "Kylian Mbappé",
-      "tries": 1
-    }
-  ],
+  "pendingLinks": [],
   "series": {
     "story-john-terry-in-2012-terry-wa": {
       "playlistId": "PLBtX8AND14sc"
