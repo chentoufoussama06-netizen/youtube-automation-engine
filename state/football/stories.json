@@ -222,5 +222,40 @@
     "title": "Gary Speed’s Tragic Suicide in 2011",
     "at": "2026-11-01T14:52:08.032Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-leicester-5000-1-p2",
+    "subject": "Jamie Vardy",
+    "article": "Jamie Vardy",
+    "moment": "In the 2015–16 Premier League season Jamie Vardy, released by Sheffield Wednesday at 16 and once paid £120 a week at Stocksbridge Park Steels, scored in 11 consecutive Premier League matches and broke Ruud van Nistelrooy's record.",
+    "title": "From £120 a Week to a Premier League Record (Part 2)",
+    "at": "2026-11-02T16:37:46.890Z",
+    "style": "v2",
+    "series": "leicester-5000-1",
+    "part": 2,
+    "of": 4,
+    "root": "story-series-leicester-5000-1-p1",
+    "sequelOf": "story-series-leicester-5000-1-p1"
+  },
+  {
+    "id": "story-kylian-mbappe-p2-october-2026",
+    "subject": "Kylian Mbappé",
+    "article": "Kylian Mbappé",
+    "moment": "October 2026 – Mbappé’s apology and brand fallout",
+    "title": "Mbappé apologises, Chinese sponsors cut ties (Part 2)",
+    "at": "2026-11-02T16:42:15.442Z",
+    "style": "v2",
+    "sequelOf": "story-kylian-mbappe-on-26-october-20",
+    "part": 2,
+    "root": "story-kylian-mbappe-on-26-october-20"
+  },
+  {
+    "id": "story-roberto-baggio-baggio-missed-th",
+    "subject": "Roberto Baggio",
+    "article": "Roberto Baggio",
+    "moment": "Baggio missed the decisive penalty in the 1994 World Cup final shoot‑out, a moment he says haunted him for decades.",
+    "title": "Roberto Baggio’s World Cup Penalty Miss Haunted Him Forever",
+    "at": "2026-11-02T16:46:45.952Z",
+    "style": "v2"
   }
 ]

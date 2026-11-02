@@ -97,6 +97,20 @@
       "shortTitle": "He Died From a Punch That Was Supposed to Be a Joke",
       "article": "Harry Houdini",
       "categoryId": "27"
+    },
+    {
+      "id": "story-emu-war-1932-australian",
+      "topic": "1932 Australian military operation where soldiers lost a ‘war’ against emus.",
+      "keywords": [
+        "Emu War",
+        "true story",
+        "history",
+        "unbelievable"
+      ],
+      "status": "short",
+      "shortTitle": "When the Military Lost to Emus",
+      "article": "Emu War",
+      "categoryId": "27"
     }
   ]
 }

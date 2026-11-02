@@ -125,5 +125,23 @@
     "title": "How Archimedes Died at the Hands of a Roman Soldier",
     "at": "2026-11-01T14:33:06.314Z",
     "style": "v2"
+  },
+  {
+    "id": "story-arminius-germanic-tribesx",
+    "subject": "Arminius",
+    "article": "Battle of the Teutoburg Forest",
+    "moment": "Germanic tribes ambush three Roman legions in the Teutoburg Forest, 9 CE",
+    "title": "How Arminius Destroyed Three Roman Legions in One Day",
+    "at": "2026-11-02T16:28:09.873Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-crassus-roman-general-cr",
+    "subject": "Crassus",
+    "article": "Battle of Carrhae",
+    "moment": "Roman general Crassus is defeated and killed by Parthians at the Battle of Carrhae, 53 BCE.",
+    "title": "Crassus’s Fatal Defeat at Carrhae",
+    "at": "2026-11-02T16:32:35.392Z",
+    "style": "v2"
   }
 ]

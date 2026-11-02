@@ -207,15 +207,41 @@
       "event": "story",
       "id": "story-gary-speed-speed-died-by-su",
       "url": "https://www.youtube.com/watch?v=dLjur_VSHcw"
+    },
+    {
+      "at": "2026-11-02T16:38:01.471Z",
+      "event": "series",
+      "id": "story-series-leicester-5000-1-p2",
+      "url": "https://www.youtube.com/watch?v=X8B7Y6IDFyU"
+    },
+    {
+      "at": "2026-11-02T16:42:28.864Z",
+      "event": "sequel",
+      "id": "story-kylian-mbappe-p2-october-2026",
+      "url": "https://www.youtube.com/watch?v=PGTr_l0Rowk"
+    },
+    {
+      "at": "2026-11-02T16:46:58.408Z",
+      "event": "story",
+      "id": "story-roberto-baggio-baggio-missed-th",
+      "url": "https://www.youtube.com/watch?v=SLO_Dm4IPw8"
     }
   ],
   "pendingLinks": [
     {
-      "root": "story-harry-kane-on-26-october-20",
-      "prev": "Z8POzAc-y1M",
-      "next": "p1QeKi1aLKA",
+      "root": "story-series-leicester-5000-1-p1",
+      "prev": "Dsr9Xlc2waM",
+      "next": "X8B7Y6IDFyU",
       "part": 2,
-      "subject": "Harry Kane",
+      "subject": "Leicester City 5000-1",
+      "tries": 1
+    },
+    {
+      "root": "story-kylian-mbappe-on-26-october-20",
+      "prev": "SDrFA3V0pIY",
+      "next": "PGTr_l0Rowk",
+      "part": 2,
+      "subject": "Kylian Mbappé",
       "tries": 1
     }
   ],
@@ -225,6 +251,12 @@
     },
     "story-harry-kane-on-26-october-20": {
       "playlistId": "PLPBTvDpRdAb4"
+    },
+    "story-series-leicester-5000-1-p1": {
+      "playlistId": "PLbqvZtKjOnyA"
+    },
+    "story-kylian-mbappe-on-26-october-20": {
+      "playlistId": "PLD-ygtekYf8Q"
     }
   },
   "romano": {
