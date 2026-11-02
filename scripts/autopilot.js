@@ -500,10 +500,16 @@ async function main() {
     const sequelOf = await sequelDue(lane, st);
     const specials = [seriesDue && { seriesDue, key: `series:${partId(seriesDue.series, seriesDue.n)}` },
       sequelOf && { sequelOf, key: `sequel:${sequelOf.id}` }].filter(Boolean);
-    for (let i = 0; i < (lane.storyShortsPerDay ?? 0); i++) {
+    // A day's quota of story shorts, however many runs the day gets: GitHub
+    // dropped the 07:30 schedule on 2026-11-02, so a backup run follows it,
+    // and a run started by hand must not post the day twice either.
+    const today = new Date().toISOString().slice(0, 10);
+    const postedToday = st.history.filter((h) => ['story', 'sequel', 'series'].includes(h.event) && String(h.at).startsWith(today)).length;
+    if (postedToday) log(`${lane.name}: ${postedToday} story short(s) already posted today`);
+    for (let i = postedToday; i < (lane.storyShortsPerDay ?? 0); i++) {
       try {
         let res = null;
-        const sp = specials[i];
+        const sp = specials[i - postedToday];
         if (sp) {
           res = await postStoryShort(lane, st, sp.sequelOf || null, null, sp.seriesDue || null);
           if (!res.ok && !res.uploaded) {

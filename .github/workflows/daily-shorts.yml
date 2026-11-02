@@ -23,6 +23,10 @@ name: daily-shorts
 on:
   schedule:
     - cron: "30 7 * * *"
+    # Backup: GitHub dropped the 07:30 run on 2026-11-02 (and starts it hours
+    # late on busy days). The autopilot only posts what a channel is still
+    # missing for the day, so when the first run did its job this one posts nothing.
+    - cron: "15 13 * * *"
   workflow_dispatch:
     inputs:
       lane:
