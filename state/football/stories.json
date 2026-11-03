@@ -257,5 +257,37 @@
     "title": "Roberto Baggio’s World Cup Penalty Miss Haunted Him Forever",
     "at": "2026-11-02T16:46:45.952Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-leicester-5000-1-p3",
+    "subject": "Leicester City",
+    "article": "2015–16 Leicester City F.C. season",
+    "moment": "On 2 May 2016 Leicester City, 5000–1 underdogs before the season, were crowned Premier League champions when Chelsea came from two goals down to draw 2–2 with Tottenham Hotspur at Stamford Bridge.",
+    "title": "The Night Chelsea Made Leicester Champions (Part 3)",
+    "at": "2026-11-03T13:45:46.041Z",
+    "style": "v2",
+    "series": "leicester-5000-1",
+    "part": 3,
+    "of": 4,
+    "root": "story-series-leicester-5000-1-p1",
+    "sequelOf": "story-series-leicester-5000-1-p2"
+  },
+  {
+    "id": "story-neymar-neymar-was-accus",
+    "subject": "Neymar",
+    "article": "Neymar",
+    "moment": "Neymar was accused of rape in 2019; the case was later dropped, but his reputation suffered.",
+    "title": "Neymar’s 2019 rape accusation rocks his career",
+    "at": "2026-11-03T13:50:56.801Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-diego-maradona-maradona-passed",
+    "subject": "Diego Maradona",
+    "article": "Diego Maradona",
+    "moment": "Maradona passed away from a heart attack in November 2020.",
+    "title": "Diego Maradona dies of heart attack at 60",
+    "at": "2026-11-03T13:55:30.908Z",
+    "style": "v2"
   }
 ]

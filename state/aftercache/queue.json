@@ -687,6 +687,20 @@
       "shortTitle": "The Day Second Life’s User Count Crashed",
       "article": "Second Life",
       "categoryId": "27"
+    },
+    {
+      "id": "story-myspace-in-2011-myspace",
+      "topic": "In 2011 Myspace was sold for just $35 million after once being valued at $12 billion.",
+      "keywords": [
+        "Myspace",
+        "tech history",
+        "lost media",
+        "internet history"
+      ],
+      "status": "short",
+      "shortTitle": "How Myspace Fell From $12 Billion to $35 Million",
+      "article": "Myspace",
+      "categoryId": "27"
     }
   ]
 }
