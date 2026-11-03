@@ -23,10 +23,16 @@ name: daily-shorts
 on:
   schedule:
     - cron: "30 7 * * *"
-    # Backup: GitHub dropped the 07:30 run on 2026-11-02 (and starts it hours
-    # late on busy days). The autopilot only posts what a channel is still
-    # missing for the day, so when the first run did its job this one posts nothing.
+    # Backups: GitHub dropped the 07:30 run on 2026-11-02, and on 2026-11-03
+    # dropped both 07:30 and 13:15. The autopilot only posts what a channel is
+    # still missing for the day, so once a run has done the day the rest finish
+    # in about a minute and post nothing; a channel that failed is retried by
+    # the next one. Odd minutes, because GitHub sheds load at the top of the hour.
+    - cron: "40 9 * * *"
     - cron: "15 13 * * *"
+    - cron: "50 16 * * *"
+    - cron: "25 19 * * *"
+    - cron: "35 22 * * *"
   workflow_dispatch:
     inputs:
       lane:
@@ -269,9 +275,11 @@ jobs:
 
       # The daily check. A run can finish green while posting nothing (the
       # Edge TTS 403 did exactly that for ten days from 2026-10-12), so every
-      # channel that got no new public video today is named in an issue that
-      # @mentions the owner — GitHub emails it. A day where every channel posts
-      # closes the issue again.
+      # channel still short of its day is named in an issue that @mentions the
+      # owner — GitHub emails it. Counted from the committed state, not this
+      # run's log, since a backup run after a good one rightly posts nothing.
+      # Before 16:00 UTC a shortfall is only logged: later runs retry it.
+      # A day where every channel has its posts closes the issue again.
       - name: Daily check
         # Skipped for dry runs and single-channel test runs.
         if: always() && github.event.inputs.dry_run != 'true' && !github.event.inputs.lane
@@ -279,27 +287,24 @@ jobs:
           title="Channels did not post today"
           summary=""
           [ -f autopilot.log ] && summary="$(sed -n '/=== summary ===/,$p' autopilot.log | tail -n +2)"
-          # Only lanes that are meant to post shorts; a paused lane (0 a day) is
-          # not news, and would otherwise reopen this issue every single day.
-          channels="$(node -e "console.log(require('./scripts/autopilot/lanes').LANES.filter(l=>(l.storyShortsPerDay||0)+(l.docShortsPerDay??1)>0).map(l=>l.name).join('\n'))")"
-          missing=""
-          while IFS= read -r ch; do
-            [ -n "$ch" ] || continue
-            printf '%s\n' "$summary" | grep -F "$ch:" | grep -q ' public https' || missing="$missing$ch"$'\n'
-          done <<< "$channels"
+          missing="$(node scripts/autopilot/day-check.js)"
           open="$(gh issue list --state open --search "in:title \"$title\"" --json number --jq '.[0].number' || true)"
 
           if [ -z "$missing" ]; then
-            echo "every channel posted today"
+            echo "every channel has its posts today"
             [ -n "$open" ] && gh issue close "$open" --comment "All channels posted on $(date -u +%F). Closing."
+            exit 0
+          fi
+          if [ "$(date -u +%H)" -lt 16 ]; then
+            printf 'still short, the next run retries:\n%s\n' "$missing"
             exit 0
           fi
 
           body="$(mktemp)"
           {
-            echo "@${{ github.repository_owner }} $(date -u +%F): these channels got **no new video** today:"
+            echo "@${{ github.repository_owner }} $(date -u +%F): these channels are **short of today's videos**:"
             echo
-            printf '%s' "$missing" | sed 's/^/- **/; s/$/**/'
+            printf '%s\n' "$missing" | sed 's/^/- /'
             echo
             echo "**What the run said:**"
             echo '```'
