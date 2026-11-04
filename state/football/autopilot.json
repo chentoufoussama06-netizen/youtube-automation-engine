@@ -243,6 +243,18 @@
       "event": "story",
       "id": "story-diego-maradona-maradona-passed",
       "url": "https://www.youtube.com/watch?v=HTJF8gXnHw8"
+    },
+    {
+      "at": "2026-11-04T00:17:40.332Z",
+      "event": "series",
+      "id": "story-series-leicester-5000-1-p4",
+      "url": "https://www.youtube.com/watch?v=PPdvtPin1hI"
+    },
+    {
+      "at": "2026-11-04T00:21:54.315Z",
+      "event": "sequel",
+      "id": "story-marc-vivien-foe-p2-2003-cameroo",
+      "url": "https://www.youtube.com/watch?v=P3DTwM66Lro"
     }
   ],
   "pendingLinks": [],
@@ -258,6 +270,9 @@
     },
     "story-kylian-mbappe-on-26-october-20": {
       "playlistId": "PLD-ygtekYf8Q"
+    },
+    "story-marc-vivien-foe-foe-collapsed-an": {
+      "playlistId": "PLRYVYhIb_QoE"
     }
   },
   "romano": {

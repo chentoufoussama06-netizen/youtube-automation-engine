@@ -289,5 +289,31 @@
     "title": "Diego Maradona dies of heart attack at 60",
     "at": "2026-11-03T13:55:30.908Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-leicester-5000-1-p4",
+    "subject": "Claudio Ranieri",
+    "article": "Claudio Ranieri",
+    "moment": "On 23 February 2017, weeks after winning the Best FIFA Men's Coach award, Claudio Ranieri was dismissed by Leicester City with the club one point above the relegation zone, a decision Gary Lineker called \"wrong\".",
+    "title": "Champions in May, Dismissed by February (Part 4)",
+    "at": "2026-11-04T00:17:27.883Z",
+    "style": "v2",
+    "series": "leicester-5000-1",
+    "part": 4,
+    "of": 4,
+    "root": "story-series-leicester-5000-1-p1",
+    "sequelOf": "story-series-leicester-5000-1-p3"
+  },
+  {
+    "id": "story-marc-vivien-foe-p2-2003-cameroo",
+    "subject": "Marc‑Vivien Foé",
+    "article": "Marc-Vivien Foé",
+    "moment": "2003 – Cameroon honors Foé at the Confederations Cup final",
+    "title": "Players hold Foé's photo and wear his number in tribute (Part 2)",
+    "at": "2026-11-04T00:21:40.956Z",
+    "style": "v2",
+    "sequelOf": "story-marc-vivien-foe-foe-collapsed-an",
+    "part": 2,
+    "root": "story-marc-vivien-foe-foe-collapsed-an"
   }
 ]

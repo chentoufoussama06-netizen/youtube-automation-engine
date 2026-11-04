@@ -115,12 +115,27 @@
       "event": "story",
       "id": "story-philip-ii-philip-ii-was-as",
       "url": "https://www.youtube.com/watch?v=rnt_FRgoGQk"
+    },
+    {
+      "at": "2026-11-04T00:08:09.279Z",
+      "event": "sequel",
+      "id": "story-archimedes-p2-212-bc-the-b",
+      "url": "https://www.youtube.com/watch?v=iKm-0-iyV6Y"
+    },
+    {
+      "at": "2026-11-04T00:12:45.569Z",
+      "event": "story",
+      "id": "story-vercingetorix-gaulish-chieftai",
+      "url": "https://www.youtube.com/watch?v=NVLi8YmKQ1o"
     }
   ],
   "pendingLinks": [],
   "series": {
     "story-elagabalus-in-221-ce-the-te": {
       "playlistId": "PLepoJrBZ6DSE"
+    },
+    "story-archimedes-during-the-roman": {
+      "playlistId": "PLT1D3XNSxGwE"
     }
   }
 }

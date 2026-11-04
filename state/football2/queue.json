@@ -265,6 +265,34 @@
       "shortTitle": "How Philip II of Macedon Was Murdered at His Daughter’s Wedding",
       "article": "Philip II of Macedon",
       "categoryId": "27"
+    },
+    {
+      "id": "story-archimedes-p2-212-bc-the-b",
+      "topic": "212 BC – The brutal sack of Syracuse",
+      "keywords": [
+        "Archimedes",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Syracuse sacked: Romans unleash fury (Part 2)",
+      "article": "Siege of Syracuse (213–212 BC)",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-vercingetorix-gaulish-chieftai",
+      "topic": "Gaulish chieftain surrenders to Julius Caesar after the Siege of Alesia, 52 BCE",
+      "keywords": [
+        "Vercingetorix",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "The Gaul Who Held Caesar at Alesia",
+      "article": "Vercingetorix",
+      "categoryId": "27"
     }
   ]
 }

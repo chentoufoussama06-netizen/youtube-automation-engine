@@ -701,6 +701,20 @@
       "shortTitle": "How Myspace Fell From $12 Billion to $35 Million",
       "article": "Myspace",
       "categoryId": "27"
+    },
+    {
+      "id": "story-dreamcast-sega-s-dreamcast",
+      "topic": "Sega’s Dreamcast failed in 2001, forcing Sega to abandon console manufacturing and become a third‑party developer.",
+      "keywords": [
+        "Dreamcast",
+        "tech history",
+        "lost media",
+        "internet history"
+      ],
+      "status": "short",
+      "shortTitle": "How a Console Destroyed Its Own Company",
+      "article": "Dreamcast",
+      "categoryId": "27"
     }
   ]
 }
