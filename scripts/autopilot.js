@@ -470,6 +470,11 @@ async function main() {
 
   for (const lane of lanes) {
     log(`=== ${lane.name} ===`);
+    // A paused lane posts nothing at all, long-form included (lanes.js says why).
+    if (lane.paused) {
+      summary.push(`${lane.name}: paused`);
+      continue;
+    }
     const st = stateOf(lane);
     st.history = st.history.slice(-200);
 

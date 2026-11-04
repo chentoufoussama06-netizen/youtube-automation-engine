@@ -142,7 +142,13 @@ const LANES = [
     // Paused for most of 2026-10-30 (best story short: 2 views), then back:
     // uploads now have their own 100-a-day bucket, so a slot here no longer
     // costs another channel's, and the v2 look is a fair fresh test.
-    storyShortsPerDay: 1,
+    // 2026-11-04: paused again. In the 28 days to then the Shorts feed sent it
+    // 2 views (Football Files: 12,073) on the same engine and settings, so the
+    // channel, not the videos, is held back: its history of Reddit TTS and
+    // lost-media reposts. Every old video was unlisted; it restarts on a new
+    // single niche.
+    paused: true,
+    storyShortsPerDay: 0,
     look: 'football',
     v2: 'on',
     docShortsPerDay: 0,
@@ -191,7 +197,12 @@ const LANES = [
     // uploads now have their own 100-a-day bucket, so a slot here no longer
     // costs another channel's, and the v2 look is a fair fresh test. The warm
     // grade suits its wartime and archive photographs.
-    storyShortsPerDay: 1,
+    // 2026-11-04: paused again. 0 views from the Shorts feed in 28 days, on
+    // the same engine and settings that got Football Files 12,073: the channel
+    // is held back by its history of reposted stream, product and Reddit
+    // clips. Every old video was unlisted; it restarts on a new single niche.
+    paused: true,
+    storyShortsPerDay: 0,
     look: 'ancient',
     v2: 'on',
     docShortsPerDay: 0,
