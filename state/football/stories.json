@@ -349,5 +349,17 @@
     "sequelOf": "story-gary-speed-speed-died-by-su",
     "part": 2,
     "root": "story-gary-speed-speed-died-by-su"
+  },
+  {
+    "id": "story-kylian-mbappe-p3-2026-mbappe",
+    "subject": "Kylian Mbappé",
+    "article": "Kylian Mbappé",
+    "moment": "2026 – Mbappé testifies in French rape investigation",
+    "title": "Mbappé faces French investigation after rape accusation (Part 3)",
+    "at": "2026-11-05T02:47:57.704Z",
+    "style": "v2",
+    "sequelOf": "story-kylian-mbappe-p2-october-2026",
+    "part": 3,
+    "root": "story-kylian-mbappe-on-26-october-20"
   }
 ]
