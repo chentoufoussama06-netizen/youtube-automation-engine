@@ -324,5 +324,30 @@
     "title": "Marc-Vivien Foé Dies Mid-Match at 2003 Confederations Cup",
     "at": "2026-11-04T02:43:45.034Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-real-madrid-2022-p1",
+    "subject": "Karim Benzema",
+    "article": "2021–22 Real Madrid CF season",
+    "moment": "On 9 March 2022, behind against Paris Saint-Germain in the Champions League round of 16, Real Madrid came back to win 3–1 on the night when Karim Benzema scored a hat-trick within 17 minutes.",
+    "title": "Benzema's 17-Minute Hat-Trick That Broke PSG (Part 1)",
+    "at": "2026-11-05T00:40:02.687Z",
+    "style": "v2",
+    "series": "real-madrid-2022",
+    "part": 1,
+    "of": 4,
+    "root": "story-series-real-madrid-2022-p1"
+  },
+  {
+    "id": "story-gary-speed-p2-inquest-verd",
+    "subject": "Gary Speed",
+    "article": "Gary Speed",
+    "moment": "Inquest verdict – 2012",
+    "title": "Coroner's ambiguous verdict on Speed's death (Part 2)",
+    "at": "2026-11-05T00:44:03.182Z",
+    "style": "v2",
+    "sequelOf": "story-gary-speed-speed-died-by-su",
+    "part": 2,
+    "root": "story-gary-speed-speed-died-by-su"
   }
 ]

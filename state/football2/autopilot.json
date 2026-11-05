@@ -127,6 +127,18 @@
       "event": "story",
       "id": "story-vercingetorix-gaulish-chieftai",
       "url": "https://www.youtube.com/watch?v=NVLi8YmKQ1o"
+    },
+    {
+      "at": "2026-11-05T00:31:38.272Z",
+      "event": "sequel",
+      "id": "story-crassus-p2-53-bc-surena",
+      "url": "https://www.youtube.com/watch?v=_LGvIj_eaoo"
+    },
+    {
+      "at": "2026-11-05T00:35:27.181Z",
+      "event": "story",
+      "id": "story-themistocles-themistocles-con",
+      "url": "https://www.youtube.com/watch?v=9AphWo_zhoY"
     }
   ],
   "pendingLinks": [],
@@ -136,6 +148,9 @@
     },
     "story-archimedes-during-the-roman": {
       "playlistId": "PLT1D3XNSxGwE"
+    },
+    "story-crassus-roman-general-cr": {
+      "playlistId": "PLGDpemWD5eFA"
     }
   }
 }

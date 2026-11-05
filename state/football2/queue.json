@@ -293,6 +293,34 @@
       "shortTitle": "The Gaul Who Held Caesar at Alesia",
       "article": "Vercingetorix",
       "categoryId": "27"
+    },
+    {
+      "id": "story-crassus-p2-53-bc-surena",
+      "topic": "53 BC – Surena executed by Orodes II",
+      "keywords": [
+        "Crassus",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Parthian hero Surena meets a royal death (Part 2)",
+      "article": "Battle of Carrhae",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-themistocles-themistocles-con",
+      "topic": "Themistocles convinces Athens to build a massive navy, leading to victory at Salamis, 480 BCE",
+      "keywords": [
+        "Themistocles",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "How a Greek Politician Saved Greece with a Fleet",
+      "article": "Themistocles",
+      "categoryId": "27"
     }
   ]
 }

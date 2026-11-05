@@ -261,6 +261,18 @@
       "event": "story",
       "id": "story-marc-vivien-foe-during-the-2003",
       "url": "https://www.youtube.com/watch?v=Vk31Tg_8xvs"
+    },
+    {
+      "at": "2026-11-05T00:40:16.139Z",
+      "event": "series",
+      "id": "story-series-real-madrid-2022-p1",
+      "url": "https://www.youtube.com/watch?v=1VXxrv8yqyk"
+    },
+    {
+      "at": "2026-11-05T00:44:15.817Z",
+      "event": "sequel",
+      "id": "story-gary-speed-p2-inquest-verd",
+      "url": "https://www.youtube.com/watch?v=CYWWRPRlylA"
     }
   ],
   "pendingLinks": [],
@@ -279,6 +291,9 @@
     },
     "story-marc-vivien-foe-foe-collapsed-an": {
       "playlistId": "PLRYVYhIb_QoE"
+    },
+    "story-gary-speed-speed-died-by-su": {
+      "playlistId": "PLXiWBG-BSVXg"
     }
   },
   "romano": {
