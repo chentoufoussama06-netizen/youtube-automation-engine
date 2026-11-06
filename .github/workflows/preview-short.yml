@@ -1,0 +1,177 @@
+name: Preview shorts
+
+# Renders story shorts on GitHub's machine and hands them back as a download.
+# Nothing is posted and nothing is saved:
+#   - no YouTube token is ever written here, so an upload cannot happen;
+#   - state is never committed, so a preview does not use up a story, a
+#     series part or the day's quota;
+#   - permissions are read-only.
+# Use it for new lanes, new looks, or to check a fix before the daily run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: "Channel to preview (exact lane name, e.g. Football Files)"
+        required: true
+      count:
+        description: "How many different shorts (1-3)"
+        default: "2"
+      series:
+        description: "Preview the next due series part instead of a one-off story"
+        type: boolean
+        default: false
+      article:
+        description: "Optional: one named story, the Wikipedia article"
+        default: ""
+      moment:
+        description: "Optional: that story's episode, one sentence with its year"
+        default: ""
+      title:
+        description: "Optional: that story's video title"
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-${{ github.event.inputs.lane }}
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      AI_TEXT_PROVIDER: groq
+      RESEARCH_WIKI_LANG: en
+      PREVIEW_LANE: ${{ github.event.inputs.lane }}
+      PREVIEW_COUNT: ${{ github.event.inputs.count }}
+      PREVIEW_SERIES: ${{ github.event.inputs.series }}
+      PIN_ARTICLE: ${{ github.event.inputs.article }}
+      PIN_MOMENT: ${{ github.event.inputs.moment }}
+      PIN_TITLE: ${{ github.event.inputs.title }}
+      PIPER_BIN: ${{ github.workspace }}/.piper/piper/piper
+      PIPER_VOICES_DIR: ${{ github.workspace }}/data/piper-voices
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: |
+          npm ci --no-audit --no-fund
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core > /dev/null
+
+      # Same caches as daily-shorts.yml, so nothing is downloaded twice.
+      - name: Cache Piper
+        uses: actions/cache@v4
+        with:
+          path: |
+            .piper
+            data/piper-voices
+          key: piper-v1-linux-x86_64
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install v2 render deps
+        run: python -m pip install --quiet --disable-pip-version-check "numpy>=2,<3" "opencv-python-headless~=4.13.0" "onnxruntime~=1.26.0"
+
+      - name: Cache face models
+        id: face-cache
+        uses: actions/cache@v4
+        with:
+          path: data/face-models
+          key: face-models-v1
+
+      - name: Download face models
+        if: steps.face-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p data/face-models
+          base=https://github.com/opencv/opencv_zoo/raw/main/models
+          curl -sSL -o data/face-models/face_detection_yunet_2023mar.onnx "$base/face_detection_yunet/face_detection_yunet_2023mar.onnx"
+          curl -sSL -o data/face-models/face_recognition_sface_2021dec.onnx "$base/face_recognition_sface/face_recognition_sface_2021dec.onnx"
+
+      - name: Cache depth and upscale models
+        id: vision-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/depth-models
+            data/sr-models
+          key: vision-models-v1
+
+      - name: Download depth and upscale models
+        if: steps.vision-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          mkdir -p data/depth-models data/sr-models
+          curl -sSL -o data/depth-models/depth_anything_v2_small_q.onnx "https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model_quantized.onnx"
+          curl -sSL -o data/sr-models/realesr-general-x4v3.onnx "https://huggingface.co/tamnvcc/Real-ESRGAN-General-x4v3_float/resolve/main/onnx/model.onnx"
+
+      # AI and Pexels keys only. No YouTube credentials or tokens on purpose.
+      - name: Keys (no YouTube)
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          NEW_GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NEW_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEW_MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          printf '%s\n' "$ENV_FILE" | grep -viE '^(YT_|YOUTUBE_)' > .env
+          for name in GROQ_API_KEY GEMINI_API_KEY MISTRAL_API_KEY; do
+            value="$(printenv "NEW_$name" || true)"
+            if [ -n "$value" ]; then
+              sed -i "/^$name=/d" .env
+              printf '%s=%s\n' "$name" "$value" >> .env
+            fi
+          done
+          rm -f config/tokens*.json config/credentials.json
+
+      - name: Render previews
+        run: |
+          set -o pipefail
+          touch /tmp/start
+          n="${PREVIEW_COUNT:-2}"; case "$n" in 1|2|3) ;; *) n=2 ;; esac
+          [ -n "$PIN_ARTICLE" ] && n=1
+          for i in $(seq 1 "$n"); do
+            echo "::group::preview $i of $n"
+            extra=()
+            if [ -n "$PIN_ARTICLE" ]; then
+              extra=(--article "$PIN_ARTICLE" --moment "$PIN_MOMENT" --title "$PIN_TITLE")
+            elif [ "$PREVIEW_SERIES" = "true" ] && [ "$i" = 1 ]; then
+              extra=(--series)
+            fi
+            # Each run records its story in the (never committed) state, so
+            # the next one picks a different story.
+            node scripts/autopilot/story-short.js "$PREVIEW_LANE" "${extra[@]}" 2>&1 | tee -a preview.log || echo "preview $i failed"
+            echo "::endgroup::"
+          done
+
+      - name: Collect
+        if: always()
+        run: |
+          mkdir -p preview
+          find state -path '*/shorts/video/*.mp4' -newer /tmp/start -exec cp {} preview/ \; || true
+          find state -path '*/shorts/copy/*_short.txt' -newer /tmp/start -exec cp {} preview/ \; || true
+          [ -f preview.log ] && cp preview.log preview/
+          {
+            echo "## Preview: $PREVIEW_LANE"
+            echo
+            echo "Nothing was posted. Download the **preview** artifact below."
+            echo
+            for f in preview/*.mp4; do [ -f "$f" ] && echo "- $(basename "$f") ($(du -h "$f" | cut -f1))"; done
+            ls preview/*.mp4 >/dev/null 2>&1 || echo "- no video was rendered; see preview.log"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preview
+          path: preview/
+          retention-days: 7
+          if-no-files-found: warn
