@@ -104,7 +104,7 @@ const SERIES = [
         articles: ['2021–22 Real Madrid CF season', 'Rodrygo', 'Karim Benzema'],
         subject: 'Real Madrid',
         photos: [{ article: 'Karim Benzema', n: 4, names: ['benzema', 'karim'] }, { article: 'Rodrygo', n: 4, names: ['rodrygo'] },
-          { article: 'Stamford Bridge', n: 1, names: ['stamford'] }],
+          { article: 'Stamford Bridge (stadium)', n: 1, names: ['stamford'] }],
         label: 'Real Madrid v Chelsea · 2022',
         moment: 'In the April 2022 Champions League quarter-final Real Madrid beat Chelsea 3–1 at Stamford Bridge with a Benzema hat-trick, lost the second leg 3–2 at home, and went through 5–4 on aggregate after a late Rodrygo volley and a Benzema header in extra time.',
         title: 'Chelsea Had Them Beaten. Then Rodrygo Came On.',

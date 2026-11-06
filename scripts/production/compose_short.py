@@ -2,6 +2,7 @@
 """
 Frames and sound for the v2 story short. Driven by utils/short-style-v2.js.
 
+  python compose_short.py upscale <image>...    sharpen small photos in place (Real-ESRGAN)
   python compose_short.py analyze <image>...    faces + sharpness per image, JSON on stdout
   python compose_short.py render  <plan.json>   video-only mp4 at plan["videoOut"]
   python compose_short.py audio   <plan.json>   music + sfx WAVs at plan["musicOut"], plan["sfxOut"]
@@ -36,6 +37,141 @@ YUNET = os.path.join(MODELS, 'face_detection_yunet_2023mar.onnx')
 SFACE = os.path.join(MODELS, 'face_recognition_sface_2021dec.onnx')
 SAME_PERSON = 0.363      # SFace's published cosine threshold
 
+# Depth Anything V2 small (Apache-2.0), int8 ONNX, ~0.9s a photo on CPU. Its
+# depth map moves near things more than far ones (parallax) and finds the
+# action in a wide photo that has no single face. Missing model or
+# onnxruntime: no depth, and every shot renders as before.
+DEPTH_MODEL = os.environ.get('DEPTH_MODEL') or os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'depth-models', 'depth_anything_v2_small_q.onnx')
+_depth = None
+
+
+def depth_of(path, img=None):
+    """Relative depth at the image's own size, 1 = nearest, cached beside the
+    photo as <photo>.depth.png. None when depth is unavailable."""
+    global _depth
+    if os.environ.get('PARALLAX') == 'off':
+        return None
+    cache = path + '.depth.png'
+    if os.path.exists(cache):
+        d = cv2.imread(cache, cv2.IMREAD_UNCHANGED)
+        if d is not None:
+            return d.astype(np.float32) / 65535
+    if _depth is None:
+        try:
+            import onnxruntime as ort
+            opts = ort.SessionOptions()
+            opts.log_severity_level = 3
+            _depth = ort.InferenceSession(DEPTH_MODEL, opts, providers=['CPUExecutionProvider'])
+        except Exception:
+            _depth = False
+    if not _depth:
+        return None
+    img = cv2.imread(path) if img is None else img
+    if img is None:
+        return None
+    h, w = img.shape[:2]
+    x = cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), (518, 518), interpolation=cv2.INTER_CUBIC).astype(np.float32) / 255
+    x = (x - np.array([0.485, 0.456, 0.406], np.float32)) / np.array([0.229, 0.224, 0.225], np.float32)
+    out = _depth.run(None, {_depth.get_inputs()[0].name: x.transpose(2, 0, 1)[None].astype(np.float32)})[0][0]
+    lo, hi = np.percentile(out, 2), np.percentile(out, 98)
+    d = np.clip((cv2.resize(out, (w, h), interpolation=cv2.INTER_CUBIC) - lo) / (hi - lo + 1e-6), 0, 1).astype(np.float32)
+    d = cv2.GaussianBlur(d, (0, 0), max(1.0, w / 400))
+    try:
+        cv2.imwrite(cache, (d * 65535).astype(np.uint16))
+    except Exception:
+        pass
+    return d
+
+
+# Real-ESRGAN General x4v3 (BSD-3-Clause), 4.9MB ONNX on fixed 128px tiles:
+# ~10s for a 480x640 photo on CPU. Small Commons photos (old match shots,
+# 600px portraits) are what make a frame look cheap once zoomed to 1080x1920.
+SR_MODEL = os.environ.get('SR_MODEL') or os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'data', 'sr-models', 'realesr-general-x4v3.onnx')
+SR_BELOW = 900          # upscale photos shorter than this
+SR_MAX_SIDE = 1100      # and no larger than this on the long side (time)
+
+
+def upscale(paths):
+    """Sharpen small photos in place, 4x then down to at most 2000px tall.
+    Prints how many it changed; any failure leaves the photo as it was."""
+    if os.environ.get('UPSCALE') == 'off' or not os.path.exists(SR_MODEL):
+        print(json.dumps({'upscaled': 0}))
+        return
+    try:
+        import onnxruntime as ort
+        opts = ort.SessionOptions()
+        opts.log_severity_level = 3
+        sess = ort.InferenceSession(SR_MODEL, opts, providers=['CPUExecutionProvider'])
+    except Exception:
+        print(json.dumps({'upscaled': 0}))
+        return
+    name = sess.get_inputs()[0].name
+    T, O = 128, 12
+    done = 0
+    for p in paths:
+        img = cv2.imread(p)
+        if img is None:
+            continue
+        h, w = img.shape[:2]
+        if h >= SR_BELOW or max(h, w) > SR_MAX_SIDE or min(h, w) < 64:
+            continue
+        try:
+            x = cv2.cvtColor(img, cv2.COLOR_BGR2RGB).astype(np.float32) / 255
+            out = np.zeros((h * 4, w * 4, 3), np.float32)
+            wt = np.zeros((h * 4, w * 4, 1), np.float32)
+            step = T - 2 * O
+            ys = list(range(0, max(1, h - T + 1), step))
+            xs = list(range(0, max(1, w - T + 1), step))
+            if ys[-1] + T < h:
+                ys.append(h - T)
+            if xs[-1] + T < w:
+                xs.append(w - T)
+            pad = np.pad(x, ((0, max(0, T - h)), (0, max(0, T - w)), (0, 0)), mode='reflect')
+            ramp = np.minimum(np.arange(T * 4), np.arange(T * 4)[::-1])[:, None].astype(np.float32)
+            m = np.clip(np.minimum(ramp, ramp.T)[..., None] / (O * 4) + 0.05, 0, 1)
+            for y in ys:
+                for xx in xs:
+                    r = sess.run(None, {name: pad[y:y + T, xx:xx + T].transpose(2, 0, 1)[None]})[0][0].transpose(1, 2, 0)
+                    hh, ww = min(T, h - y) * 4, min(T, w - xx) * 4
+                    out[y * 4:y * 4 + hh, xx * 4:xx * 4 + ww] += (r * m)[:hh, :ww]
+                    wt[y * 4:y * 4 + hh, xx * 4:xx * 4 + ww] += m[:hh, :ww]
+            big = cv2.cvtColor((np.clip(out / np.maximum(wt, 1e-6), 0, 1) * 255).astype(np.uint8), cv2.COLOR_RGB2BGR)
+            if big.shape[0] > 2000:
+                k = 2000 / big.shape[0]
+                big = cv2.resize(big, (int(big.shape[1] * k), 2000), interpolation=cv2.INTER_AREA)
+            ext = os.path.splitext(p)[1].lower()
+            params = [cv2.IMWRITE_JPEG_QUALITY, 94] if ext in ('.jpg', '.jpeg') else []
+            if cv2.imwrite(p, big, params):
+                done += 1
+        except Exception:
+            continue
+    print(json.dumps({'upscaled': done}))
+
+
+def foreground(d):
+    """The box [x, y, w, h] around the nearest things in a depth map (the
+    players in a wide match photo), or None when nothing stands out."""
+    if d is None:
+        return None
+    h, w = d.shape
+    mask = (d >= 0.62).astype(np.uint8)
+    k = max(3, w // 200)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((k, k), np.uint8))
+    n, _, stats, _ = cv2.connectedComponentsWithStats(mask)
+    comps = [stats[i] for i in range(1, n) if stats[i][cv2.CC_STAT_AREA] >= 0.01 * w * h]
+    if not comps:
+        return None
+    big = max(c[cv2.CC_STAT_AREA] for c in comps)
+    keep = [c for c in comps if c[cv2.CC_STAT_AREA] >= 0.25 * big]
+    x0 = min(c[0] for c in keep)
+    y0 = min(c[1] for c in keep)
+    x1 = max(c[0] + c[2] for c in keep)
+    y1 = max(c[1] + c[3] for c in keep)
+    # The whole frame near (a wall, a close crop) is not a subject.
+    if (x1 - x0) * (y1 - y0) > 0.8 * w * h:
+        return None
+    return [float(x0), float(y0), float(x1 - x0), float(y1 - y0)]
+
 
 # ---------------------------------------------------------------- analyze
 
@@ -65,7 +201,8 @@ def analyze(paths):
         det.setInputSize((small.shape[1], small.shape[0]))
         _, rows = det.detect(small)
         gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
-        info[p] = {'w': w, 'h': h, 'faces': [], 'subject': None, 'sharp': float(cv2.Laplacian(gray, cv2.CV_64F).var())}
+        info[p] = {'w': w, 'h': h, 'faces': [], 'subject': None, 'sharp': float(cv2.Laplacian(gray, cv2.CV_64F).var()),
+                   'fg': foreground(depth_of(p, img))}
         for row in (rows if rows is not None else []):
             box = [float(v / s) for v in row[:4]]
             info[p]['faces'].append(box)
@@ -117,7 +254,7 @@ def analyze_haar(paths):
         faces = sorted(([float(x / s), float(y / s), float(fw / s), float(fh / s)] for (x, y, fw, fh) in found),
                        key=lambda f: -f[2] * f[3])
         sharp = float(cv2.Laplacian(gray, cv2.CV_64F).var())
-        out[p] = {'w': w, 'h': h, 'faces': faces[:5], 'sharp': sharp}
+        out[p] = {'w': w, 'h': h, 'faces': faces[:5], 'sharp': sharp, 'fg': foreground(depth_of(p, img))}
     print(json.dumps(out))
 
 
@@ -177,7 +314,7 @@ def grain_frames(look, n=8):
     return frames
 
 
-def card_canvas(img, look, accent_bgr):
+def card_canvas(img, look, accent_bgr, depth=None):
     """For a photo that cannot fill 9:16 (too small, or a wide coin plate on
     white): the photo as a bordered card over a designed background — never a
     blurred copy of itself."""
@@ -205,7 +342,17 @@ def card_canvas(img, look, accent_bgr):
     frame_col = (226, 236, 242) if look == 'ancient' else (245, 245, 245)
     bg[y0:y0 + ph + 2 * border, x0:x0 + pw + 2 * border] = frame_col
     bg[y0 + border:y0 + border + ph, x0 + border:x0 + border + pw] = photo
-    return bg.astype(np.uint8)
+    if depth is None:
+        return bg.astype(np.uint8), None
+    # Depth on the card: the photo's own, eased to neutral (0.5, no shift)
+    # over 40px toward its edges so the frame never tears; neutral outside.
+    dc = np.full((H, W), 0.5, np.float32)
+    dp = cv2.resize(depth, (pw, ph), interpolation=cv2.INTER_AREA)
+    ry = np.minimum(np.arange(ph), np.arange(ph)[::-1])[:, None].astype(np.float32)
+    rx = np.minimum(np.arange(pw), np.arange(pw)[::-1])[None, :].astype(np.float32)
+    edge = np.clip(np.minimum(ry, rx) / 40.0, 0, 1)
+    dc[y0 + border:y0 + border + ph, x0 + border:x0 + border + pw] = 0.5 + (dp - 0.5) * edge
+    return bg.astype(np.uint8), dc
 
 
 # ---------------------------------------------------------------- render
@@ -229,10 +376,17 @@ def window_for(meta, shot):
     face = shot.get('face')
     if face:
         fx, fy = face[0] + face[2] / 2, face[1] + face[3] / 2
-        cy = fy + ch * 0.10
+        # The opener carries the hook headline over the top fifth: its face
+        # sits lower, under the headline (Real Madrid Part 2 preview: the
+        # headline covered Rodrygo's eyes).
+        cy = fy - ch * 0.10 if shot.get('hook') else fy + ch * 0.10
     else:
         fx, cy = w / 2, h * 0.5
     return fx, cy, cw, ch
+
+
+PAR_SLIDE = 26.0    # px of sideways drift for the nearest pixels, each way
+PAR_ZOOM = 0.07     # extra scale for the nearest pixels by the end of a shot
 
 
 def render(plan):
@@ -242,7 +396,8 @@ def render(plan):
     shots = plan['shots']
     punches = plan.get('punches', [])
 
-    sources = {}
+    sources, depths = {}, {}
+    gx, gy = np.meshgrid(np.arange(W, dtype=np.float32), np.arange(H, dtype=np.float32))
     for s in shots:
         if s.get('video'):
             continue
@@ -250,11 +405,15 @@ def render(plan):
         if key in sources:
             continue
         img = cv2.imread(s['image'])
+        dep = depth_of(s['image'], img) if plan.get('parallax', True) else None
         if s['mode'] == 'card':
-            img = card_canvas(grade(img, look), look, accent)
+            img, dep = card_canvas(grade(img, look), look, accent, dep)
         else:
             img = grade(img, look)
+            if dep is not None and dep.shape != img.shape[:2]:
+                dep = cv2.resize(dep, (img.shape[1], img.shape[0]))
         sources[key] = img
+        depths[key] = dep
 
     mask = frame_mask(look)
     grains = grain_frames(look)
@@ -274,6 +433,7 @@ def render(plan):
         while idx < len(shots) - 1 and t >= shots[idx + 1]['start']:
             idx += 1
         shot = shots[idx]
+        dep = None
         if shot.get('video'):
             if cap_idx != idx:
                 if cap is not None:
@@ -285,6 +445,7 @@ def render(plan):
             src = last if last is not None else np.zeros((H, W, 3), np.uint8)
         else:
             src = sources[(shot['image'], shot['mode'])]
+            dep = depths.get((shot['image'], shot['mode']))
         sh, sw = src.shape[:2]
         meta = {'w': sw, 'h': sh}
         u = t - shot['start']
@@ -320,6 +481,15 @@ def render(plan):
 
         M = np.float32([[scale, 0, W / 2 - scale * cx + shift], [0, scale, H / 2 - scale * cyy]])
         frame = cv2.warpAffine(src, M, (W, H), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
+        if dep is not None:
+            # Parallax: near pixels slide and grow against far ones as the
+            # shot runs, so a still reads as a camera moving through the scene.
+            dw = cv2.warpAffine(dep, M, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT) - 0.5
+            p = smooth(u / d)
+            r = PAR_ZOOM * dw * p
+            mx = gx - PAR_SLIDE * dw * (p - 0.5) * 2 * (shot.get('pan', 1) or 1) - (gx - W / 2) * r
+            my = gy - (gy - H * 0.45) * r
+            frame = cv2.remap(frame, mx, my, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
         if blur > 0.05:
             k = int(9 + 90 * blur) | 1
             frame = cv2.blur(frame, (k, 1))
@@ -481,6 +651,8 @@ if __name__ == '__main__':
     mode = sys.argv[1]
     if mode == 'analyze':
         analyze(sys.argv[2:])
+    elif mode == 'upscale':
+        upscale(sys.argv[2:])
     else:
         with open(sys.argv[2], encoding='utf-8') as fh:
             plan = json.load(fh)

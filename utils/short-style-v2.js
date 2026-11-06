@@ -66,19 +66,47 @@ function rankPhotos(metas) {
     // photos (compose_short.py analyze); without them, the dominant face.
     const area = (f) => (f ? f[2] * f[3] : 0);
     const solo = m.faces.length === 1 || (m.faces.length > 1 && area(m.faces[0]) >= 2.5 * area(m.faces[1]));
-    const face = 'subject' in m ? m.subject : (solo ? m.faces[0] : null);
+    let face = 'subject' in m ? m.subject : (solo ? m.faces[0] : null);
     const faceShare = face ? area(face) / (m.w * m.h) : 0;
+    // No face to frame on, but the depth map found the action (two players
+    // on a ball, compose_short.py foreground) and it fits a 9:16 crop: fill
+    // the frame on it instead of boxing a wide photo in dark space.
+    const window = Math.min(m.w, m.h * 9 / 16);
+    const action = !face && m.fg && m.h >= 900 && m.fg[2] <= window * 1.1 && m.fg[3] >= m.h * 0.2;
+    if (action) face = m.fg;
     const card = m.h < 900 || !face;
     // Room above the face: the opener's headline sits over the top quarter.
     const headroom = face ? (face[1] + face[3] / 2) / m.h : 0;
-    const score = (face ? 2 : 0) + Math.min(faceShare * 60, 3) + Math.min(m.sharp / 400, 1) - (card ? 1.5 : 0);
-    return { path: p, meta: m, face, card, headroom, score };
+    const score = (face ? (action ? 1 : 2) : 0) + Math.min(faceShare * 60, 3) + Math.min(m.sharp / 400, 1) - (card ? 1.5 : 0);
+    return { path: p, meta: m, face, card, headroom, score, action: Boolean(action) };
   }).sort((a, b) => b.score - a.score);
 }
 
 /** The opening shot: the best face that leaves room for the headline above it. */
 function opener(ranked) {
-  return ranked.find((r) => !r.card && r.headroom >= 0.3) || ranked.find((r) => !r.card) || ranked[0];
+  // A real face opens, and only one the hook headline (top ~23% of the
+  // frame) will not cover: Real Madrid Part 2's opener was a tight Rodrygo
+  // crop with the face at the top edge, and the headline sat on his eyes.
+  // A depth-found action shot only when there is no face.
+  const clear = (r) => faceTopInFrame(r) >= 0.24;
+  return ranked.find((r) => !r.card && !r.action && clear(r))
+    || ranked.find((r) => !r.card && !r.action && r.headroom >= 0.3) || ranked.find((r) => !r.card && !r.action)
+    || ranked.find((r) => !r.card) || ranked[0];
+}
+
+/**
+ * Where the top of the face lands in the opening frame (0 = top), framed as
+ * compose_short.py window_for frames a hook shot: face 10% below centre,
+ * window clamped to the photo, at the opener's starting zoom.
+ */
+function faceTopInFrame(r, zoom = 1.22) {
+  const m = r.meta;
+  const f = r.face;
+  if (!f) return 0;
+  const chz = Math.min(m.h, m.w * 16 / 9) / zoom;
+  const fy = f[1] + f[3] / 2;
+  const cy = Math.min(Math.max(fy - Math.min(m.h, m.w * 16 / 9) * 0.10, chz / 2), m.h - chz / 2);
+  return (f[1] - (cy - chz / 2)) / chz;
 }
 
 /**
@@ -156,7 +184,8 @@ function planShots(words, duration, ranked, chapters = [], claimed = null) {
       end: Number(end.toFixed(3)),
       zoom: i === 0 ? [1.22, 1.04] : (zoomIn ? [1.02, 1.12] : [1.13, 1.03]),
       pan: i % 2 === 0 ? 1 : -1,
-      transition: i > 0 && i % 3 === 0 ? 'whip' : 'punch'
+      transition: i > 0 && i % 3 === 0 ? 'whip' : 'punch',
+      hook: i === 0
     });
   }
   return shots;
@@ -404,6 +433,12 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   // Face matching assumes one subject per set, so a countdown's photos are
   // analysed chapter by chapter — five people, five subjects.
   const groups = chapters.length ? [...chapters.map((c) => c.photos), photos.filter((p) => !chapters.some((c) => c.photos.includes(p)))] : [photos];
+  // Small photos are sharpened first (Real-ESRGAN, compose_short.py upscale),
+  // so the analysis sees the size the render will use.
+  try {
+    const up = JSON.parse(python(['upscale', ...photos]));
+    if (up.upscaled) logger.info?.(`v2: sharpened ${up.upscaled} small photo(s)`);
+  } catch (e) { logger.warn?.(`v2: upscale skipped (${String(e.message).slice(0, 80)})`); }
   const metas = Object.assign({}, ...groups.filter((g) => g.length).map((g) => analyzePhotos(g)));
   const ranked = rankPhotos(metas);
   if (!ranked.length) throw new Error('no readable photos');
@@ -465,4 +500,4 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   return { outputPath, shots, stats, hookEnd, duration };
 }
 
-module.exports = { renderStoryV2, planShots, resolveChapters, cutTimes, chunkWords, statCards, rankPhotos, buildAss };
+module.exports = { renderStoryV2, planShots, resolveChapters, opener, faceTopInFrame, cutTimes, chunkWords, statCards, rankPhotos, buildAss };

@@ -147,7 +147,7 @@ jobs:
 
       - name: Install v2 render deps
         continue-on-error: true
-        run: python -m pip install --quiet --disable-pip-version-check "numpy>=2,<3" "opencv-python-headless~=4.13.0"
+        run: python -m pip install --quiet --disable-pip-version-check "numpy>=2,<3" "opencv-python-headless~=4.13.0" "onnxruntime~=1.26.0"
 
       - name: Cache face models
         id: face-cache
@@ -166,6 +166,29 @@ jobs:
           base=https://github.com/opencv/opencv_zoo/raw/main/models
           curl -sSL -o data/face-models/face_detection_yunet_2023mar.onnx "$base/face_detection_yunet/face_detection_yunet_2023mar.onnx"
           curl -sSL -o data/face-models/face_recognition_sface_2021dec.onnx "$base/face_recognition_sface/face_recognition_sface_2021dec.onnx"
+
+      # Depth Anything V2 small (Apache-2.0) for parallax, Real-ESRGAN General
+      # x4v3 (BSD-3) for sharpening small photos. Either missing: the render
+      # simply skips that step (compose_short.py).
+      - name: Cache depth and upscale models
+        id: vision-cache
+        continue-on-error: true
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/depth-models
+            data/sr-models
+          key: vision-models-v1
+
+      - name: Download depth and upscale models
+        if: steps.vision-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p data/depth-models data/sr-models
+          curl -sSL -o data/depth-models/depth_anything_v2_small_q.onnx "https://huggingface.co/onnx-community/depth-anything-v2-small/resolve/main/onnx/model_quantized.onnx"
+          curl -sSL -o data/sr-models/realesr-general-x4v3.onnx "https://huggingface.co/tamnvcc/Real-ESRGAN-General-x4v3_float/resolve/main/onnx/model.onnx"
+          ls -la data/depth-models data/sr-models
 
       - name: Verify v2 render deps
         continue-on-error: true
