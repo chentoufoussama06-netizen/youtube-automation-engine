@@ -203,5 +203,26 @@
     "title": "How a Greek Politician Saved Greece with a Fleet",
     "at": "2026-11-05T00:35:13.471Z",
     "style": "v2"
+  },
+  {
+    "id": "story-archimedes-p3-210-bc-sicil",
+    "subject": "Archimedes",
+    "article": "Siege of Syracuse (213–212 BC)",
+    "moment": "210 BC – Sicily becomes Rome’s first province",
+    "title": "Rome turns Sicily into its first overseas province (Part 3)",
+    "at": "2026-11-06T00:58:19.670Z",
+    "style": "v2",
+    "sequelOf": "story-archimedes-p2-212-bc-the-b",
+    "part": 3,
+    "root": "story-archimedes-during-the-roman"
+  },
+  {
+    "id": "story-alexander-the-great-alexander-defeatx",
+    "subject": "Alexander the Great",
+    "article": "Battle of Gaugamela",
+    "moment": "Alexander defeats Darius III at Gaugamela, 331 BCE, ending the Persian Empire",
+    "title": "How Alexander’s Tactics Crushed Persia at Gaugamela",
+    "at": "2026-11-06T01:01:35.472Z",
+    "style": "v2"
   }
 ]

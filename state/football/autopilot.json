@@ -279,6 +279,24 @@
       "event": "sequel",
       "id": "story-kylian-mbappe-p3-2026-mbappe",
       "url": "https://www.youtube.com/watch?v=j4lKh3OeQ9U"
+    },
+    {
+      "at": "2026-11-06T01:06:01.360Z",
+      "event": "series",
+      "id": "story-series-real-madrid-2022-p2",
+      "url": "https://www.youtube.com/watch?v=VgvRDHDBHAo"
+    },
+    {
+      "at": "2026-11-06T01:10:22.166Z",
+      "event": "sequel",
+      "id": "story-roberto-baggio-p2-1998-world-c",
+      "url": "https://www.youtube.com/watch?v=PHc7IG2AMAY"
+    },
+    {
+      "at": "2026-11-06T01:14:30.855Z",
+      "event": "story",
+      "id": "story-eric-cantona-in-1995-cantona",
+      "url": "https://www.youtube.com/watch?v=BpbcmOQakbQ"
     }
   ],
   "pendingLinks": [],
@@ -300,6 +318,12 @@
     },
     "story-gary-speed-speed-died-by-su": {
       "playlistId": "PLXiWBG-BSVXg"
+    },
+    "story-series-real-madrid-2022-p1": {
+      "playlistId": "PLPLM98T_BZbo"
+    },
+    "story-roberto-baggio-baggio-missed-th": {
+      "playlistId": "PLTz-0jtMKeF4"
     }
   },
   "romano": {

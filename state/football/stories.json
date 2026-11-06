@@ -361,5 +361,40 @@
     "sequelOf": "story-kylian-mbappe-p2-october-2026",
     "part": 3,
     "root": "story-kylian-mbappe-on-26-october-20"
+  },
+  {
+    "id": "story-series-real-madrid-2022-p2",
+    "subject": "Real Madrid",
+    "article": "2021–22 Real Madrid CF season",
+    "moment": "In the April 2022 Champions League quarter-final Real Madrid beat Chelsea 3–1 at Stamford Bridge with a Benzema hat-trick, lost the second leg 3–2 at home, and went through 5–4 on aggregate after a late Rodrygo volley and a Benzema header in extra time.",
+    "title": "Chelsea Had Them Beaten. Then Rodrygo Came On. (Part 2)",
+    "at": "2026-11-06T01:05:48.638Z",
+    "style": "v2",
+    "series": "real-madrid-2022",
+    "part": 2,
+    "of": 4,
+    "root": "story-series-real-madrid-2022-p1",
+    "sequelOf": "story-series-real-madrid-2022-p1"
+  },
+  {
+    "id": "story-roberto-baggio-p2-1998-world-c",
+    "subject": "Roberto Baggio",
+    "article": "Roberto Baggio",
+    "moment": "1998 World Cup – Baggio’s redemption penalty",
+    "title": "Baggio scores his first penalty for Italy since 1994 (Part 2)",
+    "at": "2026-11-06T01:10:09.181Z",
+    "style": "v2",
+    "sequelOf": "story-roberto-baggio-baggio-missed-th",
+    "part": 2,
+    "root": "story-roberto-baggio-baggio-missed-th"
+  },
+  {
+    "id": "story-eric-cantona-in-1995-cantona",
+    "subject": "Eric Cantona",
+    "article": "Eric Cantona",
+    "moment": "In 1995 Cantona performed a kung‑fu kick on a Crystal Palace supporter during a match.",
+    "title": "Cantona’s infamous kung-fu kick on a fan",
+    "at": "2026-11-06T01:14:19.087Z",
+    "style": "v2"
   }
 ]
