@@ -27,6 +27,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const { getFFmpegPath, runFFmpeg } = require('./ffmpeg');
 const { addClips } = require('./broll');
+const { pickTrack } = require('./music');
 
 const ROOT = path.join(__dirname, '..');
 const COMPOSE = path.join(ROOT, 'scripts', 'production', 'compose_short.py');
@@ -482,10 +483,20 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   python(['render', planPath]);
   python(['audio', planPath]);
 
+  // A real track when one is available (utils/music.js), levelled to -24 LUFS
+  // as a bed with a short fade each end; the synthesised one otherwise.
+  const track = await pickTrack(look, path.basename(outputPath), logger);
+  if (track) logger.info?.(`v2: music "${track.title}" (Kevin MacLeod, CC BY 4.0)`);
+  const musicIn = track ? track.path : plan.musicOut;
+  const musicChain = track
+    ? `atrim=0:${(duration + 1).toFixed(2)},asetpts=PTS-STARTPTS,loudnorm=I=-24:TP=-4:LRA=9,aresample=48000,`
+      + `afade=t=in:d=0.6,afade=t=out:st=${Math.max(0, duration - 1.6).toFixed(2)}:d=1.5`
+    : 'volume=0.30';
+
   // Music ducks ~10dB whenever the voice speaks; loudness lands on the -14 LUFS Shorts target.
   const graph = [
     '[1:a]aresample=48000,aformat=channel_layouts=stereo,asplit=2[voice][key]',
-    '[2:a]aresample=48000,aformat=channel_layouts=stereo,volume=0.30[mus]',
+    `[2:a]aresample=48000,aformat=channel_layouts=stereo,${musicChain}[mus]`,
     '[mus][key]sidechaincompress=threshold=0.025:ratio=7:attack=15:release=400[duck]',
     '[3:a]aresample=48000,aformat=channel_layouts=stereo,volume=0.75[sfx]',
     '[voice][duck][sfx]amix=inputs=3:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[a]',
@@ -493,11 +504,11 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   ].join(';');
   const graphPath = path.join(workDir, 'mix.txt');
   await fsp.writeFile(graphPath, graph);
-  await runFFmpeg(['-y', '-i', plan.videoOut, '-i', audioPath, '-i', plan.musicOut, '-i', plan.sfxOut,
+  await runFFmpeg(['-y', '-i', plan.videoOut, '-i', audioPath, '-i', musicIn, '-i', plan.sfxOut,
     '-filter_complex_script', graphPath, '-map', '[v]', '-map', '[a]',
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-pix_fmt', 'yuv420p', '-r', '30',
     '-c:a', 'aac', '-b:a', '160k', '-t', String(duration), outputPath]);
-  return { outputPath, shots, stats, hookEnd, duration };
+  return { outputPath, shots, stats, hookEnd, duration, music: track ? track.credit : null };
 }
 
 module.exports = { renderStoryV2, planShots, resolveChapters, opener, faceTopInFrame, cutTimes, chunkWords, statCards, rankPhotos, buildAss };

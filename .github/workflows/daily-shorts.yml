@@ -170,6 +170,15 @@ jobs:
       # Depth Anything V2 small (Apache-2.0) for parallax, Real-ESRGAN General
       # x4v3 (BSD-3) for sharpening small photos. Either missing: the render
       # simply skips that step (compose_short.py).
+      # Kevin MacLeod tracks (CC BY 4.0) for the music bed, fetched on first use
+      # by utils/music.js; cached so incompetech is hit once, not every run.
+      - name: Cache music
+        continue-on-error: true
+        uses: actions/cache@v4
+        with:
+          path: data/music
+          key: music-v1
+
       - name: Cache depth and upscale models
         id: vision-cache
         continue-on-error: true

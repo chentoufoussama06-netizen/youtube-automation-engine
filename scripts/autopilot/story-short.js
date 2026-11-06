@@ -439,11 +439,12 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
   if (style === 'v2') {
     const workDir = path.join(dirs.work, id);
     try {
-      await renderStoryV2({
+      const v2 = await renderStoryV2({
         words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, label, next, chapters,
         look: lane.look || 'football', accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
-      return { video, seconds, style: 'v2' };
+      // A CC BY track has to be credited in the description (utils/music.js).
+      return { video, seconds, style: 'v2', music: v2.music || null };
     } catch (error) {
       logger.warn(`${id}: v2 render failed (${String(error.message).slice(0, 160)}); rendering the v1 look`);
     } finally {
@@ -610,7 +611,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       // A sequel's first description line points back, for anyone who lands here first.
       const back = sequel ? `◀ Part ${sequel.part - 1}: https://youtube.com/shorts/${sequelOf.videoId}\n\n` : '';
       await fsp.writeFile(path.join(dirs.copy, `${id}_short.txt`),
-        `${back}${text}\n\nSource: ${brief.url}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}`);
+        `${back}${text}\n\nSource: ${brief.url}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}${rendered.music ? `\n\n${rendered.music}` : ''}`);
 
       const queuePath = base('queue.json');
       const queue = readJson(queuePath, { topics: [] });
@@ -741,7 +742,7 @@ async function makeSeriesPart(lane, due, { dryRun = false } = {}) {
   const credits = saved.map((p) => `• ${p.title.replace(/^File:/, '')} — ${String(p.artist || 'unknown').slice(0, 80)}, ${p.license}`);
   const back = prev ? `◀ Part ${n - 1}: https://youtube.com/shorts/${prev.videoId}\n\n` : '';
   await fsp.writeFile(base('shorts', 'copy', `${id}_short.txt`),
-    `${back}${full}\n\nSources:\n${brief.urls.join('\n')}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}`);
+    `${back}${full}\n\nSources:\n${brief.urls.join('\n')}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}${rendered.music ? `\n\n${rendered.music}` : ''}`);
 
   const queuePath = base('queue.json');
   const queue = readJson(queuePath, { topics: [] });

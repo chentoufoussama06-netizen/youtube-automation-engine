@@ -173,7 +173,7 @@ async function makeRomanoRoundup(laneName, { dryRun = false } = {}) {
   await fsp.writeFile(base('shorts', 'copy', `${id}_short.txt`),
     `${text}\n\nAs reported by Fabrizio Romano, via:\n${used.join('\n')}\n\n`
     + 'A weekly roundup of Fabrizio Romano\'s reporting. Not affiliated with Fabrizio Romano.\n'
-    + `Photos (Wikimedia Commons):\n${credits.join('\n')}`);
+    + `Photos (Wikimedia Commons):\n${credits.join('\n')}${rendered.music ? `\n\n${rendered.music}` : ''}`);
 
   const queuePath = base('queue.json');
   const queue = readJson(queuePath, { topics: [] });

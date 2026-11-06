@@ -637,7 +637,7 @@ def audio(plan):
     sfx = np.zeros(int(SR * (duration + 1)))
     place(sfx, impact(), 0.0, 0.9)
     for s in plan['shots'][1:]:
-        place(sfx, whoosh(), s['start'] - 0.28, 0.32)
+        place(sfx, whoosh(), s['start'] - 0.28, 0.227)   # 0.32 at -3 dB (user, 2026-11-06)
     for p in plan.get('punches', []):
         place(sfx, impact(0.6), p, 0.45)
     if plan.get('payoff'):
