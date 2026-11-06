@@ -26,6 +26,7 @@ const fsp = fs.promises;
 const path = require('path');
 const { spawnSync } = require('child_process');
 const { getFFmpegPath, runFFmpeg } = require('./ffmpeg');
+const { addClips } = require('./broll');
 
 const ROOT = path.join(__dirname, '..');
 const COMPOSE = path.join(ROOT, 'scripts', 'production', 'compose_short.py');
@@ -107,14 +108,23 @@ function cutTimes(words, duration, { target = 2.1, min = 1.4, max = 2.9 } = {}) 
  * must show López, not whichever photo ranks best overall. Chapter starts are
  * also forced cuts, so the picture changes on "Number four".
  */
-function planShots(words, duration, ranked, chapters = []) {
+function planShots(words, duration, ranked, chapters = [], claimed = null) {
   const forced = chapters.map((c) => c.at).filter((t) => t > 0.5 && t < duration - 1);
   // A regular cut just before a chapter start would leave a flash of a shot.
   const cuts = [...new Set([...cutTimes(words, duration).filter((t) => t === 0 || !forced.some((f) => Math.abs(f - t) < 0.8)), ...forced])]
     .sort((a, b) => a - b);
   const chapterAt = (t) => [...chapters].reverse().find((c) => c.at <= t + 0.05);
   // Before the first chapter (the intro), only the photos no chapter claims.
-  const intro = chapters.length ? { photos: ranked.map((r) => r.path).filter((p) => !chapters.some((c) => c.photos?.includes(p))) } : null;
+  // `claimed` is every photo tied to a name, said or not: a name the
+  // narration never says keeps its photos off screen. Part 1 of Real Madrid
+  // 2022 never named Mbappe, yet his photos filled the gaps between Benzema's.
+  // With nothing unclaimed, the gaps show the first name said (the subject).
+  const isClaimed = (p) => (claimed ? claimed.has(p) : chapters.some((c) => c.photos?.includes(p)));
+  let intro = null;
+  if (chapters.length || claimed?.size) {
+    const free = ranked.map((r) => r.path).filter((p) => !isClaimed(p));
+    intro = { photos: free.length ? free : (chapters.find((c) => c.photos?.length)?.photos || ranked.map((r) => r.path)) };
+  }
   const uses = new Map();
   const shots = [];
   let prev = null;
@@ -125,7 +135,8 @@ function planShots(words, duration, ranked, chapters = []) {
     const found = chapterAt(start);
     const ch = found?.photos ? found : intro;
     const pool = ch ? ranked.filter((r) => ch.photos.includes(r.path)) : ranked;
-    const from = pool.length ? pool : ranked;
+    const safe = intro ? ranked.filter((r) => intro.photos.includes(r.path)) : ranked;
+    const from = pool.length ? pool : (safe.length ? safe : ranked);
     // The opener is the best photo; after that, the least-used photo that is
     // not the one just shown, best-ranked first.
     const pick = i === 0 ? opener(from) : [...from]
@@ -396,11 +407,15 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   const metas = Object.assign({}, ...groups.filter((g) => g.length).map((g) => analyzePhotos(g)));
   const ranked = rankPhotos(metas);
   if (!ranked.length) throw new Error('no readable photos');
-  const shots = planShots(words, duration, ranked, resolveChapters(words, chapters));
+  const claimed = new Set(chapters.filter((c) => c.names?.length).flatMap((c) => c.photos));
+  const resolved = resolveChapters(words, chapters);
 
   // The hook headline holds through the first sentence, 1.8-3.2s.
   const firstStop = words.find((w) => /[.!?]["'”’]?$/.test(w.word));
   const hookEnd = Math.min(3.2, Math.max(1.8, firstStop ? firstStop.end : 2.4));
+  // Moving shots on the words a still cannot carry (utils/broll.js).
+  const shots = await addClips(planShots(words, duration, ranked, resolved, claimed.size ? claimed : null), words,
+    { look, chapters: resolved, hookEnd, workDir, seed: path.basename(outputPath), logger });
   const stats = statCards(words, hookEnd);
   // The riser builds into the last sentence — or, when the video ends on
   // "Part two is next.", into the teaser just before it.
@@ -428,7 +443,7 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   const assPath = path.join(workDir, 'captions.ass');
   await fsp.writeFile(assPath, buildAss({ words, title, accent, look, hookEnd, stats, tag, label, next: nextCard }));
 
-  logger.info?.(`v2: ${shots.length} shots from ${ranked.length} photos, ${stats.length} number card(s), ${duration.toFixed(1)}s`);
+  logger.info?.(`v2: ${shots.length} shots (${shots.filter((s) => s.video).length} moving) from ${ranked.length} photos, ${stats.length} number card(s), ${duration.toFixed(1)}s`);
   python(['render', planPath]);
   python(['audio', planPath]);
 
@@ -450,4 +465,4 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   return { outputPath, shots, stats, hookEnd, duration };
 }
 
-module.exports = { renderStoryV2, planShots, cutTimes, chunkWords, statCards, rankPhotos, buildAss };
+module.exports = { renderStoryV2, planShots, resolveChapters, cutTimes, chunkWords, statCards, rankPhotos, buildAss };

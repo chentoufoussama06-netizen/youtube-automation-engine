@@ -273,6 +273,22 @@ function writerAI() {
   return writer;
 }
 
+/**
+ * Why a narration's first sentence would not stop a thumb, or null. Measured
+ * on the channel: the 95%-retention short opened "Ten days after scoring an
+ * own goal, he was murdered." (10 words, the twist stated flat); Real Madrid
+ * 2022 Part 1 opened on a 14-word summary that gave the comeback away.
+ */
+const HYPE = /\b(breathtaking|stunning|incredible|legendary|epic|unbelievable|iconic|remarkable|historic|orchestrated|extraordinary|astonishing)\b/i;
+function hookProblem(text) {
+  const first = (String(text).match(/^[^.!?]+[.!?]/) || [String(text)])[0].trim();
+  const n = first.split(/\s+/).filter(Boolean).length;
+  if (n > 14) return `the first sentence is ${n} words; keep it to 12`;
+  if (HYPE.test(first)) return `"${first.match(HYPE)[0]}" is a hype adjective; state the fact instead`;
+  if (/^(on|in|during|back in)\s+(\d|the\s+\d|(january|february|march|april|may|june|july|august|september|october|november|december)\b)/i.test(first)) return 'it opens on a date; open on the moment or the fact';
+  return null;
+}
+
 async function narrate(ai, story, brief, writer = writerAI(), WORDS = DEFAULT_WORDS) {
   // A sequel is told as the next chapter: what Part 1 said is shown so it is
   // not retold, and one reconnecting line lets a viewer who missed it follow.
@@ -305,9 +321,19 @@ ${brief.text.slice(0, 9000)}
 """
 
 Structure:
-1. First sentence is the hook: name ${story.subject} and promise the drama in
-   under 20 words, so a viewer swiping past stops.
-2. Set up who or what this was and what was at stake, quickly.
+1. THE HOOK, the first sentence, at most 12 words. It drops the viewer into the
+   moment of highest tension, or states the most shocking fact flatly. It must
+   NOT summarise the story or give away how it ends. The shapes that hold a
+   thumb (shapes only; every fact must come from the SOURCE):
+   - the twist stated flat: "Ten days after scoring an own goal, he was murdered."
+   - the low point: "Real Madrid were two goals down and thirty minutes from going out."
+   - the number first: "Seventeen minutes. That is all Karim Benzema needed."
+   - the contradiction: "Rome's most feared emperor was terrified of his own guards."
+   Name ${story.subject} in the first or second sentence. No hype adjectives
+   (breathtaking, stunning, incredible, legendary, epic, unbelievable, iconic,
+   remarkable, historic), and never open on a date ("On 9 March 2022...").
+2. The second sentence opens a loop: what was at stake or about to go wrong,
+   left unresolved so the viewer has to stay for the answer.
 3. Tell the episode in the order the SOURCE gives it, building tension sentence
    by sentence. Who scored, when and how must match the source exactly — if the
    source does not say how a goal was scored, do not describe it.
@@ -320,10 +346,12 @@ emojis, no stage directions. Never name the structure out loud: no "hook",
 "payoff", "stakes" or "twist" (the Kane short said "the incredible payoff
 arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
 
+  let feedback = '';
   for (let attempt = 1; attempt <= 3; attempt++) {
     const raw = await writer.generateText(attempt === 1 ? base
-      : `${base}\n\nYour previous draft broke a rule (${attempt === 2 ? 'length or invented figures' : 'invented figures'}). Use ONLY numbers that appear in the source.`,
+      : `${base}\n\nYour previous draft broke a rule (${feedback || (attempt === 2 ? 'length or invented figures' : 'invented figures')}). Use ONLY numbers that appear in the source.`,
     { maxTokens: 1400, temperature: 0.6 });
+    feedback = '';
     // Non-breaking and figure hyphens (U+2010-2012) come back from the model in
     // "Paris Saint‑Germain" and do not survive every font or the TTS.
     const text = String(raw).replace(/^#+.*$/gm, '').replace(/\*\*/g, '').replace(/[‐-‒]/g, '-').replace(/\s+/g, ' ').trim();
@@ -335,6 +363,14 @@ arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
       ? (text.match(/[^.!?]+[.!?]+["'”’]?/g) || [text]).filter((s) => unsourcedNumbers(s, brief.text).length === 0).join(' ').replace(/\s+/g, ' ').trim()
       : text;
     if (bad.length) logger.info(`dropped sentences with unsourced figures (${bad.join(', ')})`);
+    // A weak opener goes back before the fact-check spends a call on it; the
+    // last attempt ships whatever it has rather than losing the story.
+    const weak = hookProblem(kept);
+    if (weak && attempt < 3) {
+      logger.info(`draft ${attempt}: weak hook (${weak}): "${(kept.match(/^[^.!?]+[.!?]/) || [kept])[0].slice(0, 90)}"`);
+      feedback = `the hook: ${weak}`;
+      continue;
+    }
     if (words(kept) < WORDS.min) {
       logger.warn(`draft ${attempt}: only ${words(kept)} words after the figure check`);
       continue;
@@ -533,7 +569,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
 
       // The subject's own pictures first (main image, article, Commons
       // category), filename search last — see gatherForArticle.
-      const found = await archival.gatherForArticle(brief.title || story.article, subject, { total: 10 }).catch(() => []);
+      const found = (await archival.gatherForArticle(brief.title || story.article, subject, { total: 12 }).catch(() => []))
+        .filter((x) => !OFF_TOPIC.test(x.title)).slice(0, 10);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
       const text = await narrate(ai, { ...story, subject, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
@@ -615,13 +652,17 @@ async function seriesBrief(research, part) {
  * part.photos fetched from its own article (gatherForArticle), and every group
  * with `names` made a chapter, so the picture follows who the voice is naming.
  */
+// Stadium and city articles carry whatever else happened there: Part 1 of
+// Real Madrid 2022 showed "2025 NFL Madrid Game" as the Bernabeu.
+const OFF_TOPIC = /(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour)/i;
+
 async function seriesPhotos(archival, part, dir) {
   const groups = [];
   for (const g of part.photos) {
     const subject = g.article.replace(/\([^)]*\)/g, '').trim();
     const skip = g.skip ? new RegExp(g.skip, 'i') : null;
-    const found = (await archival.gatherForArticle(g.article, subject, { total: g.n + (skip ? 3 : 0) }).catch(() => []))
-      .filter((x) => !skip || !skip.test(x.title)).slice(0, g.n);
+    const found = (await archival.gatherForArticle(g.article, subject, { total: g.n + 3 }).catch(() => []))
+      .filter((x) => !OFF_TOPIC.test(x.title) && (!skip || !skip.test(x.title))).slice(0, g.n);
     groups.push({ ...g, found });
   }
   const all = groups.flatMap((g) => g.found);
@@ -743,4 +784,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
+module.exports = { makeStoryShort, hookProblem, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };

@@ -244,6 +244,8 @@ def render(plan):
 
     sources = {}
     for s in shots:
+        if s.get('video'):
+            continue
         key = (s['image'], s['mode'])
         if key in sources:
             continue
@@ -263,12 +265,26 @@ def render(plan):
 
     total = int(math.ceil(duration * FPS))
     idx = 0
+    # A video shot is a clip already cut to 1080x1920 at FPS (short-style-v2.js
+    # cutClip): one frame read per output frame, graded like the photos, and
+    # held on its last frame if it runs short.
+    cap, cap_idx, last = None, -1, None
     for n in range(total):
         t = n / FPS
         while idx < len(shots) - 1 and t >= shots[idx + 1]['start']:
             idx += 1
         shot = shots[idx]
-        src = sources[(shot['image'], shot['mode'])]
+        if shot.get('video'):
+            if cap_idx != idx:
+                if cap is not None:
+                    cap.release()
+                cap, cap_idx, last = cv2.VideoCapture(shot['video']), idx, None
+            ok, img = cap.read()
+            if ok:
+                last = grade(img, look)
+            src = last if last is not None else np.zeros((H, W, 3), np.uint8)
+        else:
+            src = sources[(shot['image'], shot['mode'])]
         sh, sw = src.shape[:2]
         meta = {'w': sw, 'h': sh}
         u = t - shot['start']
@@ -314,6 +330,8 @@ def render(plan):
             f = f * (1 - a) + 255 * a
         proc.stdin.write(np.clip(f, 0, 255).astype(np.uint8).tobytes())
 
+    if cap is not None:
+        cap.release()
     proc.stdin.close()
     if proc.wait() != 0:
         raise SystemExit('ffmpeg failed while encoding frames')
