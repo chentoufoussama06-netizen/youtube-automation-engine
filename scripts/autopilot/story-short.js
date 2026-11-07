@@ -188,7 +188,9 @@ Return ONLY JSON: {"stories": [{"moment": "...", "title": "..."}]}`;
 const STOP = new Set('with that this from their after when which into over about were have been they them then than also what while where there would could his her the and for its was who how why one two'.split(' '));
 function focusBrief(brief, story, maxChars = 8500) {
   const paras = brief.text.split(/\n{2,}|\n(?=[A-Z])/).map((p) => p.trim()).filter((p) => p.length > 40);
-  const keys = [...new Set(fold(`${story.moment} ${story.title || ''}`).match(/[a-z0-9]{4,}/g) || [])].filter((k) => !STOP.has(k));
+  // A series part's `focus` adds words to steer which paragraphs are kept,
+  // without loading the moment (which the article check reads) with detail.
+  const keys = [...new Set(fold(`${story.moment} ${story.title || ''} ${story.focus || ''}`).match(/[a-z0-9]{4,}/g) || [])].filter((k) => !STOP.has(k));
   const scored = paras.map((p, i) => {
     const f = fold(p);
     return { i, p, score: keys.reduce((a, k) => a + (f.includes(k) ? (/^\d{4}$/.test(k) ? 3 : 1) : 0), 0) };
