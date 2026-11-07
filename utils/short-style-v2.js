@@ -397,7 +397,7 @@ function resolveChapters(words, chapters) {
       continue;
     }
     const names = (c.names || []).map((n) => bare(n)).filter(Boolean);
-    words.forEach((w) => { if (names.includes(bare(w.word).replace(/'s$/, ''))) out.push({ at: w.start, photos: c.photos, named: true }); });
+    words.forEach((w) => { if (names.includes(bare(w.word).replace(/'s$/, ''))) out.push({ at: w.start, photos: c.photos, named: true, key: c }); });
   }
   out.sort((a, b) => a.at - b.at);
   // A name holds its photos for NAME_HOLD seconds after it was last said, then
@@ -405,11 +405,21 @@ function resolveChapters(words, chapters) {
   // Leicester preview "table" put Schmeichel up for 25 seconds straight.
   const NAME_HOLD = 6;
   const kept = [];
+  // Each time a name comes back it opens on its NEXT photo, not the first one
+  // again: De la Fuente Part 1 cut back to the same two shots six times.
+  const turn = new Map();
+  const rotate = (c) => {
+    if (!c.key || !c.photos?.length) return c.photos;
+    const k = turn.get(c.key) || 0;
+    turn.set(c.key, k + 1);
+    const i = k % c.photos.length;
+    return [...c.photos.slice(i), ...c.photos.slice(0, i)];
+  };
   for (const c of out) {
     const last = kept.at(-1);
-    if (last && last.photos === c.photos && c.at < last.until) { last.until = c.at + NAME_HOLD; continue; }
+    if (last && (last.key ? last.key === c.key : last.photos === c.photos) && c.at < last.until) { last.until = c.at + NAME_HOLD; continue; }
     if (last && c.at - last.at < 1.2) continue;
-    kept.push({ at: c.at, photos: c.photos, until: c.named ? c.at + NAME_HOLD : Infinity });
+    kept.push({ at: c.at, photos: rotate(c), key: c.key, until: c.named ? c.at + NAME_HOLD : Infinity });
   }
   const withReleases = [];
   kept.forEach((c, i) => {

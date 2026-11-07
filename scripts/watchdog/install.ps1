@@ -4,8 +4,12 @@
 
 $name = 'YouTube autopilot watchdog'
 $script = Join-Path $PSScriptRoot 'watchdog.ps1'
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' `
-  -Argument "-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`""
+# Launched through headless conhost: on Windows 11 the default terminal is
+# Windows Terminal, which flashes a window even for -WindowStyle Hidden.
+# conhost always exits 0, so Task Scheduler's result is not the script's;
+# failures go to watchdog.log.
+$action = New-ScheduledTaskAction -Execute 'conhost.exe' `
+  -Argument "--headless powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$script`""
 $hourly = New-ScheduledTaskTrigger -Once -At (Get-Date).Date -RepetitionInterval (New-TimeSpan -Hours 1)
 $logon = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `

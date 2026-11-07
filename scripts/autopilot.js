@@ -493,7 +493,7 @@ async function main() {
       summary.push(`${lane.name}: scheduled parts published${res.ok ? '' : ' (with errors)'}`);
     }
     const stuck = Object.entries(ledgerOf(lane))
-      .filter(([id, v]) => /^(story|doc)-/.test(id) && v.privacyStatus === 'private' && !v.scheduledPublishAt)
+      .filter(([id, v]) => /^(story|doc)-/.test(id) && v.privacyStatus === 'private' && !v.scheduledPublishAt && !v.superseded)
       .map(([id]) => id);
     if (stuck.length && !DRY) {
       log(`${lane.name}: publishing ${stuck.length} short(s) left private: ${stuck.join(', ')}`);

@@ -140,13 +140,19 @@ const SERIES = [
     // him), and they decided his finals. All facts checked by hand on
     // 2026-11-07 against the articles named here.
     key: 'de-la-fuente',
+    // Photos rebuilt 2026-11-07 after the user saw Part 1 cut between two
+    // photos from the wrong year: each beat now shows that beat (De Kuip on
+    // the penalties, the Madrid celebration on the trophy, the 2026 final set
+    // in Part 5), hand-picked from Commons where it has the event.
     name: 'Luis de la Fuente: The Quiet Genius',
     parts: [
       {
         articles: ['Luis de la Fuente (footballer, born 1961)', 'Luis Enrique'],
         subject: 'Luis de la Fuente',
-        photos: [{ article: 'Luis de la Fuente (footballer, born 1961)', n: 6, names: ['fuente', 'luis'], skip: 'trophy|world.?cup|champion' },
-          { article: 'Luis Enrique', n: 2, names: ['enrique'] }],
+        photos: [
+          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente.jpg"], names: ["fuente","luis","coach"]},
+          {article: "Luis Enrique", n: 2, names: ["enrique","resigned","morocco"]}
+        ],
         label: 'Spain · December 2022',
         moment: 'On 8 December 2022, after Luis Enrique resigned when Morocco knocked Spain out of the World Cup on penalties, Spain appointed Luis de la Fuente, a youth coach who had won the 2015 under-19 and 2019 under-21 European Championships and Olympic silver in Tokyo.',
         title: 'Spain Lost to Morocco, So They Hired Their Youth Coach',
@@ -156,9 +162,13 @@ const SERIES = [
       {
         articles: ['2023 UEFA Nations League final', 'Luis de la Fuente (footballer, born 1961)'],
         subject: 'Luis de la Fuente',
-        photos: [{ article: 'Luis de la Fuente (footballer, born 1961)', n: 3, names: ['fuente'] }, { article: 'Joselu', n: 2, names: ['joselu'] },
-          { article: 'Unai Simón', n: 3, names: ['simon', 'unai'] }, { article: 'Dani Carvajal', n: 2, names: ['carvajal'] },
-          { article: 'Stadion Feijenoord', n: 1, names: ['rotterdam'] }],
+        photos: [
+          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente.jpg"], names: ["fuente"]},
+          {article: "Joselu", n: 1, names: ["joselu","debutant","norway"]},
+          {files: ["De Kuip, Rotterdam (32426274167).jpg","StadionFeyenoord.jpg"], names: ["rotterdam","kuip","croatia","final"]},
+          {article: "Unai Simón", n: 3, names: ["simon","unai","saved","penalties","shootout"], anyYear: true},
+          {files: ["UEFA EURO qualifiers Sweden vs Spain 20191015 Dani Carvajal 10 (cropped).jpg"], names: ["carvajal","chipped","chip"]}
+        ],
         label: 'Nations League Final · 2023',
         moment: 'In Luis de la Fuente\'s first game, on 25 March 2023, 32-year-old debutant Joselu scored twice in a 3–0 win over Norway, and on 18 June 2023 in Rotterdam Spain beat Croatia 5–4 on penalties after a 0–0 draw, with Unai Simón saving twice and Dani Carvajal chipping the winning kick, for their first Nations League title.',
         title: 'The Chipped Penalty That Won Spain a Trophy',
@@ -168,9 +178,13 @@ const SERIES = [
       {
         articles: ['UEFA Euro 2024 final', 'Lamine Yamal', 'Luis de la Fuente (footballer, born 1961)'],
         subject: 'Lamine Yamal',
-        photos: [{ article: 'Lamine Yamal', n: 4, names: ['yamal', 'lamine'], skip: 'trophy|champion' },
-          { article: 'Mikel Merino', n: 2, names: ['merino'] }, { article: 'Dani Olmo', n: 2, names: ['olmo'] },
-          { article: 'Luis de la Fuente (footballer, born 1961)', n: 2, names: ['fuente'], skip: 'trophy|world.?cup|champion' }],
+        photos: [
+          {files: ["2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–002.jpg","2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–009.jpg","2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–012.jpg"], names: ["euro","germany","hosts","group"]},
+          {article: "Lamine Yamal", n: 2, names: ["yamal","lamine","teenager","winger"], skip: "trophy|champion|eurocopa|world cup"},
+          {article: "Mikel Merino", n: 2, names: ["merino","header","headed"]},
+          {article: "Dani Olmo", n: 2, names: ["olmo"]},
+          {files: ["Luis de la Fuente.jpg"], names: ["fuente"]}
+        ],
         label: 'Euro 2024 · Germany',
         moment: 'At Euro 2024 Spain won their group without conceding, knocked out hosts Germany 2–1 with a Mikel Merino header in the 119th minute, and in the semi-final against France teenager Lamine Yamal equalised from outside the box before Dani Olmo scored the winner.',
         title: 'Spain Knocked Out Germany in the 119th Minute',
@@ -180,9 +194,14 @@ const SERIES = [
       {
         articles: ['UEFA Euro 2024 final'],   // alone, so both goal paragraphs fit the brief
         subject: 'Spain',
-        photos: [{ article: 'UEFA Euro 2024 final', n: 2 }, { article: 'Nico Williams', n: 3, names: ['williams', 'nico'] },
-          { article: 'Mikel Oyarzabal', n: 3, names: ['oyarzabal'] }, { article: 'Lamine Yamal', n: 1, names: ['yamal'] },
-          { article: 'Luis de la Fuente (footballer, born 1961)', n: 2, names: ['fuente'], skip: 'world.?cup' }],
+        photos: [
+          {files: ["Olympiastadion Berlin Sep-2015.jpg","2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–002.jpg"], names: ["berlin","england"]},
+          {files: ["Nico Williams Argentina v Spain 19 July 2026-328.jpg","Nico Williams France v Spain 7.24.26-258.jpg"], names: ["williams","nico"]},
+          {article: "Cole Palmer", n: 1, names: ["palmer","equalised","equalized"]},
+          {files: ["Mikel Oyarzabal France v Spain 7.24.26-161 (cropped).jpg","Mikel Oyarzabal.jpg"], names: ["oyarzabal","substitute","winner"]},
+          {files: ["Sánchez se reunió con los futbolistas de la selección española tras ganar la Eurocopa 2024 (1).jpg","Sánchez se reunió con los futbolistas de la selección española tras ganar la Eurocopa 2024 (2).jpg","Sánchez se reunió con los futbolistas de la selección española tras ganar la Eurocopa 2024 (5).jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 03.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 06.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 09.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 12.jpg","Celebrando la cuarta Eurocopa de la selección española. Madrid, 15 de julio de 2024.jpg"], names: ["trophy","fourth","record","perfect","champions","title","celebrated","claimed","seven"]},
+          {files: ["Luis de la Fuente.jpg"], names: ["fuente"]}
+        ],
         label: 'Euro 2024 Final · Berlin',
         moment: 'On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.',
         // The goal paragraphs, into the brief (naming scorers in the moment failed the article check).
@@ -194,8 +213,17 @@ const SERIES = [
       {
         articles: ['2026 FIFA World Cup final', 'Luis de la Fuente (footballer, born 1961)'],
         subject: 'Luis de la Fuente',
-        photos: [{ article: 'Luis de la Fuente (footballer, born 1961)', n: 5, names: ['fuente', 'luis'] }, { article: 'Ferran Torres', n: 3, names: ['torres', 'ferran'] },
-          { article: 'Emiliano Martínez', n: 2, names: ['martinez', 'emiliano'] }, { article: 'MetLife Stadium', n: 1, names: ['metlife'] }],
+        photos: [
+          {files: ["MetLife Stadium Exterior, 2026 FIFA World Cup (June 20, 2026).jpg","Spain fans Argentina v Spain 19 July 2026-062.jpg","Spain team Argentina v Spain 19 July 2026-324.jpg"]},
+          {files: ["Argentina fans Argentina v Spain 19 July 2026-063.jpg"], names: ["argentina","defending"]},
+          {article: "Emiliano Martínez", n: 1, names: ["martinez","emiliano","keeper"], anyYear: true},
+          {article: "Enzo Fernández", n: 1, names: ["fernandez","enzo","red"], anyYear: true},
+          {files: ["Mikel Merino Argentina v Spain 19 July 2026-327.jpg"], names: ["merino"]},
+          {files: ["Nico Williams Argentina v Spain 19 July 2026-196 (cropped).jpg"], names: ["williams","nico"]},
+          {article: "Ferran Torres", n: 3, names: ["torres","ferran"]},
+          {files: ["Spain World Cup Winners Argentina v Spain 19 July 2026-1.jpg","Spain's celebration as 2026 World Cup champions.jpg","Spain World Cup Winners Argentina v Spain 19 July 2026-1 (Lamine Yamal).jpg"], names: ["victory","won","champions","trophy","sealed","first","world"]},
+          {files: ["Luis de la Fuente Argentina v Spain 19 July 2026-271 (cropped).jpg","Luis de la Fuente Argentina v Spain 19 July 2026-270.jpg"], names: ["fuente","oldest","manager"]}
+        ],
         label: 'World Cup Final · 2026',
         moment: 'On 19 July 2026 Spain beat defending champions Argentina 1–0 after extra time in the World Cup final, with a goal from Ferran Torres.',
         title: 'The Youth Coach Who Won Everything',

@@ -51,6 +51,16 @@ function fold(value) {
   return String(value).toLowerCase().normalize('NFD').replace(DIACRITICS, '');
 }
 
+/**
+ * The year a photo was taken: its EXIF/Commons date first, else a year in the
+ * file name ("... 19 July 2026-271.jpg"). Null when neither says.
+ */
+function photoYear(meta = {}, title = '') {
+  const raw = String(meta.DateTimeOriginal?.value || '').replace(/<[^>]*>/g, ' ');
+  const m = raw.match(/\b(1[89]\d{2}|20\d{2})\b/) || String(title).match(/\b(19[0-9]{2}|20[0-4][0-9])\b/);
+  return m ? Number(m[1]) : null;
+}
+
 class ArchivalImageService {
   constructor(options = {}) {
     this.logger = options.logger || new Logger('ArchivalImages');
@@ -99,6 +109,57 @@ class ArchivalImageService {
    * Returns { ok, license, artist, credit } — artist/credit are what the video
    * description must carry for CC BY and CC BY-SA attribution.
    */
+  /**
+   * Exact files, in the order given: hand-picked photos for a beat of a story
+   * (series.js `files`). Same licence and size checks as everything else.
+   */
+  async fetchFiles(titles) {
+    const out = [];
+    for (let i = 0; i < titles.length; i += 40) {
+      const batch = titles.slice(i, i + 40).map((t) => (/^File:/.test(t) ? t : `File:${t}`));
+      const data = await this._api({ action: 'query', titles: batch.join('|'), prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920' }).catch(() => null);
+      const byTitle = new Map(this._acceptPages(Object.values(data?.query?.pages || {})).map((r) => [r.title, r]));
+      for (const t of batch) { const r = byTitle.get(t.replace(/^File:/, '')); if (r) out.push(r); }
+    }
+    this.logger.info(`picked files: ${out.length} of ${titles.length} usable`);
+    return out;
+  }
+
+  /**
+   * Photos of the EVENT itself, not just its people: Commons filename search
+   * for each query (e.g. "Ronaldo Bayern 2017"), keeping only files taken within
+   * a year of the event and naming at least one of `must`. A story about one
+   * match should show that match when Commons has it, and never a photo from
+   * years later (De la Fuente Part 1 showed the 2026 final in a 2022 story).
+   */
+  async eventPhotos(queries, { year, must = [], limit = 6, minHits = 2 } = {}) {
+    const fold = (t) => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const keys = must.map(fold).filter((k) => k.length >= 3);
+    const seen = new Set();
+    const out = [];
+    for (const q of queries) {
+      const data = await this._api({
+        action: 'query', generator: 'search', gsrsearch: `${q} filetype:bitmap`, gsrnamespace: '6', gsrlimit: '30',
+        prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920'
+      }).catch(() => null);
+      for (const r of this._acceptPages(Object.values(data?.query?.pages || {}))) {
+        if (seen.has(r.title)) continue;
+        seen.add(r.title);
+        if (!r.year || Math.abs(r.year - year) > 1) continue;
+        const t = fold(r.title);
+        const hits = keys.filter((k) => t.includes(k)).length;
+        // The subject's name alone is not the event ("Aeroporto da Madeira
+        // Cristiano Ronaldo"): it needs a second name from the story too.
+        if (hits < Math.min(minHits, keys.length)) continue;
+        out.push({ ...r, score: 3 + hits });
+      }
+      await new Promise((resolve) => setTimeout(resolve, this.requestDelayMs));
+    }
+    out.sort((a, b) => b.score - a.score || b.width - a.width);
+    this.logger.info(`event photos (${queries.join(' | ')}): ${Math.min(out.length, limit)} from ${year}`);
+    return out.slice(0, limit);
+  }
+
   _checkLicense(meta = {}) {
     const strip = value => String(value?.value || '').replace(/<[^>]*>/g, '').trim();
 
@@ -215,7 +276,8 @@ class ArchivalImageService {
         descriptionUrl: info.descriptionurl,
         license: license.license,
         artist: license.artist,
-        credit: license.credit
+        credit: license.credit,
+        year: photoYear(info.extmetadata, title)
       });
     }
 
@@ -268,7 +330,8 @@ class ArchivalImageService {
       accepted.push({
         title, score: 3, width: info.width, height: info.height,
         url: info.thumburl || info.url, descriptionUrl: info.descriptionurl,
-        license: license.license, artist: license.artist, credit: license.credit
+        license: license.license, artist: license.artist, credit: license.credit,
+        year: photoYear(info.extmetadata, title)
       });
     }
     accepted.sort((a, b) => b.width - a.width);
@@ -288,7 +351,8 @@ class ArchivalImageService {
       out.push({
         title, score: 3, width: info.width, height: info.height,
         url: info.thumburl || info.url, descriptionUrl: info.descriptionurl,
-        license: license.license, artist: license.artist, credit: license.credit
+        license: license.license, artist: license.artist, credit: license.credit,
+        year: photoYear(info.extmetadata, title)
       });
     }
     return out;

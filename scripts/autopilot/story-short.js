@@ -572,10 +572,17 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       }
       if (!(await supported(ai, story, brief))) { logger.info(`skip "${story.moment}": not in the article`); continue; }
 
-      // The subject's own pictures first (main image, article, Commons
-      // category), filename search last — see gatherForArticle.
-      const found = (await archival.gatherForArticle(brief.title || story.article, subject, { total: 12 }).catch(() => []))
-        .filter((x) => !OFF_TOPIC.test(x.title)).slice(0, 10);
+      // Photos of the episode itself first (the match, the night, that year),
+      // then the subject's own pictures (main image, article, Commons
+      // category) — but none taken after the episode: a 2026 photo in a 2017
+      // story shows the wrong team, the wrong kit, the wrong face.
+      const year = eventYear(story.moment);
+      const event = year ? await archival.eventPhotos(eventQueries(story.moment, subject, year), { year, must: eventKeys(story.moment, subject), limit: 6 }).catch(() => []) : [];
+      const own = (await archival.gatherForArticle(brief.title || story.article, subject, { total: 14 }).catch(() => []))
+        .filter((x) => !OFF_TOPIC.test(x.title) && !tooLate(x, year) && !(lane.categoryId === '17' && NOT_THE_PLAYER.test(x.title)))
+        .sort(year ? byEra(year) : () => 0);
+      const found = [...new Map([...event, ...own].map((x) => [x.title, x])).values()].slice(0, 10);
+      if (event.length) logger.info(`${subject}: ${event.length} photo(s) of the episode itself`);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
       const text = await narrate(ai, { ...story, subject, writerNote: lane.story?.writerNote, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
@@ -659,16 +666,53 @@ async function seriesBrief(research, part) {
  */
 // Stadium and city articles carry whatever else happened there: Part 1 of
 // Real Madrid 2022 showed "2025 NFL Madrid Game" as the Bernabeu.
-const OFF_TOPIC = /(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour)/i;
+// (It held two literal backspace characters where \b was meant, so it never matched.)
+const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour)\b/i;
+
+// When the episode happened, from its moment ("On 12 April 2017 ..."), or null.
+const eventYear = (moment) => Number((String(moment).match(/\b(1[89]\d{2}|20\d{2})\b/) || [])[1]) || null;
+// A photo dated after the episode (one season of grace) belongs to a later story.
+const tooLate = (img, year) => Boolean(year && img.year && img.year > year + 1);
+// For a footballer, things that carry his name but are not him playing.
+const NOT_THE_PLAYER = /\b(museum|museu|hotel|airport|aeroporto|tussauds|wax|figure|statue|mural|graffiti|stamp|poster|logo|signature|autograph|banner|shop|store|jersey on display)\b/i;
+// Closest to the episode first; undated photos last.
+const byEra = (year) => (a, b) => (a.year ? Math.abs(a.year - year) : 99) - (b.year ? Math.abs(b.year - year) : 99);
+const NOT_NAMES = /^(On|In|At|The|A|An|After|Before|During|When|With|His|Her|Their|January|February|March|April|May|June|July|August|September|October|November|December)$/;
+/** The proper names in a moment other than the subject: the opponent, the stadium, the competition. */
+function eventNames(moment, subject) {
+  const subj = new Set(String(subject).split(/\s+/).map((w) => w.toLowerCase()));
+  return [...new Set((String(moment).match(/\b[A-Z][\p{L}'’.-]+(?:\s+[A-Z][\p{L}'’.-]+)*/gu) || [])
+    .map((p) => p.split(/\s+/).filter((w) => !NOT_NAMES.test(w) && !subj.has(w.toLowerCase())).join(' '))
+    .filter((p) => p.length >= 3))];
+}
+/** Commons searches for the episode: the subject with each other name and the year. */
+function eventQueries(moment, subject, year) {
+  const surname = String(subject).replace(/\([^)]*\)/g, '').trim().split(/\s+/).pop();
+  const others = eventNames(moment, subject).slice(0, 3);
+  return [...others.map((o) => `${surname} ${o} ${year}`), `${subject} ${year}`].slice(0, 4);
+}
+/** Words a file name must carry to count as the episode: the subject's surname or another name in it. */
+function eventKeys(moment, subject) {
+  const surname = String(subject).replace(/\([^)]*\)/g, '').trim().split(/\s+/).pop();
+  return [surname, ...eventNames(moment, subject).flatMap((p) => p.split(/\s+/)).filter((w) => w.length >= 4)];
+}
 
 async function seriesPhotos(archival, part, dir) {
   const groups = [];
+  const year = eventYear(part.moment);
   for (const g of part.photos) {
-    const subject = g.article.replace(/\([^)]*\)/g, '').trim();
     const skip = g.skip ? new RegExp(g.skip, 'i') : null;
-    const found = (await archival.gatherForArticle(g.article, subject, { total: g.n + 3 }).catch(() => []))
-      .filter((x) => !OFF_TOPIC.test(x.title) && (!skip || !skip.test(x.title))).slice(0, g.n);
-    groups.push({ ...g, found });
+    let found;
+    if (g.files) {
+      // Hand-picked for this beat: exactly these, in this order.
+      found = await archival.fetchFiles(g.files).catch(() => []);
+    } else {
+      const subject = g.article.replace(/\([^)]*\)/g, '').trim();
+      found = (await archival.gatherForArticle(g.article, subject, { total: g.n + 8 }).catch(() => []))
+        .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_THE_PLAYER.test(x.title) && (!skip || !skip.test(x.title)) && (g.anyYear || !tooLate(x, year)))
+        .sort(year && !g.anyYear ? byEra(year) : () => 0);
+    }
+    groups.push({ ...g, found: found.slice(0, g.n || found.length) });
   }
   const all = groups.flatMap((g) => g.found);
   if (all.length < 4) throw new Error(`only ${all.length} usable photos`);

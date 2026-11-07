@@ -6,6 +6,8 @@
  *
  *   node scripts/autopilot/post-series.js "Football Files" de-la-fuente --from preview/ --at 17:00
  *   ... --dry-run    # say what would happen, upload nothing
+ *   ... --replace    # swap parts still private for these renders, same dates;
+ *                    # the old uploads stay private, marked superseded
  *
  * The schedule is this repo's own `scheduledPublishAt` on the ledger, not
  * YouTube's publishAt (see schedule-shorts.js for why): each autopilot run
@@ -35,6 +37,7 @@ function main() {
   const opt = (n, d = null) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
   const [laneName, key] = args.filter((a, i) => !a.startsWith('--') && !['--from', '--at'].includes(args[i - 1]));
   const dryRun = args.includes('--dry-run');
+  const replace = args.includes('--replace');
   const from = path.resolve(opt('--from', 'preview'));
   const at = opt('--at', '17:00');
 
@@ -82,8 +85,23 @@ function main() {
     const part = series.parts[n - 1];
     const id = partId(series, n);
     const title = `${part.title} (Part ${n})`.slice(0, 90);
-    const when = n === 1 ? 'now' : slot(n);
+    let when = n === 1 ? 'now' : slot(n);
     let ledger = readJson(ledgerPath, {});
+    if (replace && ledger[id]?.videoId && ledger[id].privacyStatus !== 'public') {
+      // Not out yet: this render takes its place, on the same date. The old
+      // upload is kept private under another key (superseded, never published).
+      const old = ledger[id];
+      if (old.scheduledPublishAt) when = old.scheduledPublishAt;
+      console.log(`${id}: replacing private ${old.url}${dryRun ? ' (dry run)' : ''}`);
+      if (!dryRun) {
+        const { scheduledPublishAt, ...rest } = old;
+        ledger[`${id}~superseded-${Date.now()}`] = { ...rest, superseded: true, supersededAt: new Date().toISOString(), wasScheduledFor: scheduledPublishAt || null };
+        delete ledger[id];
+        writeJson(ledgerPath, ledger);
+        st.pendingLinks = (st.pendingLinks || []).filter((l) => l.next !== old.videoId && l.prev !== old.videoId);
+        writeJson(base('stories.json'), readJson(base('stories.json'), []).filter((x) => x.id !== id));
+      }
+    }
     if (ledger[id]?.videoId) {
       console.log(`${id}: already uploaded (${ledger[id].url}); keeping it`);
       prev = { id, videoId: ledger[id].videoId };
@@ -119,7 +137,7 @@ function main() {
       st.pendingLinks.push({ root: partId(series, 1), prev: prev.videoId, next: ledger[id].videoId, part: n, subject: series.name, after: when });
     }
 
-    const stories = readJson(base('stories.json'), []);
+    const stories = readJson(base('stories.json'), []).filter((x) => x.id !== id);
     stories.push({ id, subject: part.subject, article: part.articles[0], moment: part.moment, title, at: new Date().toISOString(),
       style: 'v2', series: series.key, part: n, of, root: partId(series, 1), ...(prev ? { sequelOf: prev.id } : {}) });
     writeJson(base('stories.json'), stories);
