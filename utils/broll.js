@@ -42,28 +42,11 @@ const THEMES = {
       queries: ['football fans flares stadium', 'soccer stadium crowd celebrating', 'football stadium night floodlights'],
       allow: /stadium|crowd|fans|flare|arena|floodlight|supporters|packed/,
       deny: STADIUM_DENY
-    },
-    // 2026-11-07: the user wants more moving footage; these three cover the
-    // other big beats of a football story (penalties and saves, trophies, the
-    // man on the touchline). Pro settings only, same deny list.
-    {
-      trigger: /^(penalt(y|ies)|shootout|saved?|saves|keeper|goalkeeper|spot)$/,
-      queries: ['goalkeeper save stadium', 'soccer penalty kick stadium', 'goalkeeper diving save'],
-      allow: /goalkeeper|keeper|goalie|save|penalty|diving/,
-      deny: STADIUM_DENY
-    },
-    {
-      trigger: /^(trophy|trophies|cup|title|titles|champions?|crowned|lifted|won|win|record)$/,
-      queries: ['trophy celebration confetti stadium', 'football champions celebration confetti', 'golden trophy confetti'],
-      allow: /trophy|cup|champion|celebrat|confetti|winner|gold/,
-      deny: /kid|child|boy|girl|wedding|birthday|party-hat|office|business|esports|gaming|basketball|american/
-    },
-    {
-      trigger: /^(coach|manager|bench|touchline|tactics|appointed|hired|substitute|substitution)$/,
-      queries: ['football coach sideline stadium', 'soccer manager touchline', 'football tactics board'],
-      allow: /coach|manager|sideline|touchline|tactic|bench|board/,
-      deny: /kid|child|youth|boy|girl|basketball|american|baseball|office|classroom/
     }
+    // 2026-11-07: penalty/save, trophy and coach clip themes were tried and
+    // removed the same day: Pexels gave an old man in confetti for "trophy" and
+    // a women's amateur huddle for "coach". Stock clips of PEOPLE stand in for
+    // the real ones; only stadium atmosphere (no one in particular) is used.
   ],
   ancient: [
     {

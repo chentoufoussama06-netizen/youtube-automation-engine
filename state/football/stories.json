@@ -441,33 +441,5 @@
     "part": 1,
     "of": 5,
     "root": "story-series-de-la-fuente-p1"
-  },
-  {
-    "id": "story-series-de-la-fuente-p2",
-    "subject": "Luis de la Fuente",
-    "article": "2023 UEFA Nations League final",
-    "moment": "In Luis de la Fuente's first game, on 25 March 2023, 32-year-old debutant Joselu scored twice in a 3–0 win over Norway, and on 18 June 2023 in Rotterdam Spain beat Croatia 5–4 on penalties after a 0–0 draw, with Unai Simón saving twice and Dani Carvajal chipping the winning kick, for their first Nations League title.",
-    "title": "The Chipped Penalty That Won Spain a Trophy (Part 2)",
-    "at": "2026-11-07T20:10:28.228Z",
-    "style": "v2",
-    "series": "de-la-fuente",
-    "part": 2,
-    "of": 5,
-    "root": "story-series-de-la-fuente-p1",
-    "sequelOf": "story-series-de-la-fuente-p1"
-  },
-  {
-    "id": "story-series-de-la-fuente-p3",
-    "subject": "Lamine Yamal",
-    "article": "UEFA Euro 2024 final",
-    "moment": "At Euro 2024 Spain won their group without conceding, knocked out hosts Germany 2–1 with a Mikel Merino header in the 119th minute, and in the semi-final against France teenager Lamine Yamal equalised from outside the box before Dani Olmo scored the winner.",
-    "title": "Spain Knocked Out Germany in the 119th Minute (Part 3)",
-    "at": "2026-11-07T20:10:34.344Z",
-    "style": "v2",
-    "series": "de-la-fuente",
-    "part": 3,
-    "of": 5,
-    "root": "story-series-de-la-fuente-p1",
-    "sequelOf": "story-series-de-la-fuente-p2"
   }
 ]

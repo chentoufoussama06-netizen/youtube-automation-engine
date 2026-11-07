@@ -1708,14 +1708,6 @@
     "supersededAt": "2026-11-07T20:10:21.844Z",
     "wasScheduledFor": "2026-11-08T16:30:00.000Z"
   },
-  "story-series-de-la-fuente-p2": {
-    "videoId": "tz45ZYGTZgU",
-    "url": "https://www.youtube.com/watch?v=tz45ZYGTZgU",
-    "privacyStatus": "private",
-    "title": "The Chipped Penalty That Won Spain a Trophy (Part 2) #Shorts",
-    "uploadedAt": "2026-11-07T20:10:26.221Z",
-    "scheduledPublishAt": "2026-11-08T16:30:00.000Z"
-  },
   "story-series-de-la-fuente-p3~superseded-1794082228229": {
     "videoId": "LQRhDCdINaY",
     "url": "https://www.youtube.com/watch?v=LQRhDCdINaY",
@@ -1725,14 +1717,6 @@
     "superseded": true,
     "supersededAt": "2026-11-07T20:10:28.229Z",
     "wasScheduledFor": "2026-11-09T16:30:00.000Z"
-  },
-  "story-series-de-la-fuente-p3": {
-    "videoId": "DAtGYFJCcZk",
-    "url": "https://www.youtube.com/watch?v=DAtGYFJCcZk",
-    "privacyStatus": "private",
-    "title": "Spain Knocked Out Germany in the 119th Minute (Part 3) #Shorts",
-    "uploadedAt": "2026-11-07T20:10:32.348Z",
-    "scheduledPublishAt": "2026-11-09T16:30:00.000Z"
   },
   "story-series-de-la-fuente-p5~superseded-1794082234346": {
     "videoId": "edg31Sw0A7M",
@@ -1753,5 +1737,25 @@
     "superseded": true,
     "supersededAt": "2026-11-07T20:12:10.760Z",
     "wasScheduledFor": "2026-11-10T16:30:00.000Z"
+  },
+  "story-series-de-la-fuente-p2~superseded-17940827996502": {
+    "videoId": "tz45ZYGTZgU",
+    "url": "https://www.youtube.com/watch?v=tz45ZYGTZgU",
+    "privacyStatus": "private",
+    "title": "The Chipped Penalty That Won Spain a Trophy (Part 2) #Shorts",
+    "uploadedAt": "2026-11-07T20:10:26.221Z",
+    "superseded": true,
+    "supersededAt": "2026-11-07T20:19:59.650Z",
+    "wasScheduledFor": "2026-11-08T16:30:00.000Z"
+  },
+  "story-series-de-la-fuente-p3~superseded-17940827996523": {
+    "videoId": "DAtGYFJCcZk",
+    "url": "https://www.youtube.com/watch?v=DAtGYFJCcZk",
+    "privacyStatus": "private",
+    "title": "Spain Knocked Out Germany in the 119th Minute (Part 3) #Shorts",
+    "uploadedAt": "2026-11-07T20:10:32.348Z",
+    "superseded": true,
+    "supersededAt": "2026-11-07T20:19:59.652Z",
+    "wasScheduledFor": "2026-11-09T16:30:00.000Z"
   }
 }
