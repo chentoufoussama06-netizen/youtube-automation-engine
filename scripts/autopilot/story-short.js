@@ -628,10 +628,10 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const year = eventYear(story.moment);
       const event = year ? await archival.eventPhotos(eventQueries(story.moment, subject, year), { year, must: eventKeys(story.moment, subject), limit: 6 }).catch(() => []) : [];
       const own = (await archival.gatherForArticle(brief.title || story.article, subject, { total: 14 }).catch(() => []))
-        .filter((x) => !OFF_TOPIC.test(x.title) && !tooLate(x, year) && !(lane.categoryId === '17' && NOT_THE_PLAYER.test(x.title)))
+        .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title) && !outOfEra(x, year, isTeam(subject) ? 'team' : 'person') && !(lane.categoryId === '17' && NOT_THE_PLAYER.test(x.title)))
         .sort(year ? byEra(year) : () => 0)
         // on football, the subject's own photos must name him (no club team sheets, no scanned documents)
-        .filter((x) => !(lane.categoryId === '17' && (!hasKey(x.title, titleKeys(subject, 'person').slice(-1)) || /\bdocument\b/i.test(x.title))));
+        .filter((x) => !(lane.categoryId === '17' && (!hasKey(x.title, [folded(subjectKey(subject))]) || /\bdocument\b/i.test(x.title))));
       const found = [...new Map([...event, ...own].map((x) => [x.title, x])).values()].slice(0, 10);
       if (event.length) logger.info(`${subject}: ${event.length} photo(s) of the episode itself`);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
@@ -657,7 +657,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
 
       // ---- render
       // Who and what the narration names, each with its own photos on its words.
-      const beats = await beatPhotos(archival, await photoPlan(ai, text, story, subject), year, { football: lane.categoryId === '17' }).catch(() => []);
+      const beats = await beatPhotos(archival, await photoPlan(ai, text, story, subject), year, { football: lane.categoryId === '17', subject }).catch(() => []);
       if (beats.length) logger.info(`${subject}: photos for ${beats.length} beat(s): ${beats.map((b) => `${b.names[0]}=${b.photos.length}`).join(', ')}`);
       const subjectKeys = titleKeys(subject, 'person');
       const imgDir = base('reference', id);
@@ -770,9 +770,9 @@ const hasAll = (title, keys) => keys.every((k) => folded(title).includes(k));
 // A team photo is the team, not its logo, campus, shop or other sections.
 const NOT_THE_TEAM = /\b(logo|crest|badge|campus|handball|basketball|volleyball|futsal|women|womens|frauen|femenino|feminino|ladies|bus|shop|store|office|building|headquarters|museum|academy|youth|u19|u21|u23|mascot|ads?|advert|advertising|sponsor|balm|mannschaftsbus|teambus)\b/i;
 // A trophy photo is the trophy, not a beer can, a medal or a museum case.
-const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp)\b/i;
+const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor)\b/i;
 // Not a photograph at all.
-const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$)/i;
+const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|\bjersey|\bshirt\b|adidas|nike|puma)/i;
 /** Does this file show the planned thing, by its name? */
 function shows(title, item, keys) {
   if (NOT_A_PHOTO.test(title)) return false;
@@ -793,17 +793,30 @@ function shows(title, item, keys) {
 // not today's hospitals, aerial shots, stations or anything dated 19xx/20xx.
 const MODERN = /(\bhospital|\bhotel|\bairport|aerial|wikiair|drone|\buniversity|\bstation|\bstreet|\bbus\b|\btram|\bmall|parking|\bstadium|\bhdr\b|panorama|pikiwiki|\b(19|20)\d\d\b)/i;
 
-async function beatPhotos(archival, plan, year, { football = false } = {}) {
+async function beatPhotos(archival, plan, year, { football = false, subject = '' } = {}) {
   const out = [];
   const ancient = !year;   // no 1800-2099 year in the moment
   for (const item of plan) {
     // teams and trophies are football things; elsewhere "triumph" found Leopold I of Austria
     if (!football && (item.kind === 'team' || item.kind === 'trophy')) continue;
     const keys = titleKeys(item.article, item.kind);
+    const subj = folded(subjectKey(subject));
+    const team = folded(subjectKey(item.article));
+    if (football && item.kind === 'team' && year && subj && team && subj !== team) {
+      // the opponent: a photo of that match (both names, that year) or no photo
+      // (England v Iran 2022, not Iran v China 2019 or Israel v Wales 1958)
+      const match = await archival.eventPhotos([`${subj} ${team} ${year}`, `${team} ${subj} ${year}`], { year, must: [subj, team], minHits: 2, limit: 2 }).catch(() => []);
+      const words = item.words.map((w) => String(w).toLowerCase().split(/\s+/).pop()).filter((w) => w.length >= 3);
+      // and it must look like a match ("England 6–2 Iran", "v", a competition), not a coat of arms
+      const ok = match.filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title)
+        && /(\b\d{1,2}\s*[–-]\s*\d{1,2}\b|\bvs?\.?\s|\bversus\b|\bmatch\b|world cup|\beuro\b|league|\bcup\b|fifa|uefa)/i.test(x.title));
+      if (ok.length && words.length) out.push({ names: [...new Set(words)], photos: ok, article: item.article, kind: item.kind });
+      continue;
+    }
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
       .filter((x) => !OFF_TOPIC.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
       .filter((x) => shows(x.title, item, keys))
-      .filter((x) => item.kind === 'trophy' || !tooLate(x, year))
+      .filter((x) => item.kind === 'trophy' || !outOfEra(x, year, item.kind))
       .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
     if (year) found.sort(byEra(year));
     if (!found.length && item.kind === 'trophy') {
@@ -824,7 +837,7 @@ async function beatPhotos(archival, plan, year, { football = false } = {}) {
 // Stadium and city articles carry whatever else happened there: Part 1 of
 // Real Madrid 2022 showed "2025 NFL Madrid Game" as the Bernabeu.
 // (It held two literal backspace characters where \b was meant, so it never matched.)
-const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour|wrestling|WWE|AEW|All In 20\d+|Adele|Live 20\d+|festival|gig)\b/i;
+const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour|wrestling|WWE|AEW|All In 20\d+|Adele|Live 20\d+|festival|gig|luge|skiing|ski|bobsleigh|biathlon|curling|ice hockey|hockey|cricket|tennis|athletics|cycling|formula|motogp|golf|swimming|volleyball|handball)\b/i;
 
 // When the episode happened, from its moment ("On 12 April 2017 ..."), or null.
 const eventYear = (moment) => Number((String(moment).match(/\b(1[89]\d{2}|20\d{2})\b/) || [])[1]) || null;
@@ -843,14 +856,37 @@ function eventNames(moment, subject) {
     .filter((p) => p.length >= 3))];
 }
 /** Commons searches for the episode: the subject with each other name and the year. */
+// What a file name must say to be the subject: a person's surname, but a team's
+// own name ("England national football team" gave "team", and a luge "Team
+// Relay World Cup 2022" photo went into an England World Cup short).
+const TEAMISH = /\b(national|team|club|f\.?c\.?|c\.?f\.?|united|city|real|athletic|sporting|inter|ac|as|ssc|afc)\b/i;
+function subjectKey(subject) {
+  const plain = String(subject).replace(/\([^)]*\)/g, '').trim();
+  if (!TEAMISH.test(plain)) {
+    // a surname, skipping suffixes (Vinicius Junior is "Vinicius", not "Junior")
+    const w = plain.split(/\s+/).filter((x) => !/^(j[uú]nior|jr\.?|filho|neto|sobrinho)$/i.test(x));
+    return (w.length ? w : plain.split(/\s+/)).pop();
+  }
+  return plain.replace(/\b(national|(association )?football|soccer|team|club|f\.?c\.?|c\.?f\.?|men's|women's)\b/gi, '').replace(/[^\p{L}\s]/gu, '').replace(/\s+/g, ' ').trim() || plain;
+}
+const isTeam = (subject) => TEAMISH.test(String(subject));
+// Too far from the episode: after it (a season's grace), or long before it for
+// a person (a teenage Vinicius in a 2022 story) or a team (1954 in a 2022 story).
+function outOfEra(img, year, kind) {
+  if (!year || !img.year) return false;
+  if (img.year > year + 1) return true;
+  if (kind === 'person') return img.year < year - 3;
+  if (kind === 'team') return img.year < year - 4;
+  return false;
+}
 function eventQueries(moment, subject, year) {
-  const surname = String(subject).replace(/\([^)]*\)/g, '').trim().split(/\s+/).pop();
+  const surname = subjectKey(subject);
   const others = eventNames(moment, subject).slice(0, 3);
   return [...others.map((o) => `${surname} ${o} ${year}`), `${subject} ${year}`].slice(0, 4);
 }
 /** Words a file name must carry to count as the episode: the subject's surname or another name in it. */
 function eventKeys(moment, subject) {
-  const surname = String(subject).replace(/\([^)]*\)/g, '').trim().split(/\s+/).pop();
+  const surname = subjectKey(subject);
   return [surname, ...eventNames(moment, subject).flatMap((p) => p.split(/\s+/)).filter((w) => w.length >= 4)];
 }
 
