@@ -605,12 +605,23 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       if (dryRun) return { id, title, text, subject, article: brief.title, photos: found.length, ...(sequel ? { part: sequel.part } : {}) };
 
       // ---- render
+      // Who and what the narration names, each with its own photos on its words.
+      const beats = await beatPhotos(archival, await photoPlan(ai, text, story, subject), year, { football: lane.categoryId === '17' }).catch(() => []);
+      if (beats.length) logger.info(`${subject}: photos for ${beats.length} beat(s): ${beats.map((b) => `${b.names[0]}=${b.photos.length}`).join(', ')}`);
+      const subjectKeys = titleKeys(subject, 'person');
       const imgDir = base('reference', id);
-      const saved = await archival.downloadArchivalImages(found, imgDir);
+      const all = [...new Map([...found, ...beats.flatMap((b) => b.photos)].map((x) => [x.title, x])).values()];
+      const saved = await archival.downloadArchivalImages(all, imgDir);
       if (saved.length < 3) { logger.info(`skip ${subject}: photo downloads failed`); continue; }
+      const pathOf = new Map(saved.map((p) => [p.title, p.path]));
+      const chapters = [
+        // the subject on their own name, from their own photos that name them
+        { names: subjectKeys.slice(-1), photos: found.filter((x) => hasAll(x.title, subjectKeys)).map((x) => pathOf.get(x.title)).filter(Boolean) },
+        ...beats.map((b) => ({ names: b.names, photos: b.photos.map((x) => pathOf.get(x.title)).filter(Boolean) }))
+      ].filter((c) => c.photos.length && c.names.length);
 
       const rendered = await renderStills(lane, id, text, saved,
-        { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null });
+        { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null, chapters });
       if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
       const { video, seconds } = rendered;
       const dirs = { copy: base('shorts', 'copy') };
@@ -660,6 +671,90 @@ async function seriesBrief(research, part) {
 }
 
 /**
+ * Every story's photos follow its narration, beat by beat (2026-11-07, the
+ * user: "find pictures that match what u saying", on ALL content). Once the
+ * narration is written, the model lists who and what it names — each person,
+ * club, ground, trophy — with the exact words that name them and their
+ * English Wikipedia article. Each gets its own photos, and they come up on
+ * those words (short-style-v2 chapters).
+ */
+async function photoPlan(ai, text, story, subject) {
+  const prompt = `Narration of a YouTube Short:
+"""
+${text}
+"""
+The story: ${story.moment}
+
+List what a viewer should SEE as each thing is named: every person, team,
+stadium, trophy or competition the narration names, other than ${subject}
+(already covered). For each give:
+- "words": the word or words in the narration that name it, lower case, as
+  spoken (surnames; "keeper" if that is how a goalkeeper is referred to)
+- "article": its exact English Wikipedia article title
+- "kind": "person", "team", "place" or "trophy"
+At most 7 items, most important first. Return ONLY JSON:
+{"items": [{"words": ["neuer"], "article": "Manuel Neuer", "kind": "person"}]}`;
+  try {
+    const items = parseJson(await ai.generateText(prompt, { maxTokens: 1200, temperature: 0.1 })).items || [];
+    return items.filter((x) => x && x.article && Array.isArray(x.words) && x.words.length).slice(0, 7);
+  } catch {
+    return [];
+  }
+}
+
+/** The words a file name must contain to be a photo of `article` (surname, club name, trophy name). */
+function titleKeys(article, kind) {
+  const plain = String(article).replace(/\([^)]*\)/g, '').trim();
+  const parts = plain.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().split(/[\s-]+/)
+    .filter((w) => w.length >= 3 && !/^(the|and|of|de|del|la|fc|cf|club|football|f\.c\.)$/.test(w));
+  if (kind === 'person') return parts;                    // EVERY name: "Damian Martinez" is not Emiliano
+  return parts.slice(0, 2);                               // "real madrid", "champions league"
+}
+const folded = (title) => String(title).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const hasKey = (title, keys) => keys.some((k) => folded(title).includes(k));
+const hasAll = (title, keys) => keys.every((k) => folded(title).includes(k));
+// A team photo is the team, not its logo, campus, shop or other sections.
+const NOT_THE_TEAM = /\b(logo|crest|badge|campus|handball|basketball|volleyball|futsal|women|womens|frauen|femenino|feminino|ladies|bus|shop|store|office|building|headquarters|museum|academy|youth|u19|u21|u23|mascot|ads?|advert|advertising|sponsor|balm|mannschaftsbus|teambus)\b/i;
+// A trophy photo is the trophy, not a beer can, a medal or a museum case.
+const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp)\b/i;
+// Not a photograph at all.
+const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$)/i;
+/** Does this file show the planned thing, by its name? */
+function shows(title, item, keys) {
+  if (NOT_A_PHOTO.test(title)) return false;
+  if (item.kind === 'person') return hasAll(title, keys);
+  if (item.kind === 'team') return hasKey(title, keys) && !NOT_THE_TEAM.test(title);
+  if (item.kind === 'trophy') return /trophy/i.test(title) && hasKey(title, keys) && !NOT_THE_TROPHY.test(title);
+  return hasKey(title, keys);
+}
+
+/**
+ * Photos for each planned beat: from its own article and Commons category,
+ * the file name must name it (an Arsenal Community Shield photo is not
+ * "Emiliano Martinez"), nothing dated after the episode, closest year first.
+ * A trophy with no free photo of the winners falls back to the trophy itself.
+ * Returns [{ names, photos: [image records], article }].
+ */
+async function beatPhotos(archival, plan, year, { football = false } = {}) {
+  const out = [];
+  for (const item of plan) {
+    const keys = titleKeys(item.article, item.kind);
+    let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
+      .filter((x) => !OFF_TOPIC.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
+      .filter((x) => shows(x.title, item, keys))
+      .filter((x) => item.kind === 'place' || item.kind === 'trophy' || !tooLate(x, year));
+    if (year) found.sort(byEra(year));
+    if (!found.length && item.kind === 'trophy') {
+      found = (await archival.fetchArchivalImages(`${item.article} trophy`, { must: ['trophy'], bonus: keys }, { limit: 8 }).catch(() => []))
+        .filter((x) => shows(x.title, item, keys));
+    }
+    const words = item.words.map((w) => String(w).toLowerCase().split(/\s+/).pop()).filter((w) => w.length >= 3);
+    if (found.length && words.length) out.push({ names: [...new Set(words)], photos: found.slice(0, 2), article: item.article });
+  }
+  return out;
+}
+
+/**
  * A part's photos, downloaded to `dir`, as { saved, chapters }: each group in
  * part.photos fetched from its own article (gatherForArticle), and every group
  * with `names` made a chapter, so the picture follows who the voice is naming.
@@ -667,7 +762,7 @@ async function seriesBrief(research, part) {
 // Stadium and city articles carry whatever else happened there: Part 1 of
 // Real Madrid 2022 showed "2025 NFL Madrid Game" as the Bernabeu.
 // (It held two literal backspace characters where \b was meant, so it never matched.)
-const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour)\b/i;
+const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour|wrestling|WWE|AEW|All In 20\bd+|Adele|Live 20\bd+|festival|gig)\b/i;
 
 // When the episode happened, from its moment ("On 12 April 2017 ..."), or null.
 const eventYear = (moment) => Number((String(moment).match(/\b(1[89]\d{2}|20\d{2})\b/) || [])[1]) || null;
@@ -710,6 +805,8 @@ async function seriesPhotos(archival, part, dir) {
       const subject = g.article.replace(/\([^)]*\)/g, '').trim();
       found = (await archival.gatherForArticle(g.article, subject, { total: g.n + 8 }).catch(() => []))
         .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_THE_PLAYER.test(x.title) && (!skip || !skip.test(x.title)) && (g.anyYear || !tooLate(x, year)))
+        // a person's group: the file name must name them (no club group shots)
+        .filter((x) => !g.names?.length || hasAll(x.title, titleKeys(g.article, 'person')))
         .sort(year && !g.anyYear ? byEra(year) : () => 0);
     }
     groups.push({ ...g, found: found.slice(0, g.n || found.length) });
