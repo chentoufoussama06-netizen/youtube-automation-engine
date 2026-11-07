@@ -349,33 +349,23 @@
       "id": "story-series-de-la-fuente-p5",
       "url": "https://www.youtube.com/watch?v=edg31Sw0A7M",
       "publishAt": "2026-11-11T16:30:00.000Z"
+    },
+    {
+      "at": "2026-11-07T20:10:28.228Z",
+      "event": "scheduled",
+      "id": "story-series-de-la-fuente-p2",
+      "url": "https://www.youtube.com/watch?v=tz45ZYGTZgU",
+      "publishAt": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "at": "2026-11-07T20:10:34.343Z",
+      "event": "scheduled",
+      "id": "story-series-de-la-fuente-p3",
+      "url": "https://www.youtube.com/watch?v=DAtGYFJCcZk",
+      "publishAt": "2026-11-09T16:30:00.000Z"
     }
   ],
   "pendingLinks": [
-    {
-      "root": "story-series-de-la-fuente-p1",
-      "prev": "10nY0SpHx24",
-      "next": "RSNi_JvWedI",
-      "part": 2,
-      "subject": "Luis de la Fuente: The Quiet Genius",
-      "after": "2026-11-08T16:30:00.000Z"
-    },
-    {
-      "root": "story-series-de-la-fuente-p1",
-      "prev": "RSNi_JvWedI",
-      "next": "LQRhDCdINaY",
-      "part": 3,
-      "subject": "Luis de la Fuente: The Quiet Genius",
-      "after": "2026-11-09T16:30:00.000Z"
-    },
-    {
-      "root": "story-series-de-la-fuente-p1",
-      "prev": "LQRhDCdINaY",
-      "next": "V4ZOGLCtfSE",
-      "part": 4,
-      "subject": "Luis de la Fuente: The Quiet Genius",
-      "after": "2026-11-10T16:30:00.000Z"
-    },
     {
       "root": "story-series-de-la-fuente-p1",
       "prev": "V4ZOGLCtfSE",
@@ -383,6 +373,22 @@
       "part": 5,
       "subject": "Luis de la Fuente: The Quiet Genius",
       "after": "2026-11-11T16:30:00.000Z"
+    },
+    {
+      "root": "story-series-de-la-fuente-p1",
+      "prev": "10nY0SpHx24",
+      "next": "tz45ZYGTZgU",
+      "part": 2,
+      "subject": "Luis de la Fuente: The Quiet Genius",
+      "after": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "root": "story-series-de-la-fuente-p1",
+      "prev": "tz45ZYGTZgU",
+      "next": "DAtGYFJCcZk",
+      "part": 3,
+      "subject": "Luis de la Fuente: The Quiet Genius",
+      "after": "2026-11-09T16:30:00.000Z"
     }
   ],
   "series": {
