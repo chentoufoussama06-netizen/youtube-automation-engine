@@ -443,20 +443,6 @@
     "root": "story-series-de-la-fuente-p1"
   },
   {
-    "id": "story-series-de-la-fuente-p4",
-    "subject": "Spain",
-    "article": "UEFA Euro 2024 final",
-    "moment": "On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.",
-    "title": "Seven Games, Seven Wins: Spain's Perfect Euro (Part 4)",
-    "at": "2026-11-07T19:19:16.597Z",
-    "style": "v2",
-    "series": "de-la-fuente",
-    "part": 4,
-    "of": 5,
-    "root": "story-series-de-la-fuente-p1",
-    "sequelOf": "story-series-de-la-fuente-p3"
-  },
-  {
     "id": "story-series-de-la-fuente-p2",
     "subject": "Luis de la Fuente",
     "article": "2023 UEFA Nations League final",

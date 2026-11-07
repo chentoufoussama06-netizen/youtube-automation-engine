@@ -318,11 +318,17 @@ function seriesPartDue(lane, now = new Date()) {
   const ledger = readJson(base('shorts', 'uploads.json'), {});
   const today = now.toISOString().slice(0, 10);
   const posted = (id) => ledger[id]?.videoId;
+  // A part taken off a schedule to be redone (post-series --replace) keeps its
+  // date: it is not due before the day it was going out.
+  const reservedUntil = (id) => Math.max(0, ...Object.entries(ledger)
+    .filter(([k, v]) => k.startsWith(`${id}~superseded`) && v.wasScheduledFor)
+    .map(([, v]) => Date.parse(v.wasScheduledFor) || 0));
   if (stories.some((s) => s.series && posted(s.id) && String(ledger[s.id].uploadedAt || s.at).slice(0, 10) === today)) return null;
   for (const series of SERIES) {
     for (let n = 1; n <= series.parts.length; n++) {
       const id = partId(series, n);
       if (posted(id)) continue;
+      if (reservedUntil(id) > now.getTime()) return null;
       if (n > 1) {
         const prevId = partId(series, n - 1);
         if (ledger[prevId]?.privacyStatus !== 'public') return null;

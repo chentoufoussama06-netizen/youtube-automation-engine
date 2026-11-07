@@ -1698,14 +1698,6 @@
     "uploadedAt": "2026-11-07T19:18:55.460Z",
     "publishedAt": "2026-11-07T19:19:00.266Z"
   },
-  "story-series-de-la-fuente-p4": {
-    "videoId": "V4ZOGLCtfSE",
-    "url": "https://www.youtube.com/watch?v=V4ZOGLCtfSE",
-    "privacyStatus": "private",
-    "title": "Seven Games, Seven Wins: Spain's Perfect Euro (Part 4) #Shorts",
-    "uploadedAt": "2026-11-07T19:19:14.506Z",
-    "scheduledPublishAt": "2026-11-10T16:30:00.000Z"
-  },
   "story-series-de-la-fuente-p2~superseded-1794082221844": {
     "videoId": "RSNi_JvWedI",
     "url": "https://www.youtube.com/watch?v=RSNi_JvWedI",
@@ -1751,5 +1743,15 @@
     "superseded": true,
     "supersededAt": "2026-11-07T20:10:34.346Z",
     "wasScheduledFor": "2026-11-11T16:30:00.000Z"
+  },
+  "story-series-de-la-fuente-p4~superseded-1794082330760": {
+    "videoId": "V4ZOGLCtfSE",
+    "url": "https://www.youtube.com/watch?v=V4ZOGLCtfSE",
+    "privacyStatus": "private",
+    "title": "Seven Games, Seven Wins: Spain's Perfect Euro (Part 4) #Shorts",
+    "uploadedAt": "2026-11-07T19:19:14.506Z",
+    "superseded": true,
+    "supersededAt": "2026-11-07T20:12:10.760Z",
+    "wasScheduledFor": "2026-11-10T16:30:00.000Z"
   }
 }
