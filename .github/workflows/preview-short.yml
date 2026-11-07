@@ -31,7 +31,7 @@ on:
         description: "Optional: that story's video title"
         default: ""
       series_key:
-        description: "Optional: render EVERY part of this planned series (series.js key, e.g. de-la-fuente)"
+        description: "Optional: render EVERY part of this planned series (series.js key, e.g. de-la-fuente), or one part with key:n"
         default: ""
 
 permissions:
@@ -151,11 +151,14 @@ jobs:
           touch /tmp/start
           n="${PREVIEW_COUNT:-2}"; case "$n" in 1|2|3) ;; *) n=2 ;; esac
           [ -n "$PIN_ARTICLE" ] && n=1
+          only=""
+          case "$SERIES_KEY" in *:*) only="${SERIES_KEY#*:}"; SERIES_KEY="${SERIES_KEY%%:*}" ;; esac
           if [ -n "$SERIES_KEY" ]; then
             n="$(node -e "const s=require('./scripts/autopilot/series').SERIES.find(x=>x.key===process.argv[1]);console.log(s?s.parts.length:0)" "$SERIES_KEY")"
             [ "$n" -gt 0 ] || { echo "no series $SERIES_KEY"; exit 1; }
           fi
           for i in $(seq 1 "$n"); do
+            [ -n "$only" ] && [ "$i" != "$only" ] && continue
             echo "::group::preview $i of $n"
             extra=()
             if [ -n "$SERIES_KEY" ]; then

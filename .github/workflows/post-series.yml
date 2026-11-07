@@ -18,6 +18,9 @@ on:
       preview_run:
         description: "Run id of the preview-short run whose renders to post"
         required: true
+      fix_run:
+        description: "Optional: a later preview run whose parts replace the same parts from preview_run"
+        default: ""
       at:
         description: "Daily time (UTC, HH:MM) for Part 2 onwards"
         default: "17:00"
@@ -57,6 +60,20 @@ jobs:
           path: preview
           run-id: ${{ github.event.inputs.preview_run }}
           github-token: ${{ github.token }}
+
+      - name: Re-rendered parts
+        if: github.event.inputs.fix_run != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: preview
+          path: preview-fix
+          run-id: ${{ github.event.inputs.fix_run }}
+          github-token: ${{ github.token }}
+
+      - name: Use the re-rendered parts
+        if: github.event.inputs.fix_run != ''
+        run: |
+          for f in preview-fix/*_short.mp4 preview-fix/*_short.txt; do [ -f "$f" ] && cp -v "$f" preview/; done
 
       - name: Credentials
         env:
