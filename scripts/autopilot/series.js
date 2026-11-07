@@ -208,7 +208,7 @@ const SERIES = [
         focus: 'Williams scored Yamal crossed Palmer Oyarzabal Cucurella Pickford minute goal',
         title: 'Seven Games, Seven Wins: Spain\'s Perfect Euro',
         teaser: 'Two years later, Spain went to the World Cup as favourites.',
-        note: 'Tell the GOALS, in order, from the source: Nico Williams scored early in the second half from Lamine Yamal\'s pass, Cole Palmer equalised for England, and substitute Mikel Oyarzabal scored the late winner. Name Luis de la Fuente as Spain\'s coach. Leave out the referee and the crowd size.'
+        note: 'Say who scored only as the source tells it, and name Luis de la Fuente as Spain\'s coach. Leave out the referee and the crowd size.'
       },
       {
         articles: ['2026 FIFA World Cup final', 'Luis de la Fuente (footballer, born 1961)'],

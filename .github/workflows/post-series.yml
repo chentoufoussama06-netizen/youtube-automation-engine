@@ -24,6 +24,9 @@ on:
       at:
         description: "Daily time (UTC, HH:MM) for Part 2 onwards"
         default: "17:00"
+      parts:
+        description: "Optional: only these parts, e.g. 2,3,5"
+        default: ""
       replace:
         description: "Swap parts that are still private for these renders (same dates)"
         type: boolean
@@ -103,11 +106,13 @@ jobs:
           AT: ${{ github.event.inputs.at }}
           DRY: ${{ github.event.inputs.dry_run }}
           REPLACE: ${{ github.event.inputs.replace }}
+          PARTS: ${{ github.event.inputs.parts }}
         run: |
           ls -la preview
           extra=()
           [ "$DRY" = "true" ] && extra=(--dry-run)
           [ "$REPLACE" = "true" ] && extra+=(--replace)
+          [ -n "$PARTS" ] && extra+=(--parts "$PARTS")
           node scripts/autopilot/post-series.js "$LANE" "$KEY" --from preview --at "$AT" "${extra[@]}" | tee post.log
           {
             echo "## Post series: $KEY on $LANE"

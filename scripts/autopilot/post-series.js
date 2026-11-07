@@ -35,9 +35,11 @@ const writeJson = (p, v) => fs.writeFileSync(p, JSON.stringify(v, null, 2));
 function main() {
   const args = process.argv.slice(2);
   const opt = (n, d = null) => (args.includes(n) ? args[args.indexOf(n) + 1] : d);
-  const [laneName, key] = args.filter((a, i) => !a.startsWith('--') && !['--from', '--at'].includes(args[i - 1]));
+  const [laneName, key] = args.filter((a, i) => !a.startsWith('--') && !['--from', '--at', '--parts'].includes(args[i - 1]));
   const dryRun = args.includes('--dry-run');
   const replace = args.includes('--replace');
+  // --parts 2,3,5: only these parts (the rest are left exactly as they are)
+  const only = opt('--parts') ? new Set(String(opt('--parts')).split(',').map(Number)) : null;
   const from = path.resolve(opt('--from', 'preview'));
   const at = opt('--at', '17:00');
 
@@ -68,6 +70,7 @@ function main() {
   // the middle is worse than no series.
   const of = series.parts.length;
   for (let n = 1; n <= of; n++) {
+    if (only && !only.has(n)) continue;
     const id = partId(series, n);
     for (const f of [`${id}_short.mp4`, `${id}_short.txt`]) {
       if (!fs.existsSync(path.join(from, f))) throw new Error(`missing ${f} in ${from}: render every part first`);
@@ -87,6 +90,10 @@ function main() {
     const title = `${part.title} (Part ${n})`.slice(0, 90);
     let when = n === 1 ? 'now' : slot(n);
     let ledger = readJson(ledgerPath, {});
+    if (only && !only.has(n)) {
+      if (ledger[id]?.videoId) prev = { id, videoId: ledger[id].videoId };
+      continue;
+    }
     if (replace && ledger[id]?.videoId && ledger[id].privacyStatus !== 'public') {
       // Not out yet: this render takes its place, on the same date. The old
       // upload is kept private under another key (superseded, never published).
