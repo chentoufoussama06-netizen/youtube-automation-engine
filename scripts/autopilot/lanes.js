@@ -141,7 +141,6 @@ const LANES = [
     // Shorts feed in 28 days on its old Reddit, lost-media and tech-history
     // mix; every old video unlisted). Its old tech compilations are still on
     // disk, so long-form stays off: nothing from the old niche goes out.
-    paused: true,                 // until the cloud previews pass
     storyShortsPerDay: 1,
     longform: false,
     look: 'football',             // clean grade, bold box
@@ -162,6 +161,9 @@ const LANES = [
         + '  it, and how it reached everyone else.\n'
         + '- One specific item with a clear arc and a twist. The title states the surprising\n'
         + '  origin plainly, as a fact (like the examples).',
+      // Read by the narration writer (story-short.js), unlike scope, which picks the story.
+      writerNote: 'Write "the US", "the UK" and names without initials ("Roy Plunkett", not "Roy J. Plunkett"):'
+        + ' a period inside a sentence splits it for the fact-check and the sentence is lost.',
       captionExample: 'Trench coat',
       tags: ['military history', 'everyday objects', 'history facts'],
       words: { min: 75, target: 95, max: 125 }    // ~30-50s
@@ -185,7 +187,6 @@ const LANES = [
     // short a day. It was paused from 2026-11-04 (0 views from the Shorts feed
     // in 28 days on its old reposted clips; every old video unlisted). The warm
     // grade suits the archive photographs Commons has of old ships.
-    paused: true,                 // until the cloud previews pass
     storyShortsPerDay: 1,
     longform: false,
     look: 'ancient',              // warm archive grade, gold box
@@ -206,6 +207,9 @@ const LANES = [
         + '  scale but are never the story.\n'
         + '- One specific ship and episode with a clear arc and a twist. The title states the\n'
         + '  shocking fact plainly (like the examples).',
+      // Read by the narration writer (story-short.js), unlike scope, which picks the story.
+      writerNote: 'Write "the US", "the UK" and names without initials ("Roy Plunkett", not "Roy J. Plunkett"):'
+        + ' a period inside a sentence splits it for the fact-check and the sentence is lost.',
       captionExample: 'Vasa',
       tags: ['shipwreck', 'maritime history', 'ocean mysteries'],
       words: { min: 75, target: 95, max: 125 }    // ~30-50s

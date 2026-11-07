@@ -313,7 +313,8 @@ Write scorelines and odds as digits with a dash, like 3–1 or 5000–1.
 ` : '';
   const base = `Write the narration for a ${WORDS.target}-word YouTube Short about ${story.subject}.
 The episode: ${story.moment}
-${sequel}${series}
+${sequel}${series}${story.writerNote ? `${story.writerNote}
+` : ''}
 SOURCE — the only place you may take names, dates, numbers, clubs, scores and
 quotes from. If a detail is not here, it does not exist:
 """
@@ -575,7 +576,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         .filter((x) => !OFF_TOPIC.test(x.title)).slice(0, 10);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
-      const text = await narrate(ai, { ...story, subject, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
+      const text = await narrate(ai, { ...story, subject, writerNote: lane.story?.writerNote, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
         brief, writer, lane.story?.words || DEFAULT_WORDS);
       if (!text) { logger.info(`skip ${subject}: no clean narration`); continue; }
 
