@@ -24,7 +24,8 @@ const CACHE = path.join(__dirname, '..', 'temp', 'broll');
 // trigger: a spoken word (lower case, punctuation stripped) that calls for the theme.
 // allow/deny: tested on the Pexels page slug, which describes the clip — the
 // search alone returned "a woman practicing kicking a football" and seagulls.
-const STADIUM_DENY = /woman|women|girl|kid|child|boy|youth|training|practi[cs]|coach|seagull|beach|futsal|indoor|dome|park|backyard|garden|lawn|street|urban|amateur|toy|dog|table|american|concert|festival|basketball|baseball|empty|cricket|rugby/;
+// Generic atmosphere must not name a country: a "moroccan stadium" clip opened the Spain World Cup part (2026-11-07). Nationality comes only from the story's own team theme.
+const STADIUM_DENY = /woman|women|girl|kid|child|boy|youth|training|practi[cs]|coach|seagull|beach|futsal|indoor|dome|park|backyard|garden|lawn|street|urban|amateur|toy|dog|table|american|concert|festival|basketball|baseball|empty|cricket|rugby|moroc|maroc|spanish|spain|argentin|brazil|brasil|english|england|french|france|german|portug|ital|mexic|dutch|croat|belgi|turk|egypt|saudi|qatar|indian|india|chinese|china|japan|korea|african|nigeri|ghana|senegal|colombi|urugua|chile|peru/;
 
 const THEMES = {
   football: [
