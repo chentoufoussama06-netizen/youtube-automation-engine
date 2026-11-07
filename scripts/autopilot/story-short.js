@@ -762,7 +762,7 @@ async function beatPhotos(archival, plan, year, { football = false } = {}) {
 // Stadium and city articles carry whatever else happened there: Part 1 of
 // Real Madrid 2022 showed "2025 NFL Madrid Game" as the Bernabeu.
 // (It held two literal backspace characters where \b was meant, so it never matched.)
-const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour|wrestling|WWE|AEW|All In 20\bd+|Adele|Live 20\bd+|festival|gig)\b/i;
+const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour|wrestling|WWE|AEW|All In 20\d+|Adele|Live 20\d+|festival|gig)\b/i;
 
 // When the episode happened, from its moment ("On 12 April 2017 ..."), or null.
 const eventYear = (moment) => Number((String(moment).match(/\b(1[89]\d{2}|20\d{2})\b/) || [])[1]) || null;
