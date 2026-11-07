@@ -396,5 +396,28 @@
     "title": "Cantona’s infamous kung-fu kick on a fan",
     "at": "2026-11-06T01:14:19.087Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-real-madrid-2022-p3",
+    "subject": "Rodrygo",
+    "article": "Rodrygo",
+    "moment": "On 4 May 2022, trailing Manchester City 0–1 on the night and 3–5 on aggregate in the Champions League semi-final, Rodrygo scored two goals between the 90th and 91st minutes and Benzema's extra-time penalty sent Real Madrid to the final.",
+    "title": "Two Goals in Two Minutes Against Man City (Part 3)",
+    "at": "2026-11-07T02:37:45.038Z",
+    "style": "v2",
+    "series": "real-madrid-2022",
+    "part": 3,
+    "of": 4,
+    "root": "story-series-real-madrid-2022-p1",
+    "sequelOf": "story-series-real-madrid-2022-p2"
+  },
+  {
+    "id": "story-juventus-in-2006-juventus",
+    "subject": "Juventus",
+    "article": "Juventus FC",
+    "moment": "In 2006 Juventus were stripped of two Serie A titles and relegated after the Calciopoli match‑fixing scandal.",
+    "title": "Juventus stripped of titles and relegated in 2006",
+    "at": "2026-11-07T02:43:17.945Z",
+    "style": "v2"
   }
 ]

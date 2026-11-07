@@ -349,6 +349,34 @@
       "shortTitle": "How Alexander’s Tactics Crushed Persia at Gaugamela",
       "article": "Battle of Gaugamela",
       "categoryId": "27"
+    },
+    {
+      "id": "story-crassus-p3-53-bc-cassiu",
+      "topic": "53 BC – Cassius leads survivors back to Syria",
+      "keywords": [
+        "Crassus",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Cassius rescues the remnants of Crassus' army (Part 3)",
+      "article": "Battle of Carrhae",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-caligula-caligula-alleged",
+      "topic": "Caligula allegedly appoints his horse Incitatus as a priest and plans to make him consul, 39 CE",
+      "keywords": [
+        "Caligula",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Caligula’s Crazy Plan to Make a Horse a Consul",
+      "article": "Caligula",
+      "categoryId": "27"
     }
   ]
 }
