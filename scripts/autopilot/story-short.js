@@ -497,10 +497,10 @@ const takenThisRun = new Set();
  * `sequelOf` is a stories.json entry (with its videoId) to continue: the next
  * part of that story replaces a fresh pick. See scripts/autopilot/sequels.js.
  */
-async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story: pinned = null, seriesDue = null } = {}) {
+async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story: pinned = null, seriesDue = null, rerender = false } = {}) {
   const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
   if (!lane) throw new Error(`no lane "${laneName}"`);
-  if (seriesDue) return makeSeriesPart(lane, seriesDue, { dryRun });
+  if (seriesDue) return makeSeriesPart(lane, seriesDue, { dryRun, rerender });
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
 
   const ai = new AITextService({});
@@ -729,13 +729,14 @@ async function seriesPhotos(archival, part, dir) {
  * The planned series part `due` (series.js: { series, part, n, prev }):
  * checked, written, teased, rendered and queued like any story short.
  */
-async function makeSeriesPart(lane, due, { dryRun = false } = {}) {
+async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = {}) {
   const { series, part, n, prev } = due;
   const of = series.parts.length;
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const id = partId(series, n);
   const ledger = readJson(base('shorts', 'uploads.json'), {});
-  if (ledger[id]) throw new Error(`${id} is already posted`);
+  // A preview may re-render a part already up (to replace it while private).
+  if (ledger[id] && !rerender) throw new Error(`${id} is already posted`);
 
   const ai = new AITextService({});
   const research = new ResearchService();
@@ -838,7 +839,7 @@ if (require.main === module) {
     if (!s || !s.parts[n - 1]) { logger.error(`no series part "${opt('--series-part')}"`); process.exit(1); }
     pickedPart = { series: s, part: s.parts[n - 1], n, prev: n > 1 ? { id: partId(s, n - 1), videoId: 'PREVIEW' } : null };
   }
-  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned, seriesDue: pickedPart || seriesDue })
+  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned, seriesDue: pickedPart || seriesDue, rerender: Boolean(pickedPart) })
     .then((r) => console.log(JSON.stringify({ ...r, text: r.text ? `${r.text.slice(0, 400)}…` : undefined }, null, 2)))
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
