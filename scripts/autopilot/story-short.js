@@ -120,7 +120,27 @@ their English Wikipedia article already tells (the 7 Nov test invented a Salah
 collapse and a Messi ban; every one was rejected). If you are not sure an
 episode is in the article, pick a different one.`;
 
-async function propose(ai, lane, avoid, hot = [], news = []) {
+// The stars the strategy leans on, and real lines about them: told only "use
+// real moments", the model still invented injuries and bans (7 Nov tests, all
+// rejected). Given their own article text, it picks from what is there.
+const STARS = ['Lamine Yamal', 'Kylian Mbappé', 'Erling Haaland', 'Harry Kane', 'Vinícius Júnior', 'Jude Bellingham',
+  'Mohamed Salah', 'Cristiano Ronaldo', 'Lionel Messi', 'Neymar'];
+const BIG_MOMENT = /record|youngest|oldest|first (player|time)|final|hat-trick|hat trick|scored|won the|winner|red card|sent off|ban|injur|ballon d|golden boot|world cup|champions league|euro|transfer|fee|debut|missed|penalt|controvers|tears|lost/i;
+async function starFacts(research, n = 3) {
+  const day = Math.floor(Date.now() / 86400000);
+  const pick = Array.from({ length: n }, (_, i) => STARS[(day * n + i) % STARS.length]);
+  const out = [];
+  for (const star of pick) {
+    const full = await research.buildBriefFromArticle(star, { maxChars: 150000 }).catch(() => null);
+    if (!full?.text) continue;
+    const lines = (full.text.match(/[^.!?\n]+[.!?]/g) || [])
+      .map((x) => x.trim()).filter((x) => x.length > 50 && x.length < 320 && BIG_MOMENT.test(x) && /\b(19|20)\d\d\b/.test(x));
+    if (lines.length) out.push(`${star} (article: "${full.title || star}"):\n${lines.slice(0, 10).map((l) => `  - ${l}`).join('\n')}`);
+  }
+  return out.join('\n');
+}
+
+async function propose(ai, lane, avoid, hot = [], news = [], facts = '') {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
@@ -137,7 +157,12 @@ TRENDING — yesterday's most-read English Wikipedia articles, i.e. what people 
 searching for right now. If any of these fits this channel's scope (a person,
 club, event or thing it would cover), make your FIRST proposals about them:
 ${hot.join(' | ')}
-` : ''}${lane.categoryId === '17' ? STAR_STRATEGY : ''}
+` : ''}${lane.categoryId === '17' ? STAR_STRATEGY : ''}${facts ? `
+STAR FACTS — real lines from these stars' English Wikipedia articles. Every
+story about one of these stars MUST be one of these lines (same event, same
+year, "article" = the article named), not anything else you think you know:
+${facts}
+` : ''}
 Propose 10 stories like these. Rules:
 - ${story.scope}
 - It must be documented in that subject's English Wikipedia article.
@@ -561,6 +586,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
     logger.info(`sequel: Part ${sequel.part} of ${sequelOf.id}`);
   }
 
+  const facts = !sequel && !pinned && lane.categoryId === '17' ? await starFacts(research).catch(() => '') : '';
+  if (facts) logger.info(`star facts: ${facts.split('\n').filter((l) => !l.startsWith('  ')).map((l) => l.split(' (')[0]).join(', ')}`);
   for (let round = 1; round <= (sequel || pinned ? 1 : 3); round++) {
     let stories;
     try {
@@ -570,7 +597,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       stories = pinned ? [pinned] : sequel
         ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 11500)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
-        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : []);
+        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], round < 3 ? facts : '');
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
