@@ -128,7 +128,8 @@ const SERIES = [
         photos: [
           {files: ["Ofrenda de la Liga y la Champions-32-L.Millán (52109789555).jpg","Ofrenda de la Liga y la Champions-36-L.Millán (52108254142).jpg","Ofrenda de la Liga y la Champions-37-L.Millán (52109523424).jpg","Ofrenda de la Liga y la Champions-58-L.Millán (52109788725).jpg","Ofrenda de la Liga y la Champions-59-L.Millán (52108253452).jpg","Ofrenda de la Liga y la Champions-39-L.Millán (52109279356).jpg"]},
           {files: ["StadeFranceNationsLeague2018.jpg"], names: ["stade","france","paris","delayed","kickoff"]},
-          {files: ["Ofrenda de la Liga y la Champions-19-L.Millán (52108254662).jpg","Thibaut Courtois WC2022.jpg"], names: ["courtois","thibaut","saved","saves","keeper","goalkeeper"]},
+          // the cathedral photo once (first "Courtois"), then Courtois alone in Real Madrid kit
+          {files: ["Ofrenda de la Liga y la Champions-19-L.Millán (52108254662).jpg","FC RB Salzburg versus Real Madrid (Testspiel, 7. August 2019) 03.jpg","FC RB Salzburg gegen Real Madrid (Testspiel, 7. August 2019) 17.jpg"], names: ["courtois","thibaut","saved","saves","keeper","goalkeeper"], firstOnce: 1},
           {files: ["Ofrenda de la Liga y la Champions-18-L.Millán (52108254687).jpg","Vinicius Jr 2021.jpg"], names: ["vinicius","junior"]},
           {files: ["Ofrenda de la Liga y la Champions-50-L.Millán (52109789010).jpg"], names: ["ancelotti"]},
           {files: ["Luka Modric - Ofrenda de la Liga y la Champions-56-L.Millán (52109788795) (cropped).jpg"], names: ["modric"]}

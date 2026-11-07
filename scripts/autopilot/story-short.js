@@ -831,7 +831,7 @@ const eventYear = (moment) => Number((String(moment).match(/\b(1[89]\d{2}|20\d{2
 // A photo dated after the episode (one season of grace) belongs to a later story.
 const tooLate = (img, year) => Boolean(year && img.year && img.year > year + 1);
 // For a footballer, things that carry his name but are not him playing.
-const NOT_THE_PLAYER = /\b(museum|museu|hotel|airport|aeroporto|tussauds|wax|figure|statue|mural|graffiti|stamp|poster|logo|signature|autograph|banner|shop|store|jersey on display)\b/i;
+const NOT_THE_PLAYER = /\b(museum|museu|hotel|airport|aeroporto|tussauds|wax|figure|statue|mural|graffiti|stamp|poster|logo|signature|autograph|banner|shop|store|jersey on display|potm|tots|totw|fut|player card|rating)\b/i;
 // Closest to the episode first; undated photos last.
 const byEra = (year) => (a, b) => (a.year ? Math.abs(a.year - year) : 99) - (b.year ? Math.abs(b.year - year) : 99);
 const NOT_NAMES = /^(On|In|At|The|A|An|After|Before|During|When|With|His|Her|Their|January|February|March|April|May|June|July|August|September|October|November|December)$/;
@@ -879,7 +879,7 @@ async function seriesPhotos(archival, part, dir) {
   if (saved.length < 4) throw new Error('photo downloads failed');
   const pathOf = new Map(saved.map((p) => [p.title, p.path]));
   const chapters = groups.filter((g) => g.names?.length)
-    .map((g) => ({ names: g.names, photos: g.found.map((x) => pathOf.get(x.title)).filter(Boolean) }))
+    .map((g) => ({ names: g.names, photos: g.found.map((x) => pathOf.get(x.title)).filter(Boolean), ...(g.firstOnce ? { firstOnce: g.firstOnce } : {}) }))
     .filter((c) => c.photos.length);
   return { saved, chapters };
 }

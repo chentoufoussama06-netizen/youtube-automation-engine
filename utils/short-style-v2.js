@@ -412,8 +412,14 @@ function resolveChapters(words, chapters) {
     if (!c.key || !c.photos?.length) return c.photos;
     const k = turn.get(c.key) || 0;
     turn.set(c.key, k + 1);
-    const i = k % c.photos.length;
-    return [...c.photos.slice(i), ...c.photos.slice(0, i)];
+    // `firstOnce`: those photos open the first mention and never come back
+    // (the user: the cathedral photo of Courtois once, then Courtois alone).
+    const once = c.key.firstOnce || 0;
+    if (once && k === 0) return c.photos.slice(0, once);
+    const rest = once ? c.photos.slice(once) : c.photos;
+    if (!rest.length) return c.photos;
+    const i = (once ? k - 1 : k) % rest.length;
+    return [...rest.slice(i), ...rest.slice(0, i)];
   };
   for (const c of out) {
     const last = kept.at(-1);
