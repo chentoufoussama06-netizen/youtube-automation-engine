@@ -735,14 +735,22 @@ function shows(title, item, keys) {
  * A trophy with no free photo of the winners falls back to the trophy itself.
  * Returns [{ names, photos: [image records], article }].
  */
+// In a story from before photography, a place is shown by art, ruins and finds:
+// not today's hospitals, aerial shots, stations or anything dated 19xx/20xx.
+const MODERN = /(\bhospital|\bhotel|\bairport|aerial|wikiair|drone|\buniversity|\bstation|\bstreet|\bbus\b|\btram|\bmall|parking|\bstadium|\bhdr\b|panorama|pikiwiki|\b(19|20)\d\d\b)/i;
+
 async function beatPhotos(archival, plan, year, { football = false } = {}) {
   const out = [];
+  const ancient = !year;   // no 1800-2099 year in the moment
   for (const item of plan) {
+    // teams and trophies are football things; elsewhere "triumph" found Leopold I of Austria
+    if (!football && (item.kind === 'team' || item.kind === 'trophy')) continue;
     const keys = titleKeys(item.article, item.kind);
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
       .filter((x) => !OFF_TOPIC.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
       .filter((x) => shows(x.title, item, keys))
-      .filter((x) => item.kind === 'place' || item.kind === 'trophy' || !tooLate(x, year));
+      .filter((x) => item.kind === 'place' || item.kind === 'trophy' || !tooLate(x, year))
+      .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
     if (year) found.sort(byEra(year));
     if (!found.length && item.kind === 'trophy') {
       found = (await archival.fetchArchivalImages(`${item.article} trophy`, { must: ['trophy'], bonus: keys }, { limit: 8 }).catch(() => []))
