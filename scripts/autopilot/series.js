@@ -123,8 +123,17 @@ const SERIES = [
       {
         articles: ['2022 UEFA Champions League final'],
         subject: 'Real Madrid',
-        photos: [{ article: '2022 UEFA Champions League final', n: 4 }, { article: 'Thibaut Courtois', n: 3, names: ['courtois', 'thibaut'] },
-          { article: 'Vinícius Júnior', n: 3, names: ['vinicius'] }],
+        // Hand-picked 2026-11-07: Real Madrid's trophy parade in Madrid (May 2022,
+        // right after this final) for the trophy and the players; no searches.
+        photos: [
+          {files: ["Ofrenda de la Liga y la Champions-32-L.Millán (52109789555).jpg","Ofrenda de la Liga y la Champions-36-L.Millán (52108254142).jpg","Ofrenda de la Liga y la Champions-37-L.Millán (52109523424).jpg","Ofrenda de la Liga y la Champions-58-L.Millán (52109788725).jpg","Ofrenda de la Liga y la Champions-59-L.Millán (52108253452).jpg","Ofrenda de la Liga y la Champions-39-L.Millán (52109279356).jpg"]},
+          {files: ["StadeFranceNationsLeague2018.jpg"], names: ["stade","france","paris","delayed","kickoff"]},
+          {files: ["Ofrenda de la Liga y la Champions-19-L.Millán (52108254662).jpg","Thibaut Courtois WC2022.jpg"], names: ["courtois","thibaut","saved","saves","keeper","goalkeeper"]},
+          {files: ["Ofrenda de la Liga y la Champions-18-L.Millán (52108254687).jpg","Vinicius Jr 2021.jpg"], names: ["vinicius","junior"]},
+          {files: ["Ofrenda de la Liga y la Champions-50-L.Millán (52109789010).jpg"], names: ["ancelotti"]},
+          {files: ["Luka Modric - Ofrenda de la Liga y la Champions-56-L.Millán (52109788795) (cropped).jpg"], names: ["modric"]}
+        ],
+        clipTeams: ['Real Madrid'],
         label: 'Champions League Final · 2022',
         moment: 'On 28 May 2022, after a kickoff delayed by 36 minutes, Real Madrid beat Liverpool 1–0 in the Champions League final at the Stade de France with a 59th-minute Vinícius Júnior goal while Thibaut Courtois saved shot after shot.',
         title: 'Liverpool Kept Shooting. Courtois Kept Saving.',
