@@ -359,6 +359,8 @@ function linkSeries(lane, st) {
   st.series = st.series || {};
   const out = [];
   st.pendingLinks = pending.filter((job) => {
+    // A scheduled part is linked once it is out, never while it is private.
+    if (job.after && Date.parse(job.after) > Date.now()) return true;
     const series = st.series[job.root] || {};
     const res = run(lane, 'scripts/youtube/link-series.js', [job.prev, job.next, String(job.part),
       ...(series.playlistId ? ['--playlist', series.playlistId] : ['--playlist-title', `${job.subject}: the full story`])], 5);
@@ -483,8 +485,15 @@ async function main() {
     // Self-heal: a publish that failed silently left a finished short private
     // (Messi, 2026-10-07). Anything this autopilot uploaded that is still
     // private gets published before today's work.
+    // Parts scheduled ahead (post-series.js) are private on purpose until
+    // their time: publish the ones that are due, and leave the rest alone.
+    const scheduled = (v) => v.scheduledPublishAt && Date.parse(v.scheduledPublishAt) > Date.now();
+    if (!DRY && Object.values(ledgerOf(lane)).some((v) => v.privacyStatus === 'private' && v.scheduledPublishAt && !scheduled(v))) {
+      const res = run(lane, 'scripts/youtube/check-scheduled.js', [], 5);
+      summary.push(`${lane.name}: scheduled parts published${res.ok ? '' : ' (with errors)'}`);
+    }
     const stuck = Object.entries(ledgerOf(lane))
-      .filter(([id, v]) => /^(story|doc)-/.test(id) && v.privacyStatus === 'private')
+      .filter(([id, v]) => /^(story|doc)-/.test(id) && v.privacyStatus === 'private' && !v.scheduledPublishAt)
       .map(([id]) => id);
     if (stuck.length && !DRY) {
       log(`${lane.name}: publishing ${stuck.length} short(s) left private: ${stuck.join(', ')}`);

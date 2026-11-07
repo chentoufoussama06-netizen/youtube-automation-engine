@@ -1,0 +1,104 @@
+name: Post series
+
+# Posts a planned series from a preview run's renders (preview-short.yml with
+# series_key): Part 1 public now, every later part uploaded private and
+# scheduled one a day at the given UTC time. The daily autopilot publishes each
+# scheduled part once its time has passed (check-scheduled.js), so the videos
+# posted are exactly the ones watched in the preview.
+
+on:
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: "Channel (exact lane name)"
+        default: "Football Files"
+      series_key:
+        description: "Series key in scripts/autopilot/series.js"
+        required: true
+      preview_run:
+        description: "Run id of the preview-short run whose renders to post"
+        required: true
+      at:
+        description: "Daily time (UTC, HH:MM) for Part 2 onwards"
+        default: "17:00"
+      dry_run:
+        description: "Say what would happen, upload nothing"
+        type: boolean
+        default: false
+
+# Same group as daily-shorts: state is written by one job at a time.
+concurrency:
+  group: daily-shorts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Renders from the preview
+        uses: actions/download-artifact@v4
+        with:
+          name: preview
+          path: preview
+          run-id: ${{ github.event.inputs.preview_run }}
+          github-token: ${{ github.token }}
+
+      - name: Credentials
+        env:
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+          YT_CREDENTIALS: ${{ secrets.YT_CREDENTIALS }}
+          YT_TOKENS: ${{ secrets.YT_TOKENS }}
+          YT_TOKENS_AFTERCACHE: ${{ secrets.YT_TOKENS_AFTERCACHE }}
+          YT_TOKENS_CLIPS: ${{ secrets.YT_TOKENS_CLIPS }}
+          YT_TOKENS_FOOTBALL2: ${{ secrets.YT_TOKENS_FOOTBALL2 }}
+        run: |
+          printf '%s\n' "$ENV_FILE" > .env
+          mkdir -p config
+          echo "$YT_CREDENTIALS" | base64 -d > config/credentials.json
+          echo "$YT_TOKENS" | base64 -d > config/tokens.json
+          echo "$YT_TOKENS_AFTERCACHE" | base64 -d > config/tokens.aftercache.json
+          echo "$YT_TOKENS_CLIPS" | base64 -d > config/tokens.clips.json
+          echo "$YT_TOKENS_FOOTBALL2" | base64 -d > config/tokens.football2.json
+
+      - name: Post
+        env:
+          LANE: ${{ github.event.inputs.lane }}
+          KEY: ${{ github.event.inputs.series_key }}
+          AT: ${{ github.event.inputs.at }}
+          DRY: ${{ github.event.inputs.dry_run }}
+        run: |
+          ls -la preview
+          extra=()
+          [ "$DRY" = "true" ] && extra=(--dry-run)
+          node scripts/autopilot/post-series.js "$LANE" "$KEY" --from preview --at "$AT" "${extra[@]}" | tee post.log
+          {
+            echo "## Post series: $KEY on $LANE"
+            echo '```'
+            grep -E 'PUBLIC|scheduled|already uploaded|->|failed' post.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save state
+        if: always() && github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "autopilot"
+          git config user.email "actions@users.noreply.github.com"
+          git add state
+          git diff --cached --quiet || git commit -m "state: post series ${{ github.event.inputs.series_key }} $(date -u +%F)"
+          git pull --rebase --quiet || true
+          git push
