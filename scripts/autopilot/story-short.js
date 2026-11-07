@@ -38,7 +38,7 @@ const { Logger } = require('../../utils/logger');
 const { LANES } = require('./lanes');
 const { footballNews } = require('../../utils/news-feed');
 const { renderStoryV2 } = require('../../utils/short-style-v2');
-const { seriesPartDue, partId, NUMBER_WORDS } = require('./series');
+const { SERIES, seriesPartDue, partId, NUMBER_WORDS } = require('./series');
 
 const ROOT = path.join(__dirname, '..', '..');
 const logger = new Logger('StoryShort');
@@ -762,7 +762,7 @@ async function makeSeriesPart(lane, due, { dryRun = false } = {}) {
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const valueFlags = ['--sequel', '--article', '--subject', '--moment', '--title'];
+  const valueFlags = ['--sequel', '--article', '--subject', '--moment', '--title', '--series-part'];
   const laneName = args.find((a, i) => !a.startsWith('--') && !valueFlags.includes(args[i - 1]));
   let sequelOf = null;
   if (args.includes('--sequel')) {
@@ -782,7 +782,17 @@ if (require.main === module) {
     ? seriesPartDue(LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase()) || {})
     : null;
   if (args.includes('--series') && !seriesDue) { logger.error(`no series part due on ${laneName}`); process.exit(1); }
-  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned, seriesDue })
+  // --series-part <key>:<n> renders one named part whatever is due, for the
+  // cloud preview (preview-short.yml); the link back to Part n-1 is a stand-in.
+  let pickedPart = null;
+  if (opt('--series-part')) {
+    const [key, num] = String(opt('--series-part')).split(':');
+    const s = SERIES.find((x) => x.key === key);
+    const n = Number(num);
+    if (!s || !s.parts[n - 1]) { logger.error(`no series part "${opt('--series-part')}"`); process.exit(1); }
+    pickedPart = { series: s, part: s.parts[n - 1], n, prev: n > 1 ? { id: partId(s, n - 1), videoId: 'PREVIEW' } : null };
+  }
+  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned, seriesDue: pickedPart || seriesDue })
     .then((r) => console.log(JSON.stringify({ ...r, text: r.text ? `${r.text.slice(0, 400)}…` : undefined }, null, 2)))
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }

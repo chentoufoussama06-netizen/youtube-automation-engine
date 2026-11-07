@@ -41,7 +41,8 @@ const LOOKS = {
 
 const STOP = new Set(('the a an and of to in on at for his her its with by from as but or was is were '
   + 'their he she it that this who which into than then').split(' '));
-const bare = (w) => String(w).toLowerCase().replace(/[^a-z0-9']/g, '');
+// Accents off first, so "Simón" matches a chapter name "simon" (it was "simn").
+const bare = (w) => String(w).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9']/g, '');
 
 function python(args) {
   // -P keeps the script's own folder off the import path.

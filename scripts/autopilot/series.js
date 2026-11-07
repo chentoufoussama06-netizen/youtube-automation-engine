@@ -133,6 +133,75 @@ const SERIES = [
     ]
   },
   {
+    // Added 2026-11-07 at the user's request, to run right after Real Madrid
+    // 2022. The thread through every part is the article's own point: he
+    // trusted the players he had coached in Spain's youth teams (Merino, Olmo,
+    // Oyarzabal, Fabián Ruiz and Unai Simón won the 2019 under-21 title under
+    // him), and they decided his finals. All facts checked by hand on
+    // 2026-11-07 against the articles named here.
+    key: 'de-la-fuente',
+    name: 'Luis de la Fuente: The Quiet Genius',
+    parts: [
+      {
+        articles: ['Luis de la Fuente (footballer, born 1961)', 'Luis Enrique'],
+        subject: 'Luis de la Fuente',
+        photos: [{ article: 'Luis de la Fuente (footballer, born 1961)', n: 6, names: ['fuente', 'luis'], skip: 'trophy|world.?cup|champion' },
+          { article: 'Luis Enrique', n: 2, names: ['enrique'] }],
+        label: 'Spain · December 2022',
+        moment: 'On 8 December 2022, after Luis Enrique resigned when Morocco knocked Spain out of the World Cup on penalties, Spain appointed Luis de la Fuente, a youth coach who had won the 2015 under-19 and 2019 under-21 European Championships and Olympic silver in Tokyo.',
+        title: 'Spain Lost to Morocco, So They Hired Their Youth Coach',
+        teaser: 'Within months, he had his first trophy.',
+        note: 'Make the point that nobody expected a youth-team coach to be the answer, and that he brought the players he had coached as boys with him.'
+      },
+      {
+        articles: ['2023 UEFA Nations League final', 'Luis de la Fuente (footballer, born 1961)'],
+        subject: 'Luis de la Fuente',
+        photos: [{ article: 'Luis de la Fuente (footballer, born 1961)', n: 3, names: ['fuente'] }, { article: 'Joselu', n: 2, names: ['joselu'] },
+          { article: 'Unai Simón', n: 3, names: ['simon', 'unai'] }, { article: 'Dani Carvajal', n: 2, names: ['carvajal'] },
+          { article: 'Stadion Feijenoord', n: 1, names: ['rotterdam'] }],
+        label: 'Nations League Final · 2023',
+        moment: 'In Luis de la Fuente\'s first game, on 25 March 2023, 32-year-old debutant Joselu scored twice in a 3–0 win over Norway, and on 18 June 2023 in Rotterdam Spain beat Croatia 5–4 on penalties after a 0–0 draw, with Unai Simón saving twice and Dani Carvajal chipping the winning kick, for their first Nations League title.',
+        title: 'The Chipped Penalty That Won Spain a Trophy',
+        teaser: 'Next came Euro 2024, and a 16-year-old winger.',
+        note: 'Unai Simón won the 2019 under-21 title under de la Fuente: say the keeper he trusted from his youth team saved it.'
+      },
+      {
+        articles: ['UEFA Euro 2024 final', 'Lamine Yamal', 'Luis de la Fuente (footballer, born 1961)'],
+        subject: 'Lamine Yamal',
+        photos: [{ article: 'Lamine Yamal', n: 4, names: ['yamal', 'lamine'], skip: 'trophy|champion' },
+          { article: 'Mikel Merino', n: 2, names: ['merino'] }, { article: 'Dani Olmo', n: 2, names: ['olmo'] },
+          { article: 'Luis de la Fuente (footballer, born 1961)', n: 2, names: ['fuente'], skip: 'trophy|world.?cup|champion' }],
+        label: 'Euro 2024 · Germany',
+        moment: 'At Euro 2024 Spain won their group without conceding, knocked out hosts Germany 2–1 with a Mikel Merino header in the 119th minute, and in the semi-final against France teenager Lamine Yamal equalised from outside the box before Dani Olmo scored the winner.',
+        title: 'Spain Knocked Out Germany in the 119th Minute',
+        teaser: 'One game left: England, in Berlin.',
+        note: 'Merino and Olmo won the 2019 under-21 title under de la Fuente: his own youth players decided both games. Do not tell the final.'
+      },
+      {
+        articles: ['UEFA Euro 2024 final', 'Luis de la Fuente (footballer, born 1961)'],
+        subject: 'Spain',
+        photos: [{ article: 'UEFA Euro 2024 final', n: 2 }, { article: 'Nico Williams', n: 3, names: ['williams', 'nico'] },
+          { article: 'Mikel Oyarzabal', n: 3, names: ['oyarzabal'] }, { article: 'Lamine Yamal', n: 1, names: ['yamal'] },
+          { article: 'Luis de la Fuente (footballer, born 1961)', n: 2, names: ['fuente'], skip: 'world.?cup' }],
+        label: 'Euro 2024 Final · Berlin',
+        moment: 'On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final, Nico Williams scoring from Lamine Yamal\'s pass and substitute Mikel Oyarzabal winning it in the 86th minute, for a record fourth European Championship with seven wins from seven games.',
+        title: 'Seven Games, Seven Wins: Spain\'s Perfect Euro',
+        teaser: 'Two years later, Spain went to the World Cup as favourites.',
+        note: 'Oyarzabal won the 2019 under-21 title under de la Fuente and came off the bench: the coach\'s call won it.'
+      },
+      {
+        articles: ['2026 FIFA World Cup final', 'Luis de la Fuente (footballer, born 1961)'],
+        subject: 'Luis de la Fuente',
+        photos: [{ article: 'Luis de la Fuente (footballer, born 1961)', n: 5, names: ['fuente', 'luis'] }, { article: 'Ferran Torres', n: 3, names: ['torres', 'ferran'] },
+          { article: 'Emiliano Martínez', n: 2, names: ['martinez', 'emiliano'] }, { article: 'MetLife Stadium', n: 1, names: ['metlife'] }],
+        label: 'World Cup Final · 2026',
+        moment: 'On 19 July 2026 at MetLife Stadium Spain beat defending champions Argentina 1–0 after extra time with a Ferran Torres goal to win the World Cup, making Luis de la Fuente, at 65, the oldest manager to win it and the first to win the Nations League, the European Championship and the World Cup.',
+        title: 'The Youth Coach Who Won Everything',
+        note: 'This is the last part: land the whole story in the final line, from the youth coach nobody expected to the first manager to win all three.'
+      }
+    ]
+  },
+  {
     key: 'ajax-1995',
     name: 'Ajax 1995',
     parts: [

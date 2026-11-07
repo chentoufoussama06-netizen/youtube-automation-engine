@@ -30,6 +30,9 @@ on:
       title:
         description: "Optional: that story's video title"
         default: ""
+      series_key:
+        description: "Optional: render EVERY part of this planned series (series.js key, e.g. de-la-fuente)"
+        default: ""
 
 permissions:
   contents: read
@@ -51,6 +54,7 @@ jobs:
       PIN_ARTICLE: ${{ github.event.inputs.article }}
       PIN_MOMENT: ${{ github.event.inputs.moment }}
       PIN_TITLE: ${{ github.event.inputs.title }}
+      SERIES_KEY: ${{ github.event.inputs.series_key }}
       PIPER_BIN: ${{ github.workspace }}/.piper/piper/piper
       PIPER_VOICES_DIR: ${{ github.workspace }}/data/piper-voices
     steps:
@@ -147,10 +151,16 @@ jobs:
           touch /tmp/start
           n="${PREVIEW_COUNT:-2}"; case "$n" in 1|2|3) ;; *) n=2 ;; esac
           [ -n "$PIN_ARTICLE" ] && n=1
+          if [ -n "$SERIES_KEY" ]; then
+            n="$(node -e "const s=require('./scripts/autopilot/series').SERIES.find(x=>x.key===process.argv[1]);console.log(s?s.parts.length:0)" "$SERIES_KEY")"
+            [ "$n" -gt 0 ] || { echo "no series $SERIES_KEY"; exit 1; }
+          fi
           for i in $(seq 1 "$n"); do
             echo "::group::preview $i of $n"
             extra=()
-            if [ -n "$PIN_ARTICLE" ]; then
+            if [ -n "$SERIES_KEY" ]; then
+              extra=(--series-part "$SERIES_KEY:$i")
+            elif [ -n "$PIN_ARTICLE" ]; then
               extra=(--article "$PIN_ARTICLE" --moment "$PIN_MOMENT" --title "$PIN_TITLE")
             elif [ "$PREVIEW_SERIES" = "true" ] && [ "$i" = 1 ]; then
               extra=(--series)
