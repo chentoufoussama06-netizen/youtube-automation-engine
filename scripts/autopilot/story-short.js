@@ -582,7 +582,9 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const event = year ? await archival.eventPhotos(eventQueries(story.moment, subject, year), { year, must: eventKeys(story.moment, subject), limit: 6 }).catch(() => []) : [];
       const own = (await archival.gatherForArticle(brief.title || story.article, subject, { total: 14 }).catch(() => []))
         .filter((x) => !OFF_TOPIC.test(x.title) && !tooLate(x, year) && !(lane.categoryId === '17' && NOT_THE_PLAYER.test(x.title)))
-        .sort(year ? byEra(year) : () => 0);
+        .sort(year ? byEra(year) : () => 0)
+        // on football, the subject's own photos must name him (no club team sheets, no scanned documents)
+        .filter((x) => !(lane.categoryId === '17' && (!hasKey(x.title, titleKeys(subject, 'person').slice(-1)) || /\bdocument\b/i.test(x.title))));
       const found = [...new Map([...event, ...own].map((x) => [x.title, x])).values()].slice(0, 10);
       if (event.length) logger.info(`${subject}: ${event.length} photo(s) of the episode itself`);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
@@ -714,7 +716,8 @@ function titleKeys(article, kind) {
   if (kind === 'person') return parts;                    // EVERY name: "Damian Martinez" is not Emiliano
   return parts.slice(0, 2);                               // "real madrid", "champions league"
 }
-const folded = (title) => String(title).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+// Dutch ij = y, so Cruijff matches Cruyff.
+const folded = (title) => String(title).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/ij/g, 'y');
 const hasKey = (title, keys) => keys.some((k) => folded(title).includes(k));
 const hasAll = (title, keys) => keys.every((k) => folded(title).includes(k));
 // A team photo is the team, not its logo, campus, shop or other sections.
