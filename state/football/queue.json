@@ -1605,6 +1605,21 @@
       "categoryId": "17"
     },
     {
+      "id": "story-series-de-la-fuente-p4",
+      "topic": "On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.",
+      "keywords": [
+        "Spain",
+        "Luis de la Fuente: The Quiet Genius",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Seven Games, Seven Wins: Spain's Perfect Euro (Part 4)",
+      "article": "UEFA Euro 2024 final",
+      "categoryId": "17"
+    },
+    {
       "id": "story-series-de-la-fuente-p2",
       "topic": "In Luis de la Fuente's first game, on 25 March 2023, 32-year-old debutant Joselu scored twice in a 3–0 win over Norway, and on 18 June 2023 in Rotterdam Spain beat Croatia 5–4 on penalties after a 0–0 draw, with Unai Simón saving twice and Dani Carvajal chipping the winning kick, for their first Nations League title.",
       "keywords": [
@@ -1631,21 +1646,6 @@
       ],
       "status": "short",
       "shortTitle": "Spain Knocked Out Germany in the 119th Minute (Part 3)",
-      "article": "UEFA Euro 2024 final",
-      "categoryId": "17"
-    },
-    {
-      "id": "story-series-de-la-fuente-p4",
-      "topic": "On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.",
-      "keywords": [
-        "Spain",
-        "Luis de la Fuente: The Quiet Genius",
-        "football",
-        "football story",
-        "football tragedy"
-      ],
-      "status": "short",
-      "shortTitle": "Seven Games, Seven Wins: Spain's Perfect Euro (Part 4)",
       "article": "UEFA Euro 2024 final",
       "categoryId": "17"
     },
