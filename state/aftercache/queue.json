@@ -715,6 +715,20 @@
       "shortTitle": "How a Console Destroyed Its Own Company",
       "article": "Dreamcast",
       "categoryId": "27"
+    },
+    {
+      "id": "story-jeep-designed-in-1941",
+      "topic": "Designed in 1941 for the U.S. Army to navigate rough terrain during World War II.",
+      "keywords": [
+        "Jeep",
+        "military history",
+        "everyday objects",
+        "history facts"
+      ],
+      "status": "short",
+      "shortTitle": "The Jeep was built for WWII battlefields",
+      "article": "Jeep",
+      "categoryId": "27"
     }
   ]
 }

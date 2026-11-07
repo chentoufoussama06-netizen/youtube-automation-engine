@@ -139,6 +139,20 @@
       "shortTitle": "Boston’s Molasses Wave Trapped a Man for Hours",
       "article": "Great Molasses Flood",
       "categoryId": "27"
+    },
+    {
+      "id": "story-waratah-in-1909-the-pass",
+      "topic": "In 1909 the passenger liner Waratah disappeared off the South African coast with 211 people on board and was never found.",
+      "keywords": [
+        "Waratah",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "The Waratah vanished without a trace in 1909",
+      "article": "SS Waratah",
+      "categoryId": "27"
     }
   ]
 }
