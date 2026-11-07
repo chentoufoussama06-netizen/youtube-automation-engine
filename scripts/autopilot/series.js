@@ -150,8 +150,8 @@ const SERIES = [
         label: 'Spain · December 2022',
         moment: 'On 8 December 2022, after Luis Enrique resigned when Morocco knocked Spain out of the World Cup on penalties, Spain appointed Luis de la Fuente, a youth coach who had won the 2015 under-19 and 2019 under-21 European Championships and Olympic silver in Tokyo.',
         title: 'Spain Lost to Morocco, So They Hired Their Youth Coach',
-        teaser: 'Within months, he had his first trophy.',
-        note: 'Make the point that nobody expected a youth-team coach to be the answer, and that he brought the players he had coached as boys with him.'
+        teaser: 'His first final was in Rotterdam, against Croatia.',
+        note: 'Stay with what the source says: he had coached Spain\'s youth teams for years and won with them. Do not say what fans or the press expected.'
       },
       {
         articles: ['2023 UEFA Nations League final', 'Luis de la Fuente (footballer, born 1961)'],
@@ -184,7 +184,7 @@ const SERIES = [
           { article: 'Mikel Oyarzabal', n: 3, names: ['oyarzabal'] }, { article: 'Lamine Yamal', n: 1, names: ['yamal'] },
           { article: 'Luis de la Fuente (footballer, born 1961)', n: 2, names: ['fuente'], skip: 'world.?cup' }],
         label: 'Euro 2024 Final · Berlin',
-        moment: 'On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final, Nico Williams scoring from Lamine Yamal\'s pass and substitute Mikel Oyarzabal winning it in the 86th minute, for a record fourth European Championship with seven wins from seven games.',
+        moment: 'On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.',
         title: 'Seven Games, Seven Wins: Spain\'s Perfect Euro',
         teaser: 'Two years later, Spain went to the World Cup as favourites.',
         note: 'Oyarzabal won the 2019 under-21 title under de la Fuente and came off the bench: the coach\'s call won it.'
@@ -195,9 +195,9 @@ const SERIES = [
         photos: [{ article: 'Luis de la Fuente (footballer, born 1961)', n: 5, names: ['fuente', 'luis'] }, { article: 'Ferran Torres', n: 3, names: ['torres', 'ferran'] },
           { article: 'Emiliano Martínez', n: 2, names: ['martinez', 'emiliano'] }, { article: 'MetLife Stadium', n: 1, names: ['metlife'] }],
         label: 'World Cup Final · 2026',
-        moment: 'On 19 July 2026 at MetLife Stadium Spain beat defending champions Argentina 1–0 after extra time with a Ferran Torres goal to win the World Cup, making Luis de la Fuente, at 65, the oldest manager to win it and the first to win the Nations League, the European Championship and the World Cup.',
+        moment: 'On 19 July 2026 Spain beat defending champions Argentina 1–0 after extra time in the World Cup final, with a goal from Ferran Torres.',
         title: 'The Youth Coach Who Won Everything',
-        note: 'This is the last part: land the whole story in the final line, from the youth coach nobody expected to the first manager to win all three.'
+        note: 'This is the last part. His article says he became the first manager to win the Nations League, the European Championship and the World Cup, and the oldest to win the World Cup: land the whole story on that in the final line.'
       }
     ]
   },
