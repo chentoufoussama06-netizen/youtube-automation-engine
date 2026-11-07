@@ -47,7 +47,7 @@ const DARK_FOOTBALL_STORY = {
     + '  plain words (like the first three examples), optionally ending with one emoji.',
   captionExample: 'Mario Balotelli',
   tags: ['football', 'football story', 'football tragedy'],
-  words: { min: 75, target: 100, max: 135 }    // ~30-55s at Edge TTS pace
+  words: { min: 58, target: 66, max: 80 }      // ~20-30s: 88% of 2M+ football Shorts run under 30s
 };
 
 // All lanes share one Google project's 10,000 units/day (a short ~1,700), so
@@ -91,7 +91,7 @@ const LANES = [
       tags: ['ancient history', 'roman empire', 'history'],
       // The 950K/695K battle shorts above run ~20s: 22-38s here (check-video
       // rejects anything under 20s).
-      words: { min: 55, target: 70, max: 95 }
+      words: { min: 58, target: 66, max: 80 }   // ~20-30s (2026-11-07 strategy)
     }
   },
   {
@@ -166,7 +166,7 @@ const LANES = [
         + ' a period inside a sentence splits it for the fact-check and the sentence is lost.',
       captionExample: 'Trench coat',
       tags: ['military history', 'everyday objects', 'history facts'],
-      words: { min: 75, target: 95, max: 125 }    // ~30-50s
+      words: { min: 58, target: 66, max: 80 }     // ~20-30s (2026-11-07 strategy)
     },
     niche: 'Military gear that went mainstream: everyday objects, clothes, food and technology '
       + 'that began as military equipment, rations or wartime inventions.',
@@ -212,7 +212,7 @@ const LANES = [
         + ' a period inside a sentence splits it for the fact-check and the sentence is lost.',
       captionExample: 'Vasa',
       tags: ['shipwreck', 'maritime history', 'ocean mysteries'],
-      words: { min: 75, target: 95, max: 125 }    // ~30-50s
+      words: { min: 58, target: 66, max: 80 }     // ~20-30s (2026-11-07 strategy)
     },
     niche: 'Lesser-known shipwrecks: forgotten sinkings, vanished ships, mutinies, ghost ships '
       + 'and wrecks found decades later.',

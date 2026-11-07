@@ -106,6 +106,15 @@ async function trending(limit = 150) {
   }
 }
 
+
+const STAR_STRATEGY = `
+STRATEGY (what pulled 2-40 million views on football Shorts in late October
+2026): at least HALF of your proposals must be about today's biggest stars —
+Lamine Yamal, Kylian Mbappé, Erling Haaland, Harry Kane, Vinícius Júnior, Jude
+Bellingham, Mohamed Salah, Cristiano Ronaldo, Lionel Messi, Neymar — or about
+this week's big event (a final, El Clásico, the Ballon d'Or, a record, a
+transfer). A story from IN THE NEWS above beats everything else.`;
+
 async function propose(ai, lane, avoid, hot = [], news = []) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
@@ -123,15 +132,16 @@ TRENDING — yesterday's most-read English Wikipedia articles, i.e. what people 
 searching for right now. If any of these fits this channel's scope (a person,
 club, event or thing it would cover), make your FIRST proposals about them:
 ${hot.join(' | ')}
-` : ''}
+` : ''}${lane.categoryId === '17' ? STAR_STRATEGY : ''}
 Propose 10 stories like these. Rules:
 - ${story.scope}
 - It must be documented in that subject's English Wikipedia article.
 - "article": the EXACT English Wikipedia article title of the person, event or thing.
 - "subject": the name a photo caption would use (e.g. "${story.captionExample}"), no parentheses.
 - "moment": one sentence naming the episode, with its year.
-- "title": under 55 characters, states the shocking fact or twist in plain words,
-  curiosity gap. Usually NO emoji; at most ONE, and only where it truly fits.
+- "title": under 55 characters, opens on the name people know, states the shocking
+  fact or twist in plain words, curiosity gap, and ENDS WITH ONE fitting emoji
+  (😱 🤯 💀 🔥 🏆 😳 💔) — 121 of the 176 biggest football Shorts had one.
   Capitalise like the examples. Never promise something the article cannot back.
 - Do NOT reuse anything already posted:
 ${avoid.map((t) => `  - ${t}`).join('\n') || '  (nothing yet)'}
@@ -166,7 +176,7 @@ Propose up to 4 follow-up episodes for the next part. Rules:
   know. The first one that passes the fact-check is the one that gets made.
 - "moment": one sentence naming the follow-up episode, with its year.
 - "title": under 50 characters, states the twist in plain words, and makes sense
-  to a viewer who never saw the first part. No emoji, no "Part" (added later).
+  to a viewer who never saw the first part. Ends with ONE fitting emoji, no "Part" (added later).
 
 Return ONLY JSON: {"stories": [{"moment": "...", "title": "..."}]}`;
   return parseJson(await ai.generateText(prompt, { maxTokens: 2000, temperature: 0.7 })).stories || [];
@@ -342,7 +352,12 @@ Structure:
    by sentence. Who scored, when and how must match the source exactly — if the
    source does not say how a goal was scored, do not describe it.
 4. The payoff: what actually happened, and what it cost or meant.
-5. End on one short, punchy line that lands the story.
+5. End with ONE short question built on the payoff that makes people answer in
+   the comments ("Was this the cruellest night in football?", "Who was really to
+   blame?"). Never "subscribe", "like" or "let me know".
+
+KEEP IT SHORT: the Shorts that pull millions run 15-30 seconds. Every sentence
+must earn its place; cut background the viewer does not need.
 
 Style: spoken, energetic storytelling, short sentences, present the facts
 vividly. Past tense. No "you", no "imagine", no "subscribe", no headings, no
@@ -862,7 +877,8 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
     : null;
   const nextPart = series.parts[n] || null;
   // Parts tell a whole act, so they run a little longer than a one-off story.
-  const WORDS = { min: 85, target: 115, max: 150 };
+  // ~30s: a part is one act, told as tight as a one-off (2026-11-07 strategy).
+  const WORDS = { min: 58, target: 72, max: 90 };
   const text = await narrate(ai, {
     subject: part.subject, moment: part.moment, title: part.title,
     ...(previously ? { previously, part: n } : { part: n }),
