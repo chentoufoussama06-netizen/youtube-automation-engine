@@ -123,15 +123,16 @@ const SERIES = [
       {
         articles: ['2022 UEFA Champions League final'],
         subject: 'Real Madrid',
-        // Hand-picked 2026-11-07: Real Madrid's trophy parade in Madrid (May 2022,
-        // right after this final) for the trophy and the players; no searches.
+        // Every photo LOOKED AT before use (2026-11-07, after the user saw a teenage
+        // Vinicius and no team celebration): Marcelo and Benzema lifting the trophy,
+        // the squad with both trophies, the trophy in the team bus; Courtois's
+        // cathedral photo once, then him in kit; Vinicius celebrating in Real Madrid
+        // kit (Copa del Rey 2023, the nearest adult photo); no Ancelotti photo exists.
         photos: [
-          {files: ["Ofrenda de la Liga y la Champions-32-L.Millán (52109789555).jpg","Ofrenda de la Liga y la Champions-36-L.Millán (52108254142).jpg","Ofrenda de la Liga y la Champions-37-L.Millán (52109523424).jpg","Ofrenda de la Liga y la Champions-58-L.Millán (52109788725).jpg","Ofrenda de la Liga y la Champions-59-L.Millán (52108253452).jpg","Ofrenda de la Liga y la Champions-39-L.Millán (52109279356).jpg"]},
+          {files: ["Ofrenda de la Liga y la Champions-54-L.Millán (52109310918).jpg","Ofrenda de la Liga y la Champions-55-L.Millán (52109278836).jpg","Ofrenda de la Liga y la Champions-57-L.Millán (52109310843).jpg","Ofrenda de la Liga y la Champions-50-L.Millán (52109789010).jpg","Ofrenda de la Liga y la Champions-58-L.Millán (52109788725).jpg"]},
           {files: ["StadeFranceNationsLeague2018.jpg"], names: ["stade","france","paris","delayed","kickoff"]},
-          // the cathedral photo once (first "Courtois"), then Courtois alone in Real Madrid kit
           {files: ["Ofrenda de la Liga y la Champions-19-L.Millán (52108254662).jpg","FC RB Salzburg versus Real Madrid (Testspiel, 7. August 2019) 03.jpg","FC RB Salzburg gegen Real Madrid (Testspiel, 7. August 2019) 17.jpg"], names: ["courtois","thibaut","saved","saves","keeper","goalkeeper"], firstOnce: 1},
-          {files: ["Ofrenda de la Liga y la Champions-18-L.Millán (52108254687).jpg","Vinicius Jr 2021.jpg"], names: ["vinicius","junior"]},
-          {files: ["Ofrenda de la Liga y la Champions-50-L.Millán (52109789010).jpg"], names: ["ancelotti"]},
+          {files: ["2023 05 06 Final de la Copa del Rey - 52879242230 (cropped).jpg"], names: ["vinicius","junior","scored","goal"]},
           {files: ["Luka Modric - Ofrenda de la Liga y la Champions-56-L.Millán (52109788795) (cropped).jpg"], names: ["modric"]}
         ],
         clipTeams: ['Real Madrid'],
