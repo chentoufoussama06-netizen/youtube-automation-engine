@@ -184,10 +184,10 @@ const SERIES = [
           { article: 'Mikel Oyarzabal', n: 3, names: ['oyarzabal'] }, { article: 'Lamine Yamal', n: 1, names: ['yamal'] },
           { article: 'Luis de la Fuente (footballer, born 1961)', n: 2, names: ['fuente'], skip: 'world.?cup' }],
         label: 'Euro 2024 Final · Berlin',
-        moment: 'On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.',
+        moment: 'On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final, with goals from Nico Williams and Mikel Oyarzabal, to win a record fourth European Championship after winning all seven of their games.',
         title: 'Seven Games, Seven Wins: Spain\'s Perfect Euro',
         teaser: 'Two years later, Spain went to the World Cup as favourites.',
-        note: 'Tell the GOALS, in order, from the source: Nico Williams scored early in the second half from Lamine Yamal\'s pass, Cole Palmer equalised for England, and substitute Mikel Oyarzabal scored the winner in the 86th minute. Oyarzabal won the 2019 under-21 title under de la Fuente: the coach\'s substitution won it. Leave out the referee and the crowd size.'
+        note: 'Tell the GOALS, in order, from the source: Nico Williams scored early in the second half from Lamine Yamal\'s pass, Cole Palmer equalised for England, and substitute Mikel Oyarzabal scored the late winner. Oyarzabal won the 2019 under-21 title under de la Fuente: the coach\'s substitution won it. Leave out the referee and the crowd size.'
       },
       {
         articles: ['2026 FIFA World Cup final', 'Luis de la Fuente (footballer, born 1961)'],
