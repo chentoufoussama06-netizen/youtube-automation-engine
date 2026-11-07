@@ -424,7 +424,7 @@ function resolveChapters(words, chapters) {
  *   chapters  optional [{ cue, photos }]: a countdown's "Number <cue>" starts a
  *             stretch shown only with its own photos (romano-weekly.js)
  */
-async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], outputPath, workDir, logger = console }) {
+async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], theme = look, outputPath, workDir, logger = console }) {
   if (!words?.length) throw new Error('v2 render needs word timings');
   await fsp.mkdir(workDir, { recursive: true });
   const ffmpeg = getFFmpegPath();
@@ -451,7 +451,7 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   const hookEnd = Math.min(3.2, Math.max(1.8, firstStop ? firstStop.end : 2.4));
   // Moving shots on the words a still cannot carry (utils/broll.js).
   const shots = await addClips(planShots(words, duration, ranked, resolved, claimed.size ? claimed : null), words,
-    { look, chapters: resolved, hookEnd, workDir, seed: path.basename(outputPath), logger });
+    { look: theme, chapters: resolved, hookEnd, workDir, seed: path.basename(outputPath), logger });
   const stats = statCards(words, hookEnd);
   // The riser builds into the last sentence — or, when the video ends on
   // "Part two is next.", into the teaser just before it.
@@ -485,7 +485,8 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
 
   // A real track when one is available (utils/music.js), levelled to -24 LUFS
   // as a bed with a short fade each end; the synthesised one otherwise.
-  const track = await pickTrack(look, path.basename(outputPath), logger);
+  // `theme` picks the clips and the music; `look` stays the grade and colours.
+  const track = await pickTrack(theme, path.basename(outputPath), logger);
   if (track) logger.info?.(`v2: music "${track.title}" (Kevin MacLeod, CC BY 4.0)`);
   const musicIn = track ? track.path : plan.musicOut;
   const musicChain = track

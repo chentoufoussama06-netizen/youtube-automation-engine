@@ -441,7 +441,8 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
     try {
       const v2 = await renderStoryV2({
         words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, label, next, chapters,
-        look: lane.look || 'football', accent: lane.captionHighlight, outputPath: video, workDir, logger
+        look: lane.look || 'football', theme: lane.theme || lane.look || 'football',
+        accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       // A CC BY track has to be credited in the description (utils/music.js).
       return { video, seconds, style: 'v2', music: v2.music || null };

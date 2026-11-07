@@ -57,6 +57,37 @@ const THEMES = {
       allow: /ancient|statue|marble|sculpture|temple|column|forum|ruins?|bust/,
       deny: /people-walking|selfie|wedding|modern/
     }
+  ],
+  // AFTER CACHE, 2026-11-07: military gear that went mainstream. Pexels
+  // soldiers are often airsoft, paintball or costume shoots: kept out by slug.
+  military: [
+    {
+      trigger: /^(soldiers?|troops|army|armies|war|wars|battles?|battlefield|combat|front|trenches|marines|infantry|military|fought|deployed)$/,
+      queries: ['soldiers walking military', 'army soldiers silhouette', 'military troops marching'],
+      allow: /soldier|military|army|troop|marine|infantry|camouflage|uniform/,
+      deny: /airsoft|paintball|toy|kid|child|boy|girl|costume|cosplay|game|gaming|fashion|model|posing|halloween|wedding/
+    },
+    {
+      trigger: /^(pilots?|planes?|aircraft|jets?|bombers?|air|sky|skies|flew|flying|fighter)$/,
+      queries: ['fighter jet flying', 'military aircraft sky', 'vintage warplane flying'],
+      allow: /jet|aircraft|plane|airplane|fighter|warplane|bomber|air-force|airshow/,
+      deny: /toy|model|drone|kid|child|paper|passenger|airport|cabin|interior/
+    }
+  ],
+  // Viral Vault Clip, 2026-11-07: lesser-known shipwrecks.
+  sea: [
+    {
+      trigger: /^(ships?|sank|sink|sinking|sunk|storm|storms|waves?|ocean|sea|seas|voyage|sailed|crew|sailors|hull|lifeboats?|iceberg|capsized|water)$/,
+      queries: ['stormy ocean waves', 'dark sea storm waves', 'rough sea waves night'],
+      allow: /ocean|sea|wave|storm|stormy|rough|swell|ship/,
+      deny: /surf|surfer|beach|swim|bikini|people|person|woman|man|tourist|cruise|yacht|kid|child|pool|sunny|sunset-beach|drone-pilot/
+    },
+    {
+      trigger: /^(wrecks?|wreckage|seabed|seafloor|bottom|divers?|discovered|found|deep|depths|remains|sunken)$/,
+      queries: ['shipwreck underwater', 'underwater wreck diver', 'deep ocean underwater dark'],
+      allow: /wreck|underwater|diver|diving|sunken|seabed|deep|ocean/,
+      deny: /pool|swim|bikini|kid|child|aquarium|fish-tank|snorkel|beach/
+    }
   ]
 };
 

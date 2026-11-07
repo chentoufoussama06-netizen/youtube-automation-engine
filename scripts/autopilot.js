@@ -382,6 +382,8 @@ function linkSeries(lane, st) {
 let longformPostedThisRun = false;
 
 async function postLongform(lane, st) {
+  // A lane restarted on a new niche must not post its old niche's compilations.
+  if (lane.longform === false) return `${lane.name}: long-form off`;
   if (longformPostedThisRun) return `${lane.name}: long-form waits a day (one per run keeps the upload quota)`;
   const last =Object.values(st.longform).map((v) => Date.parse(v.uploadedAt)).sort().pop() || 0;
   const days = (Date.now() - last) / 86400000;

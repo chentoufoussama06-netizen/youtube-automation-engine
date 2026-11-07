@@ -20,7 +20,10 @@ const BASE = 'https://incompetech.com/music/royalty-free/mp3-royaltyfree/';
 // big quiet intro. Football is driving and dark; ancient is epic and modal.
 const TRACKS = {
   football: ['Volatile Reaction', 'Movement Proposition', 'Impact Prelude', 'Hitman', 'Killers'],
-  ancient: ['Five Armies', 'Clash Defiant', 'Heroic Age', 'Curse of the Scarab', 'Rites']
+  ancient: ['Five Armies', 'Clash Defiant', 'Heroic Age', 'Curse of the Scarab', 'Rites'],
+  // AFTER CACHE (military gear) and Viral Vault Clip (shipwrecks), 2026-11-07.
+  military: ['Crusade', 'Prelude and Action', 'Strength of the Titans', 'Achilles', 'Exhilarate'],
+  sea: ['Lightless Dawn', 'Unseen Horrors', 'Echoes of Time', 'Dark Times', 'Oppressive Gloom']
 };
 
 const credit = (title) => `Music: "${title}" by Kevin MacLeod (incompetech.com)\n`

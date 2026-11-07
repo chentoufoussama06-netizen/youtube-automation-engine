@@ -136,92 +136,87 @@ const LANES = [
     categoryId: '27',             // Education
     voice: 'en-US-AndrewNeural',
     captionHighlight: '&H00FFFF00&',   // cyan
-    // Story shorts, not segments cut from compilations: the compilation
-    // builder ran dry and failed renders, which left this channel with nothing
-    // from 2026-10-12. Long-form still posts when a compilation is ready.
-    // Paused for most of 2026-10-30 (best story short: 2 views), then back:
-    // uploads now have their own 100-a-day bucket, so a slot here no longer
-    // costs another channel's, and the v2 look is a fair fresh test.
-    // 2026-11-04: paused again. In the 28 days to then the Shorts feed sent it
-    // 2 views (Football Files: 12,073) on the same engine and settings, so the
-    // channel, not the videos, is held back: its history of Reddit TTS and
-    // lost-media reposts. Every old video was unlisted; it restarts on a new
-    // single niche.
-    paused: true,
-    storyShortsPerDay: 0,
-    look: 'football',
+    // 2026-11-07: restarted on one niche, military gear that went mainstream,
+    // one story short a day. It was paused from 2026-11-04 (2 views from the
+    // Shorts feed in 28 days on its old Reddit, lost-media and tech-history
+    // mix; every old video unlisted). Its old tech compilations are still on
+    // disk, so long-form stays off: nothing from the old niche goes out.
+    paused: true,                 // until the cloud previews pass
+    storyShortsPerDay: 1,
+    longform: false,
+    look: 'football',             // clean grade, bold box
+    theme: 'military',            // soldiers and aircraft clips, military music
     v2: 'on',
     docShortsPerDay: 0,
     story: {
       examples: [
-        'The Website That Vanished Overnight',
-        'The Online Game That Shut Down While People Were Still Playing',
-        'The Console That Destroyed Its Own Company',
-        'How 1 YouTube Glitch Changed Lost Media Forever  (150K on a 1.8K-subscriber channel)',
-        'The Hack That Took Down an Entire Platform'
+        'The trench coat was made for the trenches of World War I.',
+        'Duct tape was invented to keep ammunition boxes dry in World War II.',
+        'Aviator sunglasses were built for fighter pilots long before Hollywood wore them.',
+        'The microwave oven exists because a radar engineer\'s chocolate bar melted.',
+        'M&M\'s were made so soldiers could carry chocolate that would not melt.'
       ],
-      scope: 'A REAL, documented episode from tech and internet history that casual viewers\n'
-        + '  half-remember: a website or app that died, an online game shut down, a console or\n'
-        + '  gadget that flopped and sank its maker, a famous hack or leak, a lost-media mystery,\n'
-        + '  a tech company\'s collapse.\n'
-        + '- One specific episode with a clear arc and a payoff. The title states the twist plainly.',
-      captionExample: 'Atari Jaguar',
-      tags: ['tech history', 'lost media', 'internet history'],
+      scope: 'A REAL, documented everyday object, piece of clothing, food or technology that\n'
+        + '  began as military gear, a soldier\'s ration or a wartime invention and became\n'
+        + '  something ordinary people use every day: which war or army, why soldiers needed\n'
+        + '  it, and how it reached everyone else.\n'
+        + '- One specific item with a clear arc and a twist. The title states the surprising\n'
+        + '  origin plainly, as a fact (like the examples).',
+      captionExample: 'Trench coat',
+      tags: ['military history', 'everyday objects', 'history facts'],
       words: { min: 75, target: 95, max: 125 }    // ~30-50s
     },
-    niche: 'Digital investigations: lost media, shut-down online games, vanished websites, '
-      + 'deleted platforms, failed consoles and gadgets, internet mysteries, hacks and leaks, '
-      + 'and the companies and people behind them.',
+    niche: 'Military gear that went mainstream: everyday objects, clothes, food and technology '
+      + 'that began as military equipment, rations or wartime inventions.',
     winningTitles: [
-      'How 1 YouTube Glitch Changed Lost Media Forever (150K views on a 1.8K-subscriber channel)',
-      'Every Online Game That Was Shut Down While People Were Still Playing',
-      'The Websites That Vanished Overnight',
-      'Every Video Game Console That Destroyed Its Company'
+      'Everyday Things That Were Invented for War',
+      'Clothes You Wear That Were Designed for Soldiers',
+      'Foods That Started as Military Rations'
     ]
   },
   {
-    // Unbelievable-but-true stories: war, survival, disasters, history. Picked
-    // from the 2026-10-07 scan: "War facts" (38 days old) put 3.1M on "3 WAR
-    // STORIES THAT REALLY HAPPENED"; The P2 Facts reached 567K subs in 96 days
-    // on real-life miracles; Veilix (97M views) on "He Jumped Into a Volcano to
-    // Prove He Was God". All Wikipedia-sourced, and Commons is deep in public-
-    // domain wartime and historical photographs. Replaces the Reddit loop that
-    // got 0 views on all six of this channel's uploads.
     name: 'Viral Vault Clip',
     dataRoot: 'state/clips-channel',
     tokens: 'tokens.clips.json',
     categoryId: '27',             // Education
     voice: 'en-US-ChristopherNeural',
     captionHighlight: '&H0000FF80&',   // green
-    // Paused for most of 2026-10-30 (best story short: 13 views), then back:
-    // uploads now have their own 100-a-day bucket, so a slot here no longer
-    // costs another channel's, and the v2 look is a fair fresh test. The warm
-    // grade suits its wartime and archive photographs.
-    // 2026-11-04: paused again. 0 views from the Shorts feed in 28 days, on
-    // the same engine and settings that got Football Files 12,073: the channel
-    // is held back by its history of reposted stream, product and Reddit
-    // clips. Every old video was unlisted; it restarts on a new single niche.
-    paused: true,
-    storyShortsPerDay: 0,
-    look: 'ancient',
+    // 2026-11-07: restarted on one niche, lesser-known shipwrecks, one story
+    // short a day. It was paused from 2026-11-04 (0 views from the Shorts feed
+    // in 28 days on its old reposted clips; every old video unlisted). The warm
+    // grade suits the archive photographs Commons has of old ships.
+    paused: true,                 // until the cloud previews pass
+    storyShortsPerDay: 1,
+    longform: false,
+    look: 'ancient',              // warm archive grade, gold box
+    theme: 'sea',                 // storm and underwater clips, dark music
     v2: 'on',
     docShortsPerDay: 0,
     story: {
       examples: [
-        'This War Story Really Happened  (format: 3.1M, 38-day-old channel)',
-        'He Jumped Into a Volcano to Prove He Was God  (1.3M)',
-        'A Real-Life Miracle That Will Give You Chills  (format: 1.9M)',
-        'The Soldier Who Kept Fighting 29 Years After the War Ended',
-        'He Survived Both Atomic Bombs'
+        'A brand-new warship sank before it even left the harbour.',
+        'A passenger ship capsized while still tied to the dock, killing 844 people.',
+        'The deadliest shipwreck in history was not the Titanic.',
+        'A passenger liner vanished in 1909 and has never been found.',
+        'The shipwreck survivors who were murdered by their own crew.'
       ],
-      scope: 'A REAL, documented event or person so unbelievable it sounds made up:\n'
-        + '  war stories, impossible survivals, bizarre history, disasters, mysteries,\n'
-        + '  heists, escapes, strange deaths, accidental discoveries. Any era, any country.\n'
-        + '- One specific episode with a clear arc and a twist ending the viewer will not see coming.',
-      captionExample: 'Hiroo Onoda',
-      tags: ['true story', 'history', 'unbelievable'],
+      scope: 'A REAL, documented shipwreck or disaster at sea that most people have never heard\n'
+        + '  of: a sinking, a ship that vanished, a mutiny, a ghost ship, a wreck found decades\n'
+        + '  later. Any era, any country. The Titanic and the Lusitania may be mentioned for\n'
+        + '  scale but are never the story.\n'
+        + '- One specific ship and episode with a clear arc and a twist. The title states the\n'
+        + '  shocking fact plainly (like the examples).',
+      captionExample: 'Vasa',
+      tags: ['shipwreck', 'maritime history', 'ocean mysteries'],
       words: { min: 75, target: 95, max: 125 }    // ~30-50s
-    }
+    },
+    niche: 'Lesser-known shipwrecks: forgotten sinkings, vanished ships, mutinies, ghost ships '
+      + 'and wrecks found decades later.',
+    winningTitles: [
+      'Shipwrecks Nobody Talks About',
+      'Ships That Vanished Without a Trace',
+      'The Deadliest Shipwrecks That Were Not the Titanic'
+    ]
   }
 ];
 
