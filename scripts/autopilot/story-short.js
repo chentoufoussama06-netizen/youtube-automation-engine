@@ -469,7 +469,7 @@ arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
  * story shorts and the Sunday roundup, so a change of look happens in one place.
  * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
  */
-async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [] } = {}) {
+async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [], stockClips = true } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
@@ -491,7 +491,7 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
       const v2 = await renderStoryV2({
         words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, label, next, chapters,
         look: lane.look || 'football', theme: lane.theme || lane.look || 'football',
-        clipThemes: lane.categoryId === '17' ? clipTeams.map(teamTheme).filter(Boolean).slice(0, 1) : [],
+        clipThemes: lane.categoryId === '17' ? clipTeams.map(teamTheme).filter(Boolean).slice(0, 1) : [], stockClips,
         accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       // A CC BY track has to be credited in the description (utils/music.js).
@@ -979,7 +979,9 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   const rendered = await renderStills(lane, id, full, saved, {
     style: chooseStyle(lane, done), title: part.title,
     tag: of > 1 ? `Part ${n} of ${of}` : null, label: part.label || null,
-    next: nextPart ? `Part ${n + 1}` : null, chapters, clipTeams: part.clipTeams || []
+    next: nextPart ? `Part ${n + 1}` : null, chapters, clipTeams: part.clipTeams || [],
+    // hand-picked photos: no generic crowd clips (they show other clubs: Galatasaray in Real Madrid Part 4)
+    stockClips: !part.photos.every((g) => g.files)
   });
   await fsp.rm(imgDir, { recursive: true, force: true });
   if (rendered.skip) throw new Error(rendered.skip);

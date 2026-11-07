@@ -26,7 +26,7 @@ const CACHE = path.join(__dirname, '..', 'temp', 'broll');
 // search alone returned "a woman practicing kicking a football" and seagulls.
 // Generic atmosphere must not name a country: a "moroccan stadium" clip opened the Spain World Cup part (2026-11-07). Nationality comes only from the story's own team theme.
 // Crowds and stands only: "exciting soccer match in packed stadium" put random players in the Real Madrid final part (2026-11-07).
-const STADIUM_DENY = /woman|women|girl|kid|child|boy|youth|training|practi[cs]|coach|seagull|beach|futsal|indoor|dome|park|backyard|garden|lawn|street|urban|amateur|toy|dog|table|american|concert|festival|basketball|baseball|empty|cricket|rugby|moroc|maroc|spanish|spain|argentin|brazil|brasil|english|england|french|france|german|portug|ital|mexic|dutch|croat|belgi|turk|egypt|saudi|qatar|indian|india|chinese|china|japan|korea|african|nigeri|ghana|senegal|colombi|urugua|chile|peru|match|players|playing|game|kick|dribbl|tackle|player|team|goalkeeper|striker/;
+const STADIUM_DENY = /woman|women|girl|kid|child|boy|youth|training|practi[cs]|coach|seagull|beach|futsal|indoor|dome|park|backyard|garden|lawn|street|urban|amateur|toy|dog|table|american|concert|festival|basketball|baseball|empty|cricket|rugby|moroc|maroc|spanish|spain|argentin|brazil|brasil|english|england|french|france|german|portug|ital|mexic|dutch|croat|belgi|turk|egypt|saudi|qatar|indian|india|chinese|china|japan|korea|african|nigeri|ghana|senegal|colombi|urugua|chile|peru|match|players|playing|game|kick|dribbl|tackle|player|team|goalkeeper|striker|flag|flags|scarf|scarves|ultras|tifo/;
 
 const THEMES = {
   football: [
@@ -178,10 +178,11 @@ async function download(v, file) {
  * 4s apart, at most `max`, never inside a stretch where a name holds the
  * picture (chapters, as resolveChapters returns them).
  */
-function clipMoments(words, look, chapters = [], { hookEnd = 2.4, max = 6, extra = [] } = {}) {
+function clipMoments(words, look, chapters = [], { hookEnd = 2.4, max = 6, extra = [], stock = true } = {}) {
   // A theme with `onlyIf` plays only when the narration matches it.
   const said = words.map((w) => bare(w.word)).join(' ');
-  const themes = [...extra, ...(THEMES[look] || [])].filter((t) => !t.onlyIf || t.onlyIf.test(said));
+  // stock = false: only the story's own themes (its team's fans), no generic crowds
+  const themes = [...extra, ...(stock ? THEMES[look] || [] : [])].filter((t) => !t.onlyIf || t.onlyIf.test(said));
   if (!themes.length) return [];
   const named = [];
   chapters.forEach((c, i) => {
@@ -208,10 +209,10 @@ function clipMoments(words, look, chapters = [], { hookEnd = 2.4, max = 6, extra
  * (cut to 1080x1920 at 30fps into workDir), across shot boundaries, stopping
  * early where a name takes the picture back; slivers under 0.6s join the clip.
  */
-async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, seed, ffmpeg, logger = console, extraThemes = [] } = {}) {
+async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, seed, ffmpeg, logger = console, extraThemes = [], stock = true } = {}) {
   const key = process.env.PEXELS_API_KEY;
   if (!key || process.env.BROLL === 'off') return shots;
-  const moments = clipMoments(words, look, chapters, { hookEnd, extra: extraThemes });
+  const moments = clipMoments(words, look, chapters, { hookEnd, extra: extraThemes, stock });
   if (!moments.length) return shots;
 
   const rand = seeded(seed);

@@ -441,7 +441,7 @@ function resolveChapters(words, chapters) {
  *   chapters  optional [{ cue, photos }]: a countdown's "Number <cue>" starts a
  *             stretch shown only with its own photos (romano-weekly.js)
  */
-async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], theme = look, clipThemes = [], outputPath, workDir, logger = console }) {
+async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], theme = look, clipThemes = [], stockClips = true, outputPath, workDir, logger = console }) {
   if (!words?.length) throw new Error('v2 render needs word timings');
   await fsp.mkdir(workDir, { recursive: true });
   const ffmpeg = getFFmpegPath();
@@ -468,7 +468,7 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   const hookEnd = Math.min(3.2, Math.max(1.8, firstStop ? firstStop.end : 2.4));
   // Moving shots on the words a still cannot carry (utils/broll.js).
   const shots = await addClips(planShots(words, duration, ranked, resolved, claimed.size ? claimed : null), words,
-    { look: theme, chapters: resolved, hookEnd, workDir, seed: path.basename(outputPath), logger, extraThemes: clipThemes });
+    { look: theme, chapters: resolved, hookEnd, workDir, seed: path.basename(outputPath), logger, extraThemes: clipThemes, stock: stockClips });
   const stats = statCards(words, hookEnd);
   // The riser builds into the last sentence — or, when the video ends on
   // "Part two is next.", into the teaser just before it.
