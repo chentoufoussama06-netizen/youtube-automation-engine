@@ -169,6 +169,7 @@ const SERIES = [
           {files: ["Unai Simon Argentina v Spain 19 July 2026-078 (cropped).jpg","Unai Simon France v Spain 7.24.26-118 (cropped).jpg"], names: ["simon","unai","saved","saves","penalties","shootout","keeper","goalkeeper"]},
           {files: ["UEFA EURO qualifiers Sweden vs Spain 20191015 Dani Carvajal 10 (cropped).jpg"], names: ["carvajal","chipped","chip"]}
         ],
+        clipTeams: ['Spain'],   // Spain fans on the victory words, never random people
         label: 'Nations League Final · 2023',
         moment: 'In Luis de la Fuente\'s first game, on 25 March 2023, 32-year-old debutant Joselu scored twice in a 3–0 win over Norway, and on 18 June 2023 in Rotterdam Spain beat Croatia 5–4 on penalties after a 0–0 draw, with Unai Simón saving twice and Dani Carvajal chipping the winning kick, for their first Nations League title.',
         title: 'The Chipped Penalty That Won Spain a Trophy',
@@ -185,6 +186,7 @@ const SERIES = [
           {files: ["Dani Olmo France v Spain 7.24.26-176 (cropped).jpg"], names: ["olmo"]},
           {files: ["Luis de la Fuente.jpg"], names: ["fuente","coach"]}
         ],
+        clipTeams: ['Spain'],   // Spain fans on the victory words, never random people
         label: 'Euro 2024 · Germany',
         moment: 'At Euro 2024 Spain won their group without conceding, knocked out hosts Germany 2–1 with a Mikel Merino header in the 119th minute, and in the semi-final against France teenager Lamine Yamal equalised from outside the box before Dani Olmo scored the winner.',
         title: 'Spain Knocked Out Germany in the 119th Minute',
@@ -202,6 +204,7 @@ const SERIES = [
           {files: ["Mikel Oyarzabal France v Spain 7.24.26-161 (cropped).jpg"], names: ["oyarzabal","substitute","winner"]},
           {files: ["Luis de la Fuente.jpg"], names: ["fuente","coach"]}
         ],
+        clipTeams: ['Spain'],   // Spain fans on the victory words, never random people
         label: 'Euro 2024 Final · Berlin',
         moment: 'On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.',
         // The goal paragraphs, into the brief (naming scorers in the moment failed the article check).
@@ -224,6 +227,7 @@ const SERIES = [
           {files: ["Ferran Torres Argentina v Spain 19 July 2026-244.jpg","Ferran Torres Argentina v Spain 19 July 2026-347.jpg"], names: ["torres","ferran"]},
           {files: ["Luis de la Fuente Argentina v Spain 19 July 2026-271 (cropped).jpg","Luis de la Fuente Argentina v Spain 19 July 2026-270.jpg"], names: ["fuente","luis","coach","manager","oldest"]}
         ],
+        clipTeams: ['Spain'],   // Spain fans on the victory words, never random people
         label: 'World Cup Final · 2026',
         moment: 'On 19 July 2026 Spain beat defending champions Argentina 1–0 after extra time in the World Cup final, with a goal from Ferran Torres.',
         title: 'The Youth Coach Who Won Everything',

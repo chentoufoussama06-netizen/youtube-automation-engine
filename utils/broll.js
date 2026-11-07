@@ -95,6 +95,37 @@ const THEMES = {
   ]
 };
 
+
+// Clips of PEOPLE only when they belong to the story (2026-11-07, the user:
+// an old fan in a Spain shirt celebrating the World Cup fits a Spain story; a
+// random man with a tennis-looking trophy, or a women's amateur huddle, does
+// not). So: the clip's own Pexels description must name the team or country
+// AND show fans, a flag or a celebration, and it plays on the victory words.
+const DEMONYMS = {
+  spain: 'spain|spanish|espana', argentina: 'argentin', england: 'england|english', france: 'france|french',
+  germany: 'german|deutsch', brazil: 'brazil|brasil', portugal: 'portug', italy: 'ital', morocco: 'morocc|maroc',
+  netherlands: 'netherland|dutch|holland', croatia: 'croat', belgium: 'belgi', mexico: 'mexic', usa: 'usa|american-soccer',
+  japan: 'japan', 'south korea': 'korea', uruguay: 'urugua', colombia: 'colombia', senegal: 'senegal'
+};
+const PEOPLE_DENY = /tennis|basketball|baseball|rugby|cricket|american-football|nfl|golf|toy|dog|wedding|birthday|party|office|business|esports|gaming|training|practi|kid|child|school/;
+const VICTORY = /^(won|win|wins|victory|champions?|crowned|lifted|lift|trophy|title|celebrat(e|ed|es|ing|ion|ions)|glory|triumph)$/;
+
+/** A clip theme for one team or country, or null when it has no usable name. */
+function teamTheme(name) {
+  const key = String(name).replace(/\([^)]*\)/g, '').replace(/national (football|soccer) team|f\.?c\.?|c\.?f\.?/gi, '').trim().toLowerCase();
+  if (key.length < 3) return null;
+  const names = new RegExp(DEMONYMS[key] || key.split(/\s+/).filter((w) => w.length >= 3).join('|'));
+  const scene = /fan|celebrat|flag|supporter|crowd|cheer/;
+  return {
+    team: key,
+    trigger: VICTORY,
+    queries: [`${key} football fans celebrating`, `${key} flag football fans`, `${key} soccer fans`],
+    allow: { test: (slug) => names.test(slug) && scene.test(slug) },
+    deny: PEOPLE_DENY,
+    landscape: true
+  };
+}
+
 const bare = (w) => String(w).toLowerCase().replace(/[^a-z0-9'-]/g, '').replace(/'s$/, '');
 
 // A stable pick per short, so a re-render shows the same clips.
@@ -104,15 +135,24 @@ function seeded(seed) {
   return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0) / 4294967296);
 }
 
-async function search(query, key) {
-  const url = `https://api.pexels.com/videos/search?per_page=30&orientation=portrait&size=medium&query=${encodeURIComponent(query)}`;
+async function search(query, key, { landscape = false } = {}) {
+  // Team-fan clips are rare (Spain had one, landscape), so those search every
+  // orientation and are centre-cropped to 9:16.
+  const url = landscape
+    ? `https://api.pexels.com/videos/search?per_page=60&query=${encodeURIComponent(query)}`
+    : `https://api.pexels.com/videos/search?per_page=30&orientation=portrait&size=medium&query=${encodeURIComponent(query)}`;
   const res = await fetch(url, { headers: { Authorization: key }, signal: AbortSignal.timeout(15000) });
   if (!res.ok) throw new Error(`Pexels ${res.status}`);
   return (await res.json()).videos || [];
 }
 
 // The smallest portrait file at least 1080 wide (or the largest under it).
-function bestFile(v) {
+function bestFile(v, landscape = false) {
+  if (landscape) {
+    // tall enough to fill 1920 after the crop with little upscaling
+    const any = (v.video_files || []).filter((f) => f.file_type === 'video/mp4' && f.height >= 1080).sort((a, b) => a.height - b.height);
+    if (any.length) return any[0];
+  }
   const files = (v.video_files || []).filter((f) => f.file_type === 'video/mp4' && f.height > f.width);
   const big = files.filter((f) => f.width >= 1080).sort((a, b) => a.width - b.width);
   return big[0] || files.sort((a, b) => b.width - a.width)[0] || null;
@@ -133,9 +173,9 @@ async function download(v, file) {
  * 4s apart, at most `max`, never inside a stretch where a name holds the
  * picture (chapters, as resolveChapters returns them).
  */
-function clipMoments(words, look, chapters = [], { hookEnd = 2.4, max = 6 } = {}) {
-  const themes = THEMES[look];
-  if (!themes) return [];
+function clipMoments(words, look, chapters = [], { hookEnd = 2.4, max = 6, extra = [] } = {}) {
+  const themes = [...extra, ...(THEMES[look] || [])];
+  if (!themes.length) return [];
   const named = [];
   chapters.forEach((c, i) => {
     if (!c.photos) return;
@@ -161,10 +201,10 @@ function clipMoments(words, look, chapters = [], { hookEnd = 2.4, max = 6 } = {}
  * (cut to 1080x1920 at 30fps into workDir), across shot boundaries, stopping
  * early where a name takes the picture back; slivers under 0.6s join the clip.
  */
-async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, seed, ffmpeg, logger = console } = {}) {
+async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, seed, ffmpeg, logger = console, extraThemes = [] } = {}) {
   const key = process.env.PEXELS_API_KEY;
   if (!key || process.env.BROLL === 'off') return shots;
-  const moments = clipMoments(words, look, chapters, { hookEnd });
+  const moments = clipMoments(words, look, chapters, { hookEnd, extra: extraThemes });
   if (!moments.length) return shots;
 
   const rand = seeded(seed);
@@ -176,9 +216,9 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
     try {
       if (!pools.has(m.theme)) {
         const q = m.theme.queries[Math.floor(rand() * m.theme.queries.length)];
-        const found = (await search(q, key)).filter((v) => {
+        const found = (await search(q, key, { landscape: Boolean(m.theme.landscape) })).filter((v) => {
           const slug = String(v.url || '').toLowerCase();
-          return m.theme.allow.test(slug) && !m.theme.deny.test(slug) && v.duration >= 3 && bestFile(v);
+          return m.theme.allow.test(slug) && !m.theme.deny.test(slug) && v.duration >= 3 && bestFile(v, Boolean(m.theme.landscape));
         });
         pools.set(m.theme, found);
       }
@@ -186,6 +226,7 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
       if (!pool.length) continue;
       const v = pool[Math.floor(rand() * Math.min(pool.length, 12))];
       used.add(v.id);
+      logger.info?.(`b-roll at ${m.at.toFixed(1)}s (${m.theme.team || look}): ${String(v.url || '').replace(/^https:\/\/www\.pexels\.com\/video\//, '').slice(0, 90)}`);
 
       // The clip runs 2.4s from the word across shot boundaries, stopping
       // early only where a name takes the picture again or the video ends.
@@ -199,7 +240,7 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
       if (after && after.end - stop < 0.6) stop = after.end;
       if (stop - start < 1.2) { logger.info?.(`b-roll: no room at ${m.at.toFixed(1)}s`); continue; }
       const span = stop - start;
-      const src = await download(v, bestFile(v));
+      const src = await download(v, bestFile(v, Boolean(m.theme.landscape)));
       const clip = path.join(workDir, `clip${k++}.mp4`);
       const from = Math.max(0, Math.min(v.duration - span - 0.2, v.duration * 0.25));
       await runFFmpeg(['-y', '-ss', from.toFixed(2), '-i', src, '-t', (span + 0.1).toFixed(3), '-an',
@@ -228,4 +269,4 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
   return out;
 }
 
-module.exports = { addClips, clipMoments, THEMES };
+module.exports = { addClips, clipMoments, THEMES, teamTheme };

@@ -38,6 +38,7 @@ const { Logger } = require('../../utils/logger');
 const { LANES } = require('./lanes');
 const { footballNews } = require('../../utils/news-feed');
 const { renderStoryV2 } = require('../../utils/short-style-v2');
+const { teamTheme } = require('../../utils/broll');
 const { SERIES, seriesPartDue, partId, NUMBER_WORDS } = require('./series');
 
 const ROOT = path.join(__dirname, '..', '..');
@@ -423,7 +424,7 @@ arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
  * story shorts and the Sunday roundup, so a change of look happens in one place.
  * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
  */
-async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [] } = {}) {
+async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [] } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
@@ -445,6 +446,7 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
       const v2 = await renderStoryV2({
         words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, label, next, chapters,
         look: lane.look || 'football', theme: lane.theme || lane.look || 'football',
+        clipThemes: lane.categoryId === '17' ? clipTeams.map(teamTheme).filter(Boolean).slice(0, 1) : [],
         accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       // A CC BY track has to be credited in the description (utils/music.js).
@@ -621,7 +623,9 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       ].filter((c) => c.photos.length && c.names.length);
 
       const rendered = await renderStills(lane, id, text, saved,
-        { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null, chapters });
+        { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null, chapters,
+          // fans of the story's own team, never random people (the first team the narration names)
+          clipTeams: beats.filter((b) => b.kind === 'team').map((b) => b.article).slice(0, 1) });
       if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
       const { video, seconds } = rendered;
       const dirs = { copy: base('shorts', 'copy') };
@@ -757,7 +761,7 @@ async function beatPhotos(archival, plan, year, { football = false } = {}) {
         .filter((x) => shows(x.title, item, keys));
     }
     const words = item.words.map((w) => String(w).toLowerCase().split(/\s+/).pop()).filter((w) => w.length >= 3);
-    if (found.length && words.length) out.push({ names: [...new Set(words)], photos: found.slice(0, 2), article: item.article });
+    if (found.length && words.length) out.push({ names: [...new Set(words)], photos: found.slice(0, 2), article: item.article, kind: item.kind });
   }
   return out;
 }
@@ -888,7 +892,7 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   const rendered = await renderStills(lane, id, full, saved, {
     style: chooseStyle(lane, done), title: part.title,
     tag: of > 1 ? `Part ${n} of ${of}` : null, label: part.label || null,
-    next: nextPart ? `Part ${n + 1}` : null, chapters
+    next: nextPart ? `Part ${n + 1}` : null, chapters, clipTeams: part.clipTeams || []
   });
   await fsp.rm(imgDir, { recursive: true, force: true });
   if (rendered.skip) throw new Error(rendered.skip);
