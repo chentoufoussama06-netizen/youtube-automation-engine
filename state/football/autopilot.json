@@ -315,9 +315,76 @@
       "event": "story",
       "id": "story-manchester-united-bu-the-1958-crash-k",
       "url": "https://www.youtube.com/watch?v=MKZ0pnaFzSY"
+    },
+    {
+      "at": "2026-11-07T19:19:00.303Z",
+      "event": "series",
+      "id": "story-series-de-la-fuente-p1",
+      "url": "https://www.youtube.com/watch?v=10nY0SpHx24"
+    },
+    {
+      "at": "2026-11-07T19:19:05.526Z",
+      "event": "scheduled",
+      "id": "story-series-de-la-fuente-p2",
+      "url": "https://www.youtube.com/watch?v=RSNi_JvWedI",
+      "publishAt": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "at": "2026-11-07T19:19:11.159Z",
+      "event": "scheduled",
+      "id": "story-series-de-la-fuente-p3",
+      "url": "https://www.youtube.com/watch?v=LQRhDCdINaY",
+      "publishAt": "2026-11-09T16:30:00.000Z"
+    },
+    {
+      "at": "2026-11-07T19:19:16.597Z",
+      "event": "scheduled",
+      "id": "story-series-de-la-fuente-p4",
+      "url": "https://www.youtube.com/watch?v=V4ZOGLCtfSE",
+      "publishAt": "2026-11-10T16:30:00.000Z"
+    },
+    {
+      "at": "2026-11-07T19:19:22.126Z",
+      "event": "scheduled",
+      "id": "story-series-de-la-fuente-p5",
+      "url": "https://www.youtube.com/watch?v=edg31Sw0A7M",
+      "publishAt": "2026-11-11T16:30:00.000Z"
     }
   ],
-  "pendingLinks": [],
+  "pendingLinks": [
+    {
+      "root": "story-series-de-la-fuente-p1",
+      "prev": "10nY0SpHx24",
+      "next": "RSNi_JvWedI",
+      "part": 2,
+      "subject": "Luis de la Fuente: The Quiet Genius",
+      "after": "2026-11-08T16:30:00.000Z"
+    },
+    {
+      "root": "story-series-de-la-fuente-p1",
+      "prev": "RSNi_JvWedI",
+      "next": "LQRhDCdINaY",
+      "part": 3,
+      "subject": "Luis de la Fuente: The Quiet Genius",
+      "after": "2026-11-09T16:30:00.000Z"
+    },
+    {
+      "root": "story-series-de-la-fuente-p1",
+      "prev": "LQRhDCdINaY",
+      "next": "V4ZOGLCtfSE",
+      "part": 4,
+      "subject": "Luis de la Fuente: The Quiet Genius",
+      "after": "2026-11-10T16:30:00.000Z"
+    },
+    {
+      "root": "story-series-de-la-fuente-p1",
+      "prev": "V4ZOGLCtfSE",
+      "next": "edg31Sw0A7M",
+      "part": 5,
+      "subject": "Luis de la Fuente: The Quiet Genius",
+      "after": "2026-11-11T16:30:00.000Z"
+    }
+  ],
   "series": {
     "story-john-terry-in-2012-terry-wa": {
       "playlistId": "PLBtX8AND14sc"
