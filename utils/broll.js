@@ -53,12 +53,15 @@ const THEMES = {
     {
       trigger: /^(battles?|army|armies|legions?|soldiers|war|marched|siege|invad(e|ed)|conquer(ed)?|fought)$/,
       queries: ['ancient roman ruins', 'ancient amphitheater ruins', 'roman colosseum'],
+      // Roman ruins only in Roman or Greek stories: the Rama (India) preview got a Roman statue
+      onlyIf: /rome|roman|romans|caesar|emperor|legion|legions|senate|greek|greece|athens|sparta|spartan|carthage|byzant|constantinople|macedon|alexander|pompeii|gaul/,
       allow: /ancient|roman|ruins?|colosse|amphithea|fortress|castle/,
       deny: /people-walking|tourists?-taking|selfie|wedding|drone-pilot/
     },
     {
       trigger: /^(emperors?|kings?|pharaoh|queen|senat(e|or)|throne|statues?|gods?|temples?|rome|athens|carthage|egypt|city|palace)$/,
       queries: ['ancient marble statue', 'ancient temple columns', 'roman forum ruins'],
+      onlyIf: /rome|roman|romans|caesar|emperor|legion|legions|senate|greek|greece|athens|sparta|spartan|carthage|byzant|constantinople|macedon|alexander|pompeii|gaul/,
       allow: /ancient|statue|marble|sculpture|temple|column|forum|ruins?|bust/,
       deny: /people-walking|selfie|wedding|modern/
     }
@@ -175,7 +178,9 @@ async function download(v, file) {
  * picture (chapters, as resolveChapters returns them).
  */
 function clipMoments(words, look, chapters = [], { hookEnd = 2.4, max = 6, extra = [] } = {}) {
-  const themes = [...extra, ...(THEMES[look] || [])];
+  // A theme with `onlyIf` plays only when the narration matches it.
+  const said = words.map((w) => bare(w.word)).join(' ');
+  const themes = [...extra, ...(THEMES[look] || [])].filter((t) => !t.onlyIf || t.onlyIf.test(said));
   if (!themes.length) return [];
   const named = [];
   chapters.forEach((c, i) => {

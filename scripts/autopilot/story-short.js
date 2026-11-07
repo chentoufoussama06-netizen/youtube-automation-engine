@@ -113,7 +113,12 @@ STRATEGY (what pulled 2-40 million views on football Shorts in late October
 Lamine Yamal, Kylian Mbappé, Erling Haaland, Harry Kane, Vinícius Júnior, Jude
 Bellingham, Mohamed Salah, Cristiano Ronaldo, Lionel Messi, Neymar — or about
 this week's big event (a final, El Clásico, the Ballon d'Or, a record, a
-transfer). A story from IN THE NEWS above beats everything else.`;
+transfer). A story from IN THE NEWS above beats everything else.
+For a current star the moment does NOT have to be dark: a record, a heartbreak,
+a final won or lost, a red card, a comeback, a meltdown — but it MUST be one
+their English Wikipedia article already tells (the 7 Nov test invented a Salah
+collapse and a Messi ban; every one was rejected). If you are not sure an
+episode is in the article, pick a different one.`;
 
 async function propose(ai, lane, avoid, hot = [], news = []) {
   const story = lane.story || DEFAULT_STORY;
@@ -556,7 +561,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
     logger.info(`sequel: Part ${sequel.part} of ${sequelOf.id}`);
   }
 
-  for (let round = 1; round <= (sequel || pinned ? 1 : 2); round++) {
+  for (let round = 1; round <= (sequel || pinned ? 1 : 3); round++) {
     let stories;
     try {
       // Round 2 drops the trending list, in case it pulled round 1 off-scope.
@@ -771,7 +776,7 @@ async function beatPhotos(archival, plan, year, { football = false } = {}) {
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
       .filter((x) => !OFF_TOPIC.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
       .filter((x) => shows(x.title, item, keys))
-      .filter((x) => item.kind === 'place' || item.kind === 'trophy' || !tooLate(x, year))
+      .filter((x) => item.kind === 'trophy' || !tooLate(x, year))
       .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
     if (year) found.sort(byEra(year));
     if (!found.length && item.kind === 'trophy') {
