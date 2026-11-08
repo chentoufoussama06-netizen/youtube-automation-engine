@@ -679,6 +679,11 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         .replace(/\p{Extended_Pictographic}️?/gu, (e) => (seen ? '' : ((seen = true), e)))
         .replace(/[‐-‒]/g, '-')   // non-breaking hyphens, as in the narration
         .replace(/\s+/g, ' ').trim().slice(0, sequel ? 70 : 80);
+      // The title is a claim too: "Kevlar Vests Were First Made for WWII Soldiers"
+      // went out on 8 Nov (Kevlar dates from 1965; the WWII vests were doron
+      // plate). A title the article does not back is not posted.
+      const titleCheck = await unsupportedSentences(ai, `${title.replace(/\p{Extended_Pictographic}️?/gu, '').trim().replace(/[.!?]*$/, '.')}`, brief).catch(() => null);
+      if (!titleCheck || titleCheck.size) { logger.info(`skip ${subject}: title not backed by the article: "${title}"`); continue; }
       if (sequel) title = `${title.replace(/[.!?]+$/, '')} (Part ${sequel.part})`;
       let id = sequel
         ? `story-${slug(subject, 20)}-p${sequel.part}-${slug(story.moment, 12)}`
