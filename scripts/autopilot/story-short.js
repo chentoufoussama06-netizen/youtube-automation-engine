@@ -808,7 +808,7 @@ const hasAll = (title, keys) => keys.every((k) => folded(title).includes(k));
 // A team photo is the team, not its logo, campus, shop or other sections.
 const NOT_THE_TEAM = /\b(logo|crest|badge|campus|handball|basketball|volleyball|futsal|women|womens|frauen|femenino|feminino|ladies|bus|shop|store|office|building|headquarters|museum|academy|youth|u19|u21|u23|mascot|ads?|advert|advertising|sponsor|balm|mannschaftsbus|teambus)\b/i;
 // A trophy photo is the trophy, not a beer can, a medal or a museum case.
-const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor)\b/i;
+const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor|tour|takaichi|cabinet)\b/i;
 // Not a photograph at all.
 const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma)/i;
 /** Does this file show the planned thing, by its name? */
@@ -840,6 +840,7 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
   for (const item of plan) {
     // teams and trophies are football things; elsewhere "triumph" found Leopold I of Austria
     if (!football && (item.kind === 'team' || item.kind === 'trophy')) continue;
+    if (item.kind === 'trophy' && !/\b(won|win|wins|winning|lifted|lift|lifts|champions?|crowned|trophy|title)\b/i.test(text)) continue;
     if (!football && !item.words.some((w) => named(String(w).split(/\s+/).pop()))) continue;
     const keys = titleKeys(item.article, item.kind);
     const subj = folded(subjectKey(subject));
