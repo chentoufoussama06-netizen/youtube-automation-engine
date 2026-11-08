@@ -993,7 +993,7 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   const nextPart = series.parts[n] || null;
   // Parts tell a whole act, so they run a little longer than a one-off story.
   // ~30s: a part is one act, told as tight as a one-off (2026-11-07 strategy).
-  const WORDS = { min: 58, target: 72, max: 90 };
+  const WORDS = { min: 48, target: 58, max: 70 };   // + the teaser line: ~30s (Part 2 ran 41s at 58-90, 8 Nov)
   const text = await narrate(ai, {
     subject: part.subject, moment: part.moment, title: part.title,
     ...(previously ? { previously, part: n } : { part: n }),
