@@ -157,7 +157,8 @@ ${cands.map((c, i) => `${i + 1}. ${c.moment}`).join('\n')}
 Return ONLY JSON: {"titles": ["...", "..."]}`;
   try {
     const titles = parseJson(await ai.generateText(prompt, { maxTokens: 900, temperature: 0.4 })).titles || [];
-    return cands.map((c, i) => ({ ...c, title: String(titles[i] || '').trim() })).filter((c) => c.title.length >= 10);
+    const named = (c) => folded(c.title).includes(folded(String(c.subject).split(/\s+/).pop()));
+    return cands.map((c, i) => ({ ...c, title: String(titles[i] || '').trim() })).filter((c) => c.title.length >= 10 && named(c));
   } catch {
     return [];
   }
@@ -837,6 +838,10 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
   const named = (w) => new RegExp('(^|[^A-Za-z])' + w.charAt(0).toUpperCase() + w.slice(1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), '').test(text);
   const ancient = !year;   // no 1800-2099 year in the moment
   for (const item of plan) {
+    // football: a beat is a person, a team, a ground or a trophy; an event beat
+    // ("the 2018 final") showed the OTHER side celebrating in a Salah story
+    if (football && !['person', 'team', 'place', 'trophy'].includes(item.kind)) continue;
+    if (football && item.kind === 'place' && /\b(final|cup|match|season|league|championship|tournament|game|derby)\b/i.test(item.article)) continue;
     // teams and trophies are football things; elsewhere "triumph" found Leopold I of Austria
     if (!football && (item.kind === 'team' || item.kind === 'trophy')) continue;
     if (item.kind === 'trophy' && !/\b(won|win|wins|winning|lifted|lift|lifts|crowned|trophy|title|champions?(?!\s+league))\b/i.test(text)) continue;
@@ -856,7 +861,7 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
       continue;
     }
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
-      .filter((x) => !OFF_TOPIC.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
+      .filter((x) => !OFF_TOPIC.test(x.title) && !SNAPSHOT.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
       .filter((x) => (item.kind === 'person' && (x.source === 'main' || x.source === 'category') && !NOT_A_PHOTO.test(x.title)) || shows(x.title, item, keys))
       .filter((x) => item.kind === 'trophy' || !tooLate(x, year))
       .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
@@ -883,7 +888,9 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
 // Stadium and city articles carry whatever else happened there: Part 1 of
 // Real Madrid 2022 showed "2025 NFL Madrid Game" as the Bernabeu.
 // (It held two literal backspace characters where \b was meant, so it never matched.)
-const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour|wrestling|WWE|AEW|All In 20\d+|Adele|Live 20\d+|festival|gig|luge|skiing|ski|bobsleigh|biathlon|curling|ice hockey|hockey|cricket|tennis|athletics|cycling|formula|motogp|golf|swimming|volleyball|handball)\b/i;
+// a file named "<someone> @ <place>" is a personal snapshot
+const SNAPSHOT = /\s@\s|@/;
+const OFF_TOPIC = /\b(NFL|American football|rugby|baseball|basketball|NBA|concert|in concert|on tour|wrestling|WWE|AEW|All In 20\d+|Adele|Live 20\d+|festival|gig|selfie|luge|skiing|ski|bobsleigh|biathlon|curling|ice hockey|hockey|cricket|tennis|athletics|cycling|formula|motogp|golf|swimming|volleyball|handball)\b/i;
 
 // When the episode happened, from its moment ("On 12 April 2017 ..."), or null.
 const eventYear = (moment) => Number((String(moment).match(/\b(1[89]\d{2}|20\d{2})\b/) || [])[1]) || null;
