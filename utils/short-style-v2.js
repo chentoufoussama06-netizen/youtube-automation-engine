@@ -441,7 +441,7 @@ function resolveChapters(words, chapters) {
  *   chapters  optional [{ cue, photos }]: a countdown's "Number <cue>" starts a
  *             stretch shown only with its own photos (romano-weekly.js)
  */
-async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], theme = look, clipThemes = [], stockClips = true, outputPath, workDir, logger = console }) {
+async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], theme = look, clipThemes = [], stockClips = true, faceRequired = [], outputPath, workDir, logger = console }) {
   if (!words?.length) throw new Error('v2 render needs word timings');
   await fsp.mkdir(workDir, { recursive: true });
   const ffmpeg = getFFmpegPath();
@@ -458,6 +458,19 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
     if (up.upscaled) logger.info?.(`v2: sharpened ${up.upscaled} small photo(s)`);
   } catch (e) { logger.warn?.(`v2: upscale skipped (${String(e.message).slice(0, 80)})`); }
   const metas = Object.assign({}, ...groups.filter((g) => g.length).map((g) => analyzePhotos(g)));
+  // A photo standing for a PERSON must show a face: Messi's Commons category
+  // gave a cigarette-butt bin with his name on it and a pavement plaque, and
+  // Salah's a stand view where he is a speck (8 Nov). If that would leave too
+  // little, nothing is dropped (a v1 fallback would use them all anyway).
+  const faceless = faceRequired.filter((p) => metas[p] && !(metas[p].faces || []).length);
+  if (faceless.length && Object.keys(metas).length - faceless.length < 3) {
+    throw new Error(`too few photos with a face for a person story (${faceless.length} of ${Object.keys(metas).length} have none)`);
+  }
+  if (faceless.length) {
+    for (const p of faceless) delete metas[p];
+    chapters = chapters.map((c) => (c.photos ? { ...c, photos: c.photos.filter((p) => metas[p]) } : c)).filter((c) => !c.photos || c.photos.length);
+    logger.info?.(`v2: dropped ${faceless.length} photo(s) with no face for a person`);
+  }
   const ranked = rankPhotos(metas);
   if (!ranked.length) throw new Error('no readable photos');
   const claimed = new Set(chapters.filter((c) => c.names?.length).flatMap((c) => c.photos));

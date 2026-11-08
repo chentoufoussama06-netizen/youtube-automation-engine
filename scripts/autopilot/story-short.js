@@ -492,7 +492,7 @@ arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
  * story shorts and the Sunday roundup, so a change of look happens in one place.
  * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
  */
-async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [], stockClips = true } = {}) {
+async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [], stockClips = true, faceRequired = [] } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
@@ -514,12 +514,15 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
       const v2 = await renderStoryV2({
         words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, label, next, chapters,
         look: lane.look || 'football', theme: lane.theme || lane.look || 'football',
-        clipThemes: lane.categoryId === '17' ? clipTeams.map(teamTheme).filter(Boolean).slice(0, 1) : [], stockClips,
+        clipThemes: lane.categoryId === '17' ? clipTeams.map(teamTheme).filter(Boolean).slice(0, 1) : [], stockClips, faceRequired,
         accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       // A CC BY track has to be credited in the description (utils/music.js).
       return { video, seconds, style: 'v2', music: v2.music || null };
     } catch (error) {
+      // Not enough real photos of the person: the story is skipped, never
+      // rendered in the v1 look with the bins and plaques v2 refused.
+      if (/too few photos with a face/.test(error.message)) return { skip: error.message };
       logger.warn(`${id}: v2 render failed (${String(error.message).slice(0, 160)}); rendering the v1 look`);
     } finally {
       await fsp.rm(workDir, { recursive: true, force: true });
@@ -655,16 +658,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       // story shows the wrong team, the wrong kit, the wrong face.
       const year = eventYear(story.moment);
       const event = year ? await archival.eventPhotos(eventQueries(story.moment, subject, year), { year, must: eventKeys(story.moment, subject), limit: 6 }).catch(() => []) : [];
-      const own = (await archival.gatherForArticle(brief.title || story.article, subject, { total: 14 }).catch(() => []))
-        .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title) && !tooLate(x, year) && !(lane.categoryId === '17' && NOT_THE_PLAYER.test(x.title)))
-        .sort(year ? byEra(year) : () => 0)
-        // on football, the subject's own photos must name him (no club team sheets, no scanned documents)
-        .filter((x) => !(lane.categoryId === '17' && (!hasKey(x.title, [folded(subjectKey(subject))]) || /\bdocument\b/i.test(x.title))));
-      // near the episode when there are enough of those (no teenage Vinicius in a
-      // 2022 story); otherwise the closest older ones (a 2004 retirement story is
-      // told with his playing-days photos)
-      const near = own.filter((x) => !outOfEra(x, year, isTeam(subject) ? 'team' : 'person'));
-      const pool = near.length >= 3 ? near : own;
+      const pool = await subjectPhotos(archival, brief.title || story.article, subject, year, { football: lane.categoryId === '17' });
       const found = [...new Map([...event, ...pool].map((x) => [x.title, x])).values()].slice(0, 10);
       if (event.length) logger.info(`${subject}: ${event.length} photo(s) of the episode itself`);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
@@ -712,7 +706,12 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const rendered = await renderStills(lane, id, text, saved,
         { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null, chapters,
           // fans of the story's own team, never random people (the first team the narration names)
-          clipTeams: beats.filter((b) => b.kind === 'team').map((b) => b.article).slice(0, 1) });
+          clipTeams: beats.filter((b) => b.kind === 'team').map((b) => b.article).slice(0, 1),
+          // football: the subject's and every named person's photos must show a face
+          faceRequired: lane.categoryId === '17'
+            ? saved.filter((p) => (subjectKind(subject) === 'person' && pool.some((x) => x.title === p.title))
+              || beats.some((b) => b.kind === 'person' && b.photos.some((x) => x.title === p.title))).map((p) => p.path)
+            : [] });
       if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
       const { video, seconds } = rendered;
       const dirs = { copy: base('shorts', 'copy') };
@@ -858,7 +857,7 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
     }
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
       .filter((x) => !OFF_TOPIC.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
-      .filter((x) => shows(x.title, item, keys))
+      .filter((x) => (item.kind === 'person' && (x.source === 'main' || x.source === 'category') && !NOT_A_PHOTO.test(x.title)) || shows(x.title, item, keys))
       .filter((x) => item.kind === 'trophy' || !tooLate(x, year))
       .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
     if (year) {
@@ -891,7 +890,7 @@ const eventYear = (moment) => Number((String(moment).match(/\b(1[89]\d{2}|20\d{2
 // A photo dated after the episode (one season of grace) belongs to a later story.
 const tooLate = (img, year) => Boolean(year && img.year && img.year > year + 1);
 // For a footballer, things that carry his name but are not him playing.
-const NOT_THE_PLAYER = /\b(museum|museu|hotel|airport|aeroporto|tussauds|wax|figure|statue|mural|graffiti|stamp|poster|logo|signature|autograph|banner|shop|store|jersey on display|potm|tots|totw|fut|player card|rating)\b/i;
+const NOT_THE_PLAYER = /\b(museum|museu|hotel|airport|aeroporto|tussauds|wax|figure|statue|mural|graffiti|stamp|poster|logo|signature|autograph|banner|shop|store|jersey on display|potm|tots|totw|fut|player card|rating|casa|house|home|barrio|neighbou?rhood|birthplace|childhood|infancia)\b/i;
 // Closest to the episode first; undated photos last.
 const byEra = (year) => (a, b) => (a.year ? Math.abs(a.year - year) : 99) - (b.year ? Math.abs(b.year - year) : 99);
 const NOT_NAMES = /^(On|In|At|The|A|An|After|Before|During|When|With|His|Her|Their|January|February|March|April|May|June|July|August|September|October|November|December)$/;
@@ -925,6 +924,42 @@ function outOfEra(img, year, kind) {
   if (kind === 'person') return img.year < year - 3;
   if (kind === 'team') return img.year < year - 4;
   return false;
+}
+// What the story is about decides how its photos are checked. A disaster or a
+// final is shown by its own photos and memorials (the Munich clock, the plaque),
+// with no name required in each file; a person or team must be named.
+const EVENTISH = /\b(disaster|crash|tragedy|final|match|massacre|riot|cup|war|incident|collapse|fire|stampede|crush|affair|scandal|derby|clasico|clásico|miracle|season|championship|tournament|olympics|siege|battle)\b/i;
+const MEMORIAL = /\b(memorial|plaque|monument|grave|tomb|tribute|remembrance|clock|wreath|gedenk\w*|commemorat\w*)\b/i;
+const subjectKind = (subject) => (EVENTISH.test(String(subject)) ? 'event' : isTeam(subject) ? 'team' : 'person');
+
+/**
+ * The subject's own photos for an episode in `year`: up to 40 looked at (14
+ * was mostly team sheets for Salah), named in the file when a person or team,
+ * never long after the episode (memorials excepted for events), closest first.
+ * Adults may fall back to photos up to 3 years after when nothing closer exists.
+ */
+async function subjectPhotos(archival, article, subject, year, { football = false } = {}) {
+  const kind = subjectKind(subject);
+  const named = (x) => x.source === 'main' || x.source === 'category' || hasKey(x.title, [folded(subjectKey(subject))]);
+  const all = (await archival.gatherForArticle(article, subject, { total: 40 }).catch(() => []))
+    .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title))
+    .filter((x) => !(football && kind === 'person' && NOT_THE_PLAYER.test(x.title)))
+    .filter((x) => !(football && kind !== 'event' && (!named(x) || /\bdocument\b/i.test(x.title))));
+  const sorted = (list) => (year ? list.sort(byEra(year)) : list);
+  if (!year) return all;
+  if (kind === 'event') return sorted(all.filter((x) => !tooLate(x, year) || MEMORIAL.test(x.title)));
+  // dated tiers, nearest first; an undated photo only in the last one. For a
+  // person, a few years AFTER comes before many years before (an adult looks
+  // the same at 25 and 28; at 17 he does not: the teenage Vinicius).
+  const tiers = kind === 'team'
+    ? [[year - 4, year + 1], [year - 8, year + 1], [-Infinity, year + 1]]
+    : [[year - 3, year + 1], [year - 3, year + 3], [year - 10, year + 3], [-Infinity, year + 3]];
+  for (const [i, [lo, hi]] of tiers.entries()) {
+    const last = i === tiers.length - 1;
+    const pick = all.filter((x) => (x.year ? x.year >= lo && x.year <= hi : last));
+    if (pick.length >= 3 || last) return sorted(pick);
+  }
+  return [];
 }
 function eventQueries(moment, subject, year) {
   const surname = subjectKey(subject);

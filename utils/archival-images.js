@@ -375,11 +375,14 @@ class ArchivalImageService {
     const wiki = `https://${lang}.wikipedia.org/w/api.php`;
     const found = [];
     const seen = new Set();
-    const add = (imgs) => {
+    // source: 'main' (Wikidata image) and 'category' (Commons files curated as
+    // being about the subject) are about it even when the file name does not
+    // say so; 'article' and 'search' results are not.
+    const add = (imgs, source) => {
       for (const img of imgs) {
         if (found.length >= total || seen.has(img.title)) continue;
         seen.add(img.title);
-        found.push(img);
+        found.push({ ...img, source });
       }
     };
     const fileInfo = { prop: 'imageinfo', iiprop: 'url|size|extmetadata', iiurlwidth: '1920' };
@@ -400,18 +403,18 @@ class ArchivalImageService {
 
     if (p18) {
       const data = await this._api({ action: 'query', titles: `File:${p18}`, ...fileInfo }).catch(() => null);
-      add(this._acceptPages(Object.values(data?.query?.pages || {})));
+      add(this._acceptPages(Object.values(data?.query?.pages || {})), 'main');
     }
-    add(await this.fetchArticleImages(articleTitle, { limit: total }));
+    add(await this.fetchArticleImages(articleTitle, { limit: total }), 'article');
     if (category && found.length < total) {
       const data = await this._api({
         action: 'query', generator: 'categorymembers', gcmtitle: `Category:${category}`, gcmtype: 'file', gcmlimit: '50', ...fileInfo
       }).catch(() => null);
-      add(this._acceptPages(Object.values(data?.query?.pages || {})).sort((a, b) => b.width - a.width));
+      add(this._acceptPages(Object.values(data?.query?.pages || {})).sort((a, b) => b.width - a.width), 'category');
     }
     const multiWord = String(subject).trim().split(/\s+/).length >= 2;
     if (found.length < total && multiWord) {
-      add(await this.gatherForTopic([subject], { must: [subject], bonus: [] }, { perQuery: 30, total }).catch(() => []));
+      add(await this.gatherForTopic([subject], { must: [subject], bonus: [] }, { perQuery: 30, total }).catch(() => []), 'search');
     }
     this.logger.info(`"${articleTitle}": ${found.length} image(s) (main image ${p18 ? 'yes' : 'no'}, category ${category || 'none'}${multiWord ? '' : ', no filename search for a one-word name'})`);
     return found;
