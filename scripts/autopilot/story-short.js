@@ -126,7 +126,7 @@ episode is in the article, pick a different one.`;
 const STARS = ['Lamine Yamal', 'Kylian Mbappé', 'Erling Haaland', 'Harry Kane', 'Vinícius Júnior', 'Jude Bellingham',
   'Mohamed Salah', 'Cristiano Ronaldo', 'Lionel Messi', 'Neymar'];
 const BIG_MOMENT = /record|youngest|oldest|first (player|time)|final|hat-trick|hat trick|scored|won the|winner|red card|sent off|ban|injur|ballon d|golden boot|world cup|champions league|euro|transfer|fee|debut|missed|penalt|controvers|tears|lost/i;
-async function starFacts(research, n = 3) {
+async function starFactItems(research, n = 3) {
   const day = Math.floor(Date.now() / 86400000);
   const pick = Array.from({ length: n }, (_, i) => STARS[(day * n + i) % STARS.length]);
   const out = [];
@@ -135,9 +135,32 @@ async function starFacts(research, n = 3) {
     if (!full?.text) continue;
     const lines = (full.text.match(/[^.!?\n]+[.!?]/g) || [])
       .map((x) => x.trim()).filter((x) => x.length > 50 && x.length < 320 && BIG_MOMENT.test(x) && /\b(19|20)\d\d\b/.test(x));
-    if (lines.length) out.push(`${star} (article: "${full.title || star}"):\n${lines.slice(0, 10).map((l) => `  - ${l}`).join('\n')}`);
+    if (lines.length) out.push({ star, article: full.title || star, lines: lines.slice(0, 10) });
   }
-  return out.join('\n');
+  return out;
+}
+const factsText = (items) => items.map((it) => `${it.star} (article: "${it.article}"):\n${it.lines.map((l) => `  - ${l}`).join('\n')}`).join('\n');
+
+/**
+ * Star stories made straight from those lines: the moment IS a sentence of the
+ * star's own article, so it cannot be invented (the model kept proposing bans
+ * and collapses that never happened, 8 Nov). The model only writes the titles.
+ */
+async function factStories(ai, items, max = 6) {
+  const cands = items.flatMap((it) => it.lines.slice(0, 3).map((line) => ({ article: it.article, subject: it.star, moment: line })))
+    .slice(0, max);
+  if (!cands.length) return [];
+  const prompt = `For each real football moment below, write a YouTube Shorts title: under 55
+characters, opening on the player's name, stating what happened plainly as a
+fact (no question), ending with ONE fitting emoji. Use only what the line says.
+${cands.map((c, i) => `${i + 1}. ${c.moment}`).join('\n')}
+Return ONLY JSON: {"titles": ["...", "..."]}`;
+  try {
+    const titles = parseJson(await ai.generateText(prompt, { maxTokens: 900, temperature: 0.4 })).titles || [];
+    return cands.map((c, i) => ({ ...c, title: String(titles[i] || '').trim() })).filter((c) => c.title.length >= 10);
+  } catch {
+    return [];
+  }
 }
 
 async function propose(ai, lane, avoid, hot = [], news = [], facts = '') {
@@ -586,7 +609,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
     logger.info(`sequel: Part ${sequel.part} of ${sequelOf.id}`);
   }
 
-  const facts = !sequel && !pinned && lane.categoryId === '17' ? await starFacts(research).catch(() => '') : '';
+  const factItems = !sequel && !pinned && lane.categoryId === '17' ? await starFactItems(research).catch(() => []) : [];
+  const facts = factsText(factItems);
   if (facts) logger.info(`star facts: ${facts.split('\n').filter((l) => !l.startsWith('  ')).map((l) => l.split(' (')[0]).join(', ')}`);
   for (let round = 1; round <= (sequel || pinned ? 1 : 3); round++) {
     let stories;
@@ -597,7 +621,11 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       stories = pinned ? [pinned] : sequel
         ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 11500)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
-        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], round < 3 ? facts : '');
+        : [
+          // round 1 opens on stories made from the stars' own article lines
+          ...(round === 1 ? await factStories(ai, factItems).catch(() => []) : []),
+          ...await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], round < 3 ? facts : '')
+        ];
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
@@ -628,11 +656,16 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const year = eventYear(story.moment);
       const event = year ? await archival.eventPhotos(eventQueries(story.moment, subject, year), { year, must: eventKeys(story.moment, subject), limit: 6 }).catch(() => []) : [];
       const own = (await archival.gatherForArticle(brief.title || story.article, subject, { total: 14 }).catch(() => []))
-        .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title) && !outOfEra(x, year, isTeam(subject) ? 'team' : 'person') && !(lane.categoryId === '17' && NOT_THE_PLAYER.test(x.title)))
+        .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title) && !tooLate(x, year) && !(lane.categoryId === '17' && NOT_THE_PLAYER.test(x.title)))
         .sort(year ? byEra(year) : () => 0)
         // on football, the subject's own photos must name him (no club team sheets, no scanned documents)
         .filter((x) => !(lane.categoryId === '17' && (!hasKey(x.title, [folded(subjectKey(subject))]) || /\bdocument\b/i.test(x.title))));
-      const found = [...new Map([...event, ...own].map((x) => [x.title, x])).values()].slice(0, 10);
+      // near the episode when there are enough of those (no teenage Vinicius in a
+      // 2022 story); otherwise the closest older ones (a 2004 retirement story is
+      // told with his playing-days photos)
+      const near = own.filter((x) => !outOfEra(x, year, isTeam(subject) ? 'team' : 'person'));
+      const pool = near.length >= 3 ? near : own;
+      const found = [...new Map([...event, ...pool].map((x) => [x.title, x])).values()].slice(0, 10);
       if (event.length) logger.info(`${subject}: ${event.length} photo(s) of the episode itself`);
       if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
@@ -657,7 +690,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
 
       // ---- render
       // Who and what the narration names, each with its own photos on its words.
-      const beats = await beatPhotos(archival, await photoPlan(ai, text, story, subject), year, { football: lane.categoryId === '17', subject }).catch(() => []);
+      const beats = await beatPhotos(archival, await photoPlan(ai, text, story, subject), year, { football: lane.categoryId === '17', subject, text }).catch(() => []);
       if (beats.length) logger.info(`${subject}: photos for ${beats.length} beat(s): ${beats.map((b) => `${b.names[0]}=${b.photos.length}`).join(', ')}`);
       const subjectKeys = titleKeys(subject, 'person');
       const imgDir = base('reference', id);
@@ -772,7 +805,7 @@ const NOT_THE_TEAM = /\b(logo|crest|badge|campus|handball|basketball|volleyball|
 // A trophy photo is the trophy, not a beer can, a medal or a museum case.
 const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor)\b/i;
 // Not a photograph at all.
-const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|\bjersey|\bshirt\b|adidas|nike|puma)/i;
+const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma)/i;
 /** Does this file show the planned thing, by its name? */
 function shows(title, item, keys) {
   if (NOT_A_PHOTO.test(title)) return false;
@@ -791,14 +824,18 @@ function shows(title, item, keys) {
  */
 // In a story from before photography, a place is shown by art, ruins and finds:
 // not today's hospitals, aerial shots, stations or anything dated 19xx/20xx.
-const MODERN = /(\bhospital|\bhotel|\bairport|aerial|wikiair|drone|\buniversity|\bstation|\bstreet|\bbus\b|\btram|\bmall|parking|\bstadium|\bhdr\b|panorama|pikiwiki|\b(19|20)\d\d\b)/i;
+const MODERN = /(\bhospital|\bhotel|\bairport|aerial|wikiair|drone|\buniversity|\bstation|\bstreet|\bbus\b|\btram|\bmall|parking|\bstadium|\bhdr\b|panorama|skyline|pikiwiki|\b(19|20)\d\d\b)/i;
 
-async function beatPhotos(archival, plan, year, { football = false, subject = '' } = {}) {
+async function beatPhotos(archival, plan, year, { football = false, subject = '', text = '' } = {}) {
   const out = [];
+  // Outside football a beat must be a NAME the narration says with a capital
+  // (Caesar's "slaves" pulled an 18th-century British anti-slavery medallion).
+  const named = (w) => new RegExp('(^|[^A-Za-z])' + w.charAt(0).toUpperCase() + w.slice(1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), '').test(text);
   const ancient = !year;   // no 1800-2099 year in the moment
   for (const item of plan) {
     // teams and trophies are football things; elsewhere "triumph" found Leopold I of Austria
     if (!football && (item.kind === 'team' || item.kind === 'trophy')) continue;
+    if (!football && !item.words.some((w) => named(String(w).split(/\s+/).pop()))) continue;
     const keys = titleKeys(item.article, item.kind);
     const subj = folded(subjectKey(subject));
     const team = folded(subjectKey(item.article));
@@ -816,9 +853,13 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
       .filter((x) => !OFF_TOPIC.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
       .filter((x) => shows(x.title, item, keys))
-      .filter((x) => item.kind === 'trophy' || !outOfEra(x, year, item.kind))
+      .filter((x) => item.kind === 'trophy' || !tooLate(x, year))
       .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
-    if (year) found.sort(byEra(year));
+    if (year) {
+      found.sort(byEra(year));
+      const near = found.filter((x) => !outOfEra(x, year, item.kind));
+      if (near.length) found = near;
+    }
     if (!found.length && item.kind === 'trophy') {
       found = (await archival.fetchArchivalImages(`${item.article} trophy`, { must: ['trophy'], bonus: keys }, { limit: 8 }).catch(() => []))
         .filter((x) => shows(x.title, item, keys));
