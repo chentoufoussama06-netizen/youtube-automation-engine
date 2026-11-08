@@ -151,6 +151,8 @@ const SERIES = [
     // him), and they decided his finals. All facts checked by hand on
     // 2026-11-07 against the articles named here.
     key: 'de-la-fuente',
+    // Also removed after looking (8 Nov): an ice-cream sign, a random night crowd,
+    // Nico Williams with the World Cup trophy in the Euro part, the US president.
     // 'Luis de la Fuente.jpg' (blurry, a hand across his face) replaced after a
     // look on 8 Nov by the clear 2023 portrait and a neutral 2026 touchline one.
     // Photos rebuilt 2026-11-07 after the user saw Part 1 cut between two
@@ -193,7 +195,7 @@ const SERIES = [
         articles: ['UEFA Euro 2024 final', 'Lamine Yamal', 'Luis de la Fuente (footballer, born 1961)'],
         subject: 'Lamine Yamal',
         photos: [
-          {files: ["2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–002.jpg","2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–009.jpg","2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–012.jpg"]},
+          {files: ["2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–002.jpg","2024-07-05 UEFA Euro 2024 Fan Zone Berlin Brandenburger Tor by Sandro Halank–009.jpg"]},
           {files: ["Lamine Yamal in 2025.jpg","Lamine Yamal France v Spain 7.24.26-187.jpg"], names: ["yamal","lamine","teenager","winger"]},
           {files: ["Mikel Merino France v Spain 7.24.26-241 (cropped).jpg"], names: ["merino","header","headed"]},
           {files: ["Dani Olmo France v Spain 7.24.26-176 (cropped).jpg"], names: ["olmo"]},
@@ -210,9 +212,9 @@ const SERIES = [
         articles: ['UEFA Euro 2024 final'],   // alone, so both goal paragraphs fit the brief
         subject: 'Spain',
         photos: [
-          {files: ["Fiesta Celebracion Eurocopa 2024 - Madrid 03.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 06.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 09.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 12.jpg","Celebrando la cuarta Eurocopa de la selección española. Madrid, 15 de julio de 2024.jpg"]},
+          {files: ["Fiesta Celebracion Eurocopa 2024 - Madrid 03.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 06.jpg","Fiesta Celebracion Eurocopa 2024 - Madrid 09.jpg","Celebrando la cuarta Eurocopa de la selección española. Madrid, 15 de julio de 2024.jpg"]},
           {files: ["Olympiastadion Berlin Sep-2015.jpg"], names: ["berlin","england"]},
-          {files: ["Nico Williams Argentina v Spain 19 July 2026-328.jpg","Nico Williams France v Spain 7.24.26-258.jpg"], names: ["williams","nico"]},
+          {files: ["Nico Williams France v Spain 7.24.26-258.jpg"], names: ["williams","nico"]},
           {files: ["ColePalmervsLeicester.jpg"], names: ["palmer","equalised","equalized"]},
           {files: ["Mikel Oyarzabal France v Spain 7.24.26-161 (cropped).jpg"], names: ["oyarzabal","substitute","winner"]},
           {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente France v Spain 7.24.26-036.jpg"], names: ["fuente","coach"]}
@@ -230,7 +232,7 @@ const SERIES = [
         articles: ['2026 FIFA World Cup final', 'Luis de la Fuente (footballer, born 1961)'],
         subject: 'Luis de la Fuente',
         photos: [
-          {files: ["Spain World Cup Winners Argentina v Spain 19 July 2026-1.jpg","Spain World Cup Winners Argentina v Spain 19 July 2026-344.jpg","Spain World Cup winners Argentina v Spain 19 July 2026-339.jpg","Spain's celebration as 2026 World Cup champions.jpg","FIFA World Cup Trophy photo by Djuradj Vujcic.jpg"]},
+          {files: ["Spain World Cup Winners Argentina v Spain 19 July 2026-1.jpg","Spain World Cup Winners Argentina v Spain 19 July 2026-344.jpg","Spain World Cup winners Argentina v Spain 19 July 2026-339.jpg","FIFA World Cup Trophy photo by Djuradj Vujcic.jpg"]},
           {files: ["MetLife Stadium Exterior, 2026 FIFA World Cup (June 20, 2026).jpg"], names: ["metlife","stadium"]},
           {files: ["Argentina fans Argentina v Spain 19 July 2026-063.jpg"], names: ["argentina","defending"]},
           {files: ["Emiliano Martinez Argentina v Spain 19 July 2026-269.jpg"], names: ["martinez","emiliano","keeper","goalkeeper","saves"]},
