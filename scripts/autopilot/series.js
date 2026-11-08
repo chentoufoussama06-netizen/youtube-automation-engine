@@ -151,6 +151,8 @@ const SERIES = [
     // him), and they decided his finals. All facts checked by hand on
     // 2026-11-07 against the articles named here.
     key: 'de-la-fuente',
+    // 'Luis de la Fuente.jpg' (blurry, a hand across his face) replaced after a
+    // look on 8 Nov by the clear 2023 portrait and a neutral 2026 touchline one.
     // Photos rebuilt 2026-11-07 after the user saw Part 1 cut between two
     // photos from the wrong year: each beat now shows that beat (De Kuip on
     // the penalties, the Madrid celebration on the trophy, the 2026 final set
@@ -161,7 +163,7 @@ const SERIES = [
         articles: ['Luis de la Fuente (footballer, born 1961)', 'Luis Enrique'],
         subject: 'Luis de la Fuente',
         photos: [
-          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente.jpg"], names: ["fuente","luis","coach"]},
+          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente France v Spain 7.24.26-036.jpg"], names: ["fuente","luis","coach"]},
           {files: ["Luis Enrique 2014.jpg"], names: ["enrique","resigned","morocco"]}
         ],
         label: 'Spain · December 2022',
@@ -175,7 +177,7 @@ const SERIES = [
         subject: 'Luis de la Fuente',
         photos: [
           {files: ["De Kuip, Rotterdam (32426274167).jpg","StadionFeyenoord.jpg"]},
-          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente.jpg"], names: ["fuente","luis","coach"]},
+          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente France v Spain 7.24.26-036.jpg"], names: ["fuente","luis","coach"]},
           {files: ["Joselu espanyol 2022 (cropped).jpg"], names: ["joselu","debutant","norway"]},
           {files: ["Unai Simon Argentina v Spain 19 July 2026-078 (cropped).jpg","Unai Simon France v Spain 7.24.26-118 (cropped).jpg"], names: ["simon","unai","saved","saves","penalties","shootout","keeper","goalkeeper"]},
           {files: ["UEFA EURO qualifiers Sweden vs Spain 20191015 Dani Carvajal 10 (cropped).jpg"], names: ["carvajal","chipped","chip"]}
@@ -195,7 +197,7 @@ const SERIES = [
           {files: ["Lamine Yamal in 2025.jpg","Lamine Yamal France v Spain 7.24.26-187.jpg"], names: ["yamal","lamine","teenager","winger"]},
           {files: ["Mikel Merino France v Spain 7.24.26-241 (cropped).jpg"], names: ["merino","header","headed"]},
           {files: ["Dani Olmo France v Spain 7.24.26-176 (cropped).jpg"], names: ["olmo"]},
-          {files: ["Luis de la Fuente.jpg"], names: ["fuente","coach"]}
+          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente France v Spain 7.24.26-036.jpg"], names: ["fuente","coach"]}
         ],
         clipTeams: ['Spain'],   // Spain fans on the victory words, never random people
         label: 'Euro 2024 · Germany',
@@ -213,7 +215,7 @@ const SERIES = [
           {files: ["Nico Williams Argentina v Spain 19 July 2026-328.jpg","Nico Williams France v Spain 7.24.26-258.jpg"], names: ["williams","nico"]},
           {files: ["ColePalmervsLeicester.jpg"], names: ["palmer","equalised","equalized"]},
           {files: ["Mikel Oyarzabal France v Spain 7.24.26-161 (cropped).jpg"], names: ["oyarzabal","substitute","winner"]},
-          {files: ["Luis de la Fuente.jpg"], names: ["fuente","coach"]}
+          {files: ["Luis de la Fuente Castillo - 2023 05 06 Final de la Copa del Rey 0001 (cropped).jpg","Luis de la Fuente France v Spain 7.24.26-036.jpg"], names: ["fuente","coach"]}
         ],
         clipTeams: ['Spain'],   // Spain fans on the victory words, never random people
         label: 'Euro 2024 Final · Berlin',
