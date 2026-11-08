@@ -1663,6 +1663,52 @@
       "shortTitle": "The Youth Coach Who Won Everything (Part 5)",
       "article": "2026 FIFA World Cup final",
       "categoryId": "17"
+    },
+    {
+      "id": "story-romano-week-2026-11-08",
+      "topic": "Fabrizio Romano's football news, week to 2026-11-08",
+      "status": "short",
+      "shortTitle": "Fabrizio Romano's 5 Biggest Stories This Week",
+      "categoryId": "17",
+      "keywords": [
+        "Fabrizio Romano",
+        "transfer news",
+        "football news",
+        "Arsenal F.C.",
+        "Manchester United F.C.",
+        "JJ Gabriel",
+        "Liverpool F.C.",
+        "Barcelona"
+      ]
+    },
+    {
+      "id": "story-series-real-madrid-2022-p4",
+      "topic": "On 28 May 2022, after a kickoff delayed by 36 minutes, Real Madrid beat Liverpool 1–0 in the Champions League final at the Stade de France with a 59th-minute Vinícius Júnior goal while Thibaut Courtois saved shot after shot.",
+      "keywords": [
+        "Real Madrid",
+        "Real Madrid 2022: The Impossible Run",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Liverpool Kept Shooting. Courtois Kept Saving. (Part 4)",
+      "article": "2022 UEFA Champions League final",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-jude-bellingham-at-the-2026-worl",
+      "topic": "At the 2026 World Cup, Bellingham scored seven goals, becoming England’s all‑time highest World Cup scorer in a single tournament.",
+      "keywords": [
+        "Jude Bellingham",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Jude Bellingham Sets England WC Scoring Record 🤯",
+      "article": "Jude Bellingham",
+      "categoryId": "17"
     }
   ]
 }

@@ -377,6 +377,34 @@
       "shortTitle": "Caligula’s Crazy Plan to Make a Horse a Consul",
       "article": "Caligula",
       "categoryId": "27"
+    },
+    {
+      "id": "story-vercingetorix-p2-execution-af",
+      "topic": "Execution after the Triumph, 46 BC",
+      "keywords": [
+        "Vercingetorix",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "The Gallic king’s brutal end on the Tullianum ⚔️ (Part 2)",
+      "article": "Vercingetorix",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-julius-caesar-on-the-ides-of-m",
+      "topic": "On the Ides of March 44 BCE Julius Caesar is stabbed 23 times by Brutus and other senators.",
+      "keywords": [
+        "Julius Caesar",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Caesar’s 23-Stab Murder 😱",
+      "article": "Assassination of Julius Caesar",
+      "categoryId": "27"
     }
   ]
 }

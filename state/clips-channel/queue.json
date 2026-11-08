@@ -153,6 +153,20 @@
       "shortTitle": "The Waratah vanished without a trace in 1909",
       "article": "SS Waratah",
       "categoryId": "27"
+    },
+    {
+      "id": "story-arctic-the-paddle-steam",
+      "topic": "The paddle steamer collided with a smaller vessel in 1854, sinking with over 300 lives lost.",
+      "keywords": [
+        "Arctic",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "SS Arctic sank after a night collision, killing 300 + passengers 😱",
+      "article": "SS Arctic",
+      "categoryId": "27"
     }
   ]
 }

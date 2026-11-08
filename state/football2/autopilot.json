@@ -163,6 +163,18 @@
       "event": "story",
       "id": "story-caligula-caligula-alleged",
       "url": "https://www.youtube.com/watch?v=tgHzEWbBBss"
+    },
+    {
+      "at": "2026-11-08T01:50:41.534Z",
+      "event": "sequel",
+      "id": "story-vercingetorix-p2-execution-af",
+      "url": "https://www.youtube.com/watch?v=Ku-MbVsfAqo"
+    },
+    {
+      "at": "2026-11-08T01:54:57.800Z",
+      "event": "story",
+      "id": "story-julius-caesar-on-the-ides-of-m",
+      "url": "https://www.youtube.com/watch?v=wJn5d4y_sk8"
     }
   ],
   "pendingLinks": [],
@@ -175,6 +187,9 @@
     },
     "story-crassus-roman-general-cr": {
       "playlistId": "PLGDpemWD5eFA"
+    },
+    "story-vercingetorix-gaulish-chieftai": {
+      "playlistId": "PLFobcuK7pLss"
     }
   }
 }

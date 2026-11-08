@@ -441,5 +441,28 @@
     "part": 1,
     "of": 5,
     "root": "story-series-de-la-fuente-p1"
+  },
+  {
+    "id": "story-series-real-madrid-2022-p4",
+    "subject": "Real Madrid",
+    "article": "2022 UEFA Champions League final",
+    "moment": "On 28 May 2022, after a kickoff delayed by 36 minutes, Real Madrid beat Liverpool 1–0 in the Champions League final at the Stade de France with a 59th-minute Vinícius Júnior goal while Thibaut Courtois saved shot after shot.",
+    "title": "Liverpool Kept Shooting. Courtois Kept Saving. (Part 4)",
+    "at": "2026-11-08T02:03:48.273Z",
+    "style": "v2",
+    "series": "real-madrid-2022",
+    "part": 4,
+    "of": 4,
+    "root": "story-series-real-madrid-2022-p1",
+    "sequelOf": "story-series-real-madrid-2022-p3"
+  },
+  {
+    "id": "story-jude-bellingham-at-the-2026-worl",
+    "subject": "Jude Bellingham",
+    "article": "Jude Bellingham",
+    "moment": "At the 2026 World Cup, Bellingham scored seven goals, becoming England’s all‑time highest World Cup scorer in a single tournament.",
+    "title": "Jude Bellingham Sets England WC Scoring Record 🤯",
+    "at": "2026-11-08T02:08:10.991Z",
+    "style": "v2"
   }
 ]
