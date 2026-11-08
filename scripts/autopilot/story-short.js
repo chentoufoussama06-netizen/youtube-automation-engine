@@ -126,7 +126,7 @@ episode is in the article, pick a different one.`;
 const STARS = ['Lamine Yamal', 'Kylian Mbappé', 'Erling Haaland', 'Harry Kane', 'Vinícius Júnior', 'Jude Bellingham',
   'Mohamed Salah', 'Cristiano Ronaldo', 'Lionel Messi', 'Neymar'];
 const BIG_MOMENT = /record|youngest|oldest|first (player|time)|final|hat-trick|hat trick|scored|won the|winner|red card|sent off|ban|injur|ballon d|golden boot|world cup|champions league|euro|transfer|fee|debut|missed|penalt|controvers|tears|lost/i;
-async function starFactItems(research, n = 3) {
+async function starFactItems(research, n = 5) {
   const day = Math.floor(Date.now() / 86400000);
   const pick = Array.from({ length: n }, (_, i) => STARS[(day * n + i) % STARS.length]);
   const out = [];
@@ -146,8 +146,8 @@ const factsText = (items) => items.map((it) => `${it.star} (article: "${it.artic
  * star's own article, so it cannot be invented (the model kept proposing bans
  * and collapses that never happened, 8 Nov). The model only writes the titles.
  */
-async function factStories(ai, items, max = 6) {
-  const cands = items.flatMap((it) => it.lines.slice(0, 3).map((line) => ({ article: it.article, subject: it.star, moment: line })))
+async function factStories(ai, items, max = 10) {
+  const cands = items.flatMap((it) => it.lines.slice(0, 2).map((line) => ({ article: it.article, subject: it.star, moment: line })))
     .slice(0, max);
   if (!cands.length) return [];
   const prompt = `For each real football moment below, write a YouTube Shorts title: under 55
@@ -163,7 +163,7 @@ Return ONLY JSON: {"titles": ["...", "..."]}`;
   }
 }
 
-async function propose(ai, lane, avoid, hot = [], news = [], facts = '') {
+async function propose(ai, lane, avoid, hot = [], news = [], facts = '', stars = true) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
@@ -180,7 +180,7 @@ TRENDING — yesterday's most-read English Wikipedia articles, i.e. what people 
 searching for right now. If any of these fits this channel's scope (a person,
 club, event or thing it would cover), make your FIRST proposals about them:
 ${hot.join(' | ')}
-` : ''}${lane.categoryId === '17' ? STAR_STRATEGY : ''}${facts ? `
+` : ''}${lane.categoryId === '17' && stars ? STAR_STRATEGY : ''}${facts ? `
 STAR FACTS — real lines from these stars' English Wikipedia articles. Every
 story about one of these stars MUST be one of these lines (same event, same
 year, "article" = the article named), not anything else you think you know:
@@ -627,7 +627,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         : [
           // round 1 opens on stories made from the stars' own article lines
           ...(round === 1 ? await factStories(ai, factItems).catch(() => []) : []),
-          ...await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], round < 3 ? facts : '')
+          ...await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], round < 3 ? facts : '', round < 3)
         ];
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
@@ -807,7 +807,7 @@ const hasAll = (title, keys) => keys.every((k) => folded(title).includes(k));
 // A team photo is the team, not its logo, campus, shop or other sections.
 const NOT_THE_TEAM = /\b(logo|crest|badge|campus|handball|basketball|volleyball|futsal|women|womens|frauen|femenino|feminino|ladies|bus|shop|store|office|building|headquarters|museum|academy|youth|u19|u21|u23|mascot|ads?|advert|advertising|sponsor|balm|mannschaftsbus|teambus)\b/i;
 // A trophy photo is the trophy, not a beer can, a medal or a museum case.
-const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor|tour|takaichi|cabinet)\b/i;
+const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor|tour|takaichi|cabinet|holds|holding|lifts|lifting|raises|women|womens|women's|frauen|feminin\w*)\b/i;
 // Not a photograph at all.
 const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma)/i;
 /** Does this file show the planned thing, by its name? */
@@ -839,7 +839,7 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
   for (const item of plan) {
     // teams and trophies are football things; elsewhere "triumph" found Leopold I of Austria
     if (!football && (item.kind === 'team' || item.kind === 'trophy')) continue;
-    if (item.kind === 'trophy' && !/\b(won|win|wins|winning|lifted|lift|lifts|champions?|crowned|trophy|title)\b/i.test(text)) continue;
+    if (item.kind === 'trophy' && !/\b(won|win|wins|winning|lifted|lift|lifts|crowned|trophy|title|champions?(?!\s+league))\b/i.test(text)) continue;
     if (!football && !item.words.some((w) => named(String(w).split(/\s+/).pop()))) continue;
     const keys = titleKeys(item.article, item.kind);
     const subj = folded(subjectKey(subject));
