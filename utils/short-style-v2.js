@@ -474,8 +474,9 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   // Salah's a stand view where he is a speck (8 Nov). If that would leave too
   // little, nothing is dropped (a v1 fallback would use them all anyway).
   const faceless = faceRequired.filter((p) => metas[p] && !(metas[p].faces || []).length);
-  // At least 4 left: 4 photos across 40 seconds already repeat (Muamba, 9 Nov).
-  if (faceless.length && Object.keys(metas).length - faceless.length < 4) {
+  // At least 5 left: Robert Enke's 52 seconds on 4 photos (9 Nov preview) was
+  // the same faces on a loop, what viewers swiped on de la Fuente's Part 1.
+  if (faceless.length && Object.keys(metas).length - faceless.length < 5) {
     throw new Error(`too few photos with a face for a person story (${faceless.length} of ${Object.keys(metas).length} have none)`);
   }
   if (faceless.length) {

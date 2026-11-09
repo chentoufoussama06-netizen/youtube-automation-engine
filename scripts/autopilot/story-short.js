@@ -137,6 +137,12 @@ const EPISODE_STOP = new Set(('football footballer footballers world after befor
 const episodeWords = (s) => new Set((fold(`${s.title || ''} ${s.moment || ''}`).match(/[a-z]{4,}|(?:1[89]|20)\d\d/g) || [])
   .filter((w) => !EPISODE_STOP.has(w)).map((w) => w.slice(0, 6)));
 function sameEpisode(a, b) {
+  // Two different clubs going bust are two stories: Leeds was blocked as a
+  // repeat of Portsmouth's administration (9 Nov preview). One story must
+  // name the other's subject (Munich's newsreel story names Manchester United).
+  const subj = (s) => (fold(s.subject).match(/[a-z]{4,}/g) || []).filter((w) => !EPISODE_STOP.has(w));
+  const text = (s) => fold(`${s.title || ''} ${s.moment || ''} ${s.subject || ''}`);
+  if (!subj(a).some((w) => text(b).includes(w)) && !subj(b).some((w) => text(a).includes(w))) return false;
   const A = episodeWords(a);
   const B = episodeWords(b);
   let n = 0;
@@ -178,6 +184,7 @@ Propose 10 stories like these. Rules:
   (😱 🤯 💀 🔥 🏆 😳 💔) — 121 of the 176 biggest football Shorts had one.
   Capitalise like the examples. Never promise something the article cannot back.
   A suicide is "took his own life" or "died by suicide", never "commits suicide".
+  A death or a suicide gets 💔 or no emoji, never 😱 🤯 🔥 😳.
 - Do NOT reuse anything already posted:
 ${avoid.map((t) => `  - ${t}`).join('\n') || '  (nothing yet)'}
 
@@ -429,12 +436,20 @@ Return ONLY JSON: {"hooks": ["...", "..."]}`, { temperature: 0.9, maxTokens: 900
       .filter((h) => h && words(h) <= 12 && !hookProblem(h) && fold(h) !== fold(first))].slice(0, 7);
     logger.info(`hook contest: ${cands.length - 1} challenger(s) for "${first}"`);
     if (cands.length < 2) return text;
+    // The judge reads each opening with the sentence after it: Enke's winner
+    // (9 Nov preview) gave the death away and then read "Only days later, his
+    // future ... hung in balance".
+    const second = (sentences[1] || '').trim();
     const pick = parseJson(await ask(`You judge the openings of YouTube Shorts. Title: "${story.title}".
-Which first sentence makes the most casual viewers stop scrolling and watch? What wins:
-a name people know in the first words, a concrete shocking fact or number, a question
-the viewer needs answered, no wasted words. These openings held viewers best:
+Each option is a first sentence, followed by the sentence that comes after it in the
+narration (that one stays as it is). Which opening makes the most casual viewers stop
+scrolling and watch? What wins: a name people know in the first words, a concrete
+shocking fact or number, a question the viewer needs answered, no wasted words. It must
+also read naturally into the next sentence: no contradiction, no repeating it, no
+giving away what comes after in a way that makes the next sentence nonsense.
+These openings held viewers best:
 ${PROVEN_HOOKS.join('\n')}
-${cands.map((c, i) => `${i + 1}. ${c}`).join('\n')}
+${cands.map((c, i) => `${i + 1}. ${c} [next: ${second}]`).join('\n')}
 Return ONLY JSON: {"best": 1, "why": "..."}`, { temperature: 0, maxTokens: 300 }));
     const best = Number(pick.best) - 1;
     if (process.env.HOOK_DEBUG) logger.info(`hook contest: ${cands.map((c, i) => `${i + 1}. ${c}`).join(' | ')} -> ${pick.best}`);
@@ -1351,4 +1366,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
+module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, sameEpisode, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
