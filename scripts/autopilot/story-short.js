@@ -107,6 +107,20 @@ async function trending(limit = 150) {
 }
 
 
+// Is this article about football (soccer)? Counted over the whole article, so a
+// basketball star's one line about loving AC Milan does not make him a footballer.
+const FOOTBALL_WORDS = /\b(football(?:er|ers)?|soccer|goalkeeper|striker|midfielder|defender|fifa|uefa|world cup|premier league|la liga|serie a|bundesliga|ligue 1|champions league|ballon d'or)\b/gi;
+const NOT_SOCCER = /\b(american football|college football|canadian football|gaelic football|australian rules football|nfl)\b/gi;
+const OTHER_SPORT = /\b(basketball|nba|baseball|mlb|nfl|quarterback|touchdown|ice hockey|nhl|tennis|golf|boxing|boxer|cricket|rugby|formula one|grand prix|wrestling|wrestler|mma|ufc)\b/gi;
+function footballArticle(text) {
+  const t = String(text);
+  const count = (re) => (t.match(re) || []).length;
+  const soccer = count(FOOTBALL_WORDS) - count(NOT_SOCCER);
+  // Robert Enke's article says it 6 times and no other sport; Kobe Bryant's 3
+  // times against 109 for basketball; Usain Bolt's 7 against 5.
+  return soccer >= 3 && soccer >= 2 * count(OTHER_SPORT);
+}
+
 // A star-first picker ran 7-9 Nov 2026 (today's stars, their records and
 // debuts, 20-30s). Its shorts got 84-305 views each on Football Files, where
 // the dark stories the channel was built on get ~1,000 (DARK_FOOTBALL_STORY in
@@ -140,6 +154,7 @@ Propose 10 stories like these. Rules:
   fact or twist in plain words, curiosity gap, and ENDS WITH ONE fitting emoji
   (😱 🤯 💀 🔥 🏆 😳 💔) — 121 of the 176 biggest football Shorts had one.
   Capitalise like the examples. Never promise something the article cannot back.
+  A suicide is "took his own life" or "died by suicide", never "commits suicide".
 - Do NOT reuse anything already posted:
 ${avoid.map((t) => `  - ${t}`).join('\n') || '  (nothing yet)'}
 
@@ -380,7 +395,8 @@ Style: spoken, energetic storytelling, short sentences, present the facts
 vividly. Past tense. No "you", no "imagine", no "subscribe", no headings, no
 emojis, no stage directions. Never name the structure out loud: no "hook",
 "payoff", "stakes" or "twist" (the Kane short said "the incredible payoff
-arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
+arrived"). A suicide is told as "took his own life": never the method or the
+place (an Enke draft named both). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
 
   let feedback = '';
   for (let attempt = 1; attempt <= 3; attempt++) {
@@ -605,6 +621,9 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       } else {
         const full = await research.buildBriefFromArticle(story.article, { maxChars: 150000 }).catch(() => null);
         if (!full || full.text.length < 3000) { logger.info(`skip ${story.article}: thin or missing article`); continue; }
+        // Football Files is football: Kobe Bryant's helicopter crash came up in
+        // the 9 Nov preview, a dark story about a basketball player.
+        if (lane.categoryId === '17' && !pinned && !footballArticle(full.text)) { logger.info(`skip ${story.article}: not a football article`); continue; }
         brief = focusBrief(full, story);
       }
       if (!(await supported(ai, story, brief))) { logger.info(`skip "${story.moment}": not in the article`); continue; }
@@ -772,9 +791,18 @@ function shows(title, item, keys) {
   if (NOT_A_PHOTO.test(title)) return false;
   if (item.kind === 'person') return hasAll(title, keys);
   if (item.kind === 'team') return hasKey(title, keys) && !NOT_THE_TEAM.test(title);
-  if (item.kind === 'trophy') return /trophy/i.test(title) && hasKey(title, keys) && !NOT_THE_TROPHY.test(title);
+  // Latin script only: a Thai caption hid "Prime Minister ... Trophy Tour"
+  // from the English filter (Enke preview, 9 Nov).
+  if (item.kind === 'trophy') return /trophy/i.test(title) && hasKey(title, keys) && !NOT_THE_TROPHY.test(title)
+    && !/[^\p{Script=Latin}\p{N}\p{P}\p{S}\p{Z}\p{M}]/u.test(title);
   return hasKey(title, keys);
 }
+// A football place beat is a ground. A town, a mountain or an airport pulled
+// a shopping street, a 1650 engraving and a Cheesecake Factory office (9 Nov).
+const GROUND = /(stadium|stadion|stadio|\bstade\b|estadi|\barena\b|\bpark\b|\bground\b|camp nou|anfield|wembley|bernab|old trafford|san siro|maracan|kuip|stamford bridge|ibrox|parc des princes|bombonera|hillsborough|heysel)/i;
+// A trophy beat needs the win in the same sentence as the trophy: "expected to
+// be Germany's goalkeeper at the 2010 World Cup" is not winning it.
+const WIN = /\b(won|win|wins|winning|lifted|lift|lifts|crowned|title|champions?(?!\s+league))\b/i;
 
 /**
  * Photos for each planned beat: from its own article and Commons category,
@@ -798,9 +826,14 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
     // ("the 2018 final") showed the OTHER side celebrating in a Salah story
     if (football && !['person', 'team', 'place', 'trophy'].includes(item.kind)) continue;
     if (football && item.kind === 'place' && /\b(final|cup|match|season|league|championship|tournament|game|derby)\b/i.test(item.article)) continue;
+    if (football && item.kind === 'place' && !GROUND.test(item.article)) continue;
     // teams and trophies are football things; elsewhere "triumph" found Leopold I of Austria
     if (!football && (item.kind === 'team' || item.kind === 'trophy')) continue;
-    if (item.kind === 'trophy' && !/\b(won|win|wins|winning|lifted|lift|lifts|crowned|trophy|title|champions?(?!\s+league))\b/i.test(text)) continue;
+    if (item.kind === 'trophy') {
+      const said = [...(item.words || []), item.article].map((w) => folded(String(w).split(/\s+/).pop())).filter((w) => w.length >= 3);
+      const sentences = String(text).match(/[^.!?]+[.!?]+/g) || [String(text)];
+      if (!sentences.some((s) => WIN.test(s) && said.some((w) => folded(s).includes(w)))) continue;
+    }
     if (!football && !item.words.some((w) => named(String(w).split(/\s+/).pop()))) continue;
     const keys = titleKeys(item.article, item.kind);
     const subj = folded(subjectKey(subject));
