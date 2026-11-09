@@ -637,7 +637,10 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const pool = await subjectPhotos(archival, brief.title || story.article, subject, year, { football: lane.categoryId === '17' });
       const found = [...new Map([...event, ...pool].map((x) => [x.title, x])).values()].slice(0, 10);
       if (event.length) logger.info(`${subject}: ${event.length} photo(s) of the episode itself`);
-      if (found.length < 3) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
+      // Football: 4 photos over 40 seconds is the same few faces on repeat
+      // (Muamba preview, 9 Nov), what viewers swiped on de la Fuente's Part 1.
+      const minPhotos = lane.categoryId === '17' ? 5 : 3;
+      if (found.length < minPhotos) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
       const text = await narrate(ai, { ...story, subject, writerNote: lane.story?.writerNote, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
         brief, writer, lane.story?.words || DEFAULT_WORDS);
@@ -671,7 +674,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const imgDir = base('reference', id);
       const all = [...new Map([...found, ...beats.flatMap((b) => b.photos)].map((x) => [x.title, x])).values()];
       const saved = await archival.downloadArchivalImages(all, imgDir);
-      if (saved.length < 3) { logger.info(`skip ${subject}: photo downloads failed`); continue; }
+      if (saved.length < minPhotos) { logger.info(`skip ${subject}: photo downloads failed`); continue; }
       const pathOf = new Map(saved.map((p) => [p.title, p.path]));
       const chapters = [
         // the subject on their own name, from their own photos that name them
@@ -862,7 +865,10 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
     }
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
       .filter((x) => !OFF_TOPIC.test(x.title) && !SNAPSHOT.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
-      .filter((x) => (item.kind === 'person' && (x.source === 'main' || x.source === 'category') && !NOT_A_PHOTO.test(x.title) && !namesSomeoneElse(x.title, keys)) || shows(x.title, item, keys))
+      // A football beat person (a referee, an opponent) is shown only by a file
+      // that names them or their article's main image: Howard Webb's category
+      // gave Neymar, another referee and Arsenal v Sunderland (9 Nov).
+      .filter((x) => (item.kind === 'person' && (x.source === 'main' || (!football && x.source === 'category')) && !NOT_A_PHOTO.test(x.title) && !namesSomeoneElse(x.title, keys)) || shows(x.title, item, keys))
       .filter((x) => item.kind === 'trophy' || !tooLate(x, year))
       .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
     if (year) {
