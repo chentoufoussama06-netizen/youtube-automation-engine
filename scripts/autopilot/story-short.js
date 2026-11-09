@@ -38,6 +38,7 @@ const { Logger } = require('../../utils/logger');
 const { LANES } = require('./lanes');
 const { footballNews } = require('../../utils/news-feed');
 const { renderStoryV2 } = require('../../utils/short-style-v2');
+const { reviewShort } = require('../../utils/video-review');
 const { teamTheme } = require('../../utils/broll');
 const { SERIES, seriesPartDue, partId, NUMBER_WORDS } = require('./series');
 
@@ -358,6 +359,101 @@ function promiseProblem(text, title, source = '') {
   return missing.length ? `the title promises ${missing.join(' and ')}, but the first two sentences never say it; open on it` : null;
 }
 
+/**
+ * A Gemini lite model, called directly: each has its own free daily quota, so
+ * the hook contest never eats the script writer's gemini-3.5-flash requests.
+ * Lite models refuse a thinkingBudget (400), so none is sent.
+ */
+async function liteText(prompt, { temperature = 0.9, maxTokens = 900 } = {}) {
+  if (!process.env.GEMINI_API_KEY) throw new Error('no GEMINI_API_KEY');
+  const { GoogleGenAI } = require('@google/genai');
+  const g = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  let last;
+  for (const model of ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest']) {
+    try {
+      const res = await g.models.generateContent({ model, contents: prompt, config: { temperature, maxOutputTokens: maxTokens } });
+      const out = (res.candidates?.[0]?.content?.parts || []).filter((p) => !p.thought && p.text).map((p) => p.text).join('').trim();
+      if (out) return out;
+    } catch (e) { last = e; }
+  }
+  throw last || new Error('no lite model answered');
+}
+
+// The openings that held viewers best on these channels.
+const PROVEN_HOOKS = [
+  '"Seventeen minutes. That is all Karim Benzema needed." (2,871 views, the best short on Football Files)',
+  '"Ten days after scoring an own goal, he was murdered." (95% watched)',
+  '"Real Madrid were two goals down and thirty minutes from going out."',
+  '"Rome\'s most feared emperor was terrified of his own guards."'
+];
+
+/**
+ * The hook contest (asked for on 9 Nov: "ur hooks are weak"): six other first
+ * sentences written from the same source, and a judge picks the one that
+ * would stop the most thumbs, the current one included. The winner replaces
+ * the opening only if it keeps the hook rules, the title's promise and the
+ * fact-check; otherwise the narration is returned as it was.
+ */
+async function sharpenHook(ai, text, story, brief, WORDS) {
+  const sentences = text.match(/[^.!?]+[.!?]+["'”’]?/g) || [text];
+  if (sentences.length < 3) return text;
+  const first = sentences[0].trim();
+  const rest = sentences.slice(1).join(' ').replace(/\s+/g, ' ').trim();
+  const ask = (p, o) => liteText(p, o).catch(() => ai.generateText(p, { maxTokens: o.maxTokens, temperature: o.temperature }));
+  try {
+    const gen = parseJson(await ask(`Write the FIRST sentence of a YouTube Short. Title: "${story.title}". Subject: ${story.subject}.
+The narration that follows it:
+"""
+${rest}
+"""
+SOURCE (every fact must come from here):
+"""
+${brief.text.slice(0, 6000)}
+"""
+Write 6 different first sentences, at most 12 words each, that stop a casual viewer
+from scrolling in the first second and lead straight into the narration above.
+Every one names ${story.subject} and lands the most shocking fact of the story. Use
+these shapes (they held viewers best on this channel), filled with THIS story's facts:
+- the twist stated flat: "Ten days after scoring an own goal, he was murdered."
+  -> "[time] after [event], [name] was [shocking outcome]."
+- the number first: "Seventeen minutes. That is all Karim Benzema needed."
+  -> "[number]. That is how long [shocking fact about name]."
+- the low point: "Real Madrid were two goals down and thirty minutes from going out."
+- the contradiction: "Rome's most feared emperor was terrified of his own guards."
+  -> "[name's status] was [the opposite of what anyone would expect]."
+Not career trivia (caps, clubs, awards) unless it IS the twist. No hype adjectives, no
+opening on a date, no question, nothing the SOURCE does not say.
+Return ONLY JSON: {"hooks": ["...", "..."]}`, { temperature: 0.9, maxTokens: 900 }));
+    const cands = [first, ...(gen.hooks || []).map((h) => String(h).replace(/\s+/g, ' ').trim())
+      .filter((h) => h && words(h) <= 12 && !hookProblem(h) && fold(h) !== fold(first))].slice(0, 7);
+    logger.info(`hook contest: ${cands.length - 1} challenger(s) for "${first}"`);
+    if (cands.length < 2) return text;
+    const pick = parseJson(await ask(`You judge the openings of YouTube Shorts. Title: "${story.title}".
+Which first sentence makes the most casual viewers stop scrolling and watch? What wins:
+a name people know in the first words, a concrete shocking fact or number, a question
+the viewer needs answered, no wasted words. These openings held viewers best:
+${PROVEN_HOOKS.join('\n')}
+${cands.map((c, i) => `${i + 1}. ${c}`).join('\n')}
+Return ONLY JSON: {"best": 1, "why": "..."}`, { temperature: 0, maxTokens: 300 }));
+    const best = Number(pick.best) - 1;
+    if (process.env.HOOK_DEBUG) logger.info(`hook contest: ${cands.map((c, i) => `${i + 1}. ${c}`).join(' | ')} -> ${pick.best}`);
+    if (!(best >= 1 && best < cands.length)) { logger.info(`hook contest: kept the opening (${String(pick.why || '').slice(0, 100)})`); return text; }   // 1 = the narration's own
+    const hook = /[.!?]["'”’]?$/.test(cands[best]) ? cands[best] : `${cands[best]}.`;
+    const next = `${hook} ${rest}`;
+    const n = words(next);
+    if (n < WORDS.min || n > WORDS.max || promiseProblem(next, story.title, brief.text) || unsourcedNumbers(hook, brief.text).length) return text;
+    // Checked against the narration it opens (already fact-checked against
+    // the source) and the source: a hook only restates the story's own facts.
+    const flagged = await unsupportedSentences(ai, hook, { ...brief, text: `${text}\n\n${brief.text}` });
+    if (!flagged || flagged.size) { logger.info(`hook contest: "${hook}" failed the fact-check; kept "${first}"`); return text; }
+    logger.info(`hook contest: "${first}" -> "${hook}" (${String(pick.why || '').slice(0, 100)})`);
+    return next;
+  } catch (e) {
+    logger.info(`hook contest skipped (${String(e.message).slice(0, 80)})`);
+    return text;
+  }
+}
+
 async function narrate(ai, story, brief, writer = writerAI(), WORDS = DEFAULT_WORDS) {
   // A sequel is told as the next chapter: what Part 1 said is shown so it is
   // not retold, and one reconnecting line lets a viewer who missed it follow.
@@ -477,7 +573,7 @@ place (an Enke draft named both). ${WORDS.min}-${WORDS.max} words. Return only t
       if (opens) logger.info(`rewrite: ${opens}`);
       if (fixed && !opens && !unsourcedNumbers(fixed, brief.text).length && n >= WORDS.min && n <= WORDS.max) {
         const again = await unsupportedSentences(ai, fixed, brief);
-        if (again && again.size === 0) { logger.info('rewrite passed the fact-check clean'); return fixed; }
+        if (again && again.size === 0) { logger.info('rewrite passed the fact-check clean'); return sharpenHook(ai, fixed, story, brief, WORDS); }
         logger.info(`rewrite still had ${again ? again.size : '?'} unsupported sentence(s); using the cut draft`);
       }
     }
@@ -492,7 +588,7 @@ place (an Enke draft named both). ${WORDS.min}-${WORDS.max} words. Return only t
       // A cut can take the sentence that kept the title's promise; the last
       // attempt ships what it has rather than losing the story.
       const late = attempt < 3 ? (hookProblem(final) || promiseProblem(final, story.title, brief.text)) : null;
-      if (!late) return final;
+      if (!late) return sharpenHook(ai, final, story, brief, WORDS);
       logger.info(`draft ${attempt}: after the fact-check, ${late}`);
       feedback = `the opening: ${late}`;
       continue;
@@ -534,7 +630,8 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
         accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       // A CC BY track has to be credited in the description (utils/music.js).
-      return { video, seconds, style: 'v2', music: v2.music || null };
+      // The shots and timed words are for the AI reviewer (utils/video-review.js).
+      return { video, seconds, style: 'v2', music: v2.music || null, shots: v2.shots, words: narration.words };
     } catch (error) {
       // Not enough real photos of the person: the story is skipped, never
       // rendered in the v1 look with the bins and plaques v2 refused.
@@ -716,7 +813,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const subjectKeys = titleKeys(subject, 'person');
       const imgDir = base('reference', id);
       const all = [...new Map([...found, ...beats.flatMap((b) => b.photos)].map((x) => [x.title, x])).values()];
-      const saved = await archival.downloadArchivalImages(all, imgDir);
+      let saved = await archival.downloadArchivalImages(all, imgDir);
       if (saved.length < minPhotos) { logger.info(`skip ${subject}: photo downloads failed`); continue; }
       const pathOf = new Map(saved.map((p) => [p.title, p.path]));
       const chapters = [
@@ -725,16 +822,41 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         ...beats.map((b) => ({ names: b.names, photos: b.photos.map((x) => pathOf.get(x.title)).filter(Boolean) }))
       ].filter((c) => c.photos.length && c.names.length);
 
-      const rendered = await renderStills(lane, id, text, saved,
-        { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null, chapters,
-          // fans of the story's own team, never random people (the first team the narration names)
-          clipTeams: beats.filter((b) => b.kind === 'team').map((b) => b.article).slice(0, 1),
-          // football: the subject's and every named person's photos must show a face
-          faceRequired: lane.categoryId === '17'
-            ? saved.filter((p) => (subjectKind(subject) === 'person' && pool.some((x) => x.title === p.title))
-              || beats.some((b) => b.kind === 'person' && b.photos.some((x) => x.title === p.title))).map((p) => p.path)
-            : [] });
+      const opts = { style: chooseStyle(lane, done), title, tag: sequel ? `Part ${sequel.part}` : null, chapters,
+        // fans of the story's own team, never random people (the first team the narration names)
+        clipTeams: beats.filter((b) => b.kind === 'team').map((b) => b.article).slice(0, 1),
+        // football: the subject's and every named person's photos must show a face
+        faceRequired: lane.categoryId === '17'
+          ? saved.filter((p) => (subjectKind(subject) === 'person' && pool.some((x) => x.title === p.title))
+            || beats.some((b) => b.kind === 'person' && b.photos.some((x) => x.title === p.title))).map((p) => p.path)
+          : [] };
+      let rendered = await renderStills(lane, id, text, saved, opts);
       if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
+
+      // The AI reviewer watches the finished short before it can post (asked
+      // for on 9 Nov, after the previews showed city gates, a coin and a prime
+      // minister). Photos it finds out of place come out and the short is cut
+      // again, once; if it still objects, or too few photos are left, the story
+      // is skipped. No answer from any model: posted on the photo rules alone.
+      const nameOf = new Map(saved.map((p) => [p.path, p.title.replace(/^File:/, '')]));
+      const watch = () => (rendered.shots ? reviewShort({ video: rendered.video, shots: rendered.shots, words: rendered.words, title, subject, lane: lane.name, nameOf, logger })
+        .catch((e) => { logger.warn(`review: ${String(e.message).slice(0, 120)}`); return null; }) : null);
+      let review = await watch();
+      if (review?.bad.length) {
+        const drop = new Set(review.bad.filter((b) => !b.clip).map((b) => b.image));
+        const keep = saved.filter((p) => !drop.has(p.path));
+        if (keep.length < minPhotos) { logger.info(`skip ${subject}: the reviewer rejected ${drop.size} photo(s), ${keep.length} left`); continue; }
+        rendered = await renderStills(lane, id, text, keep, {
+          ...opts,
+          chapters: chapters.map((c) => ({ ...c, photos: c.photos.filter((p) => !drop.has(p)) })).filter((c) => c.photos.length),
+          faceRequired: opts.faceRequired.filter((p) => !drop.has(p)),
+          stockClips: !review.bad.some((b) => b.clip)
+        });
+        if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
+        saved = keep;
+        review = await watch();
+        if (review?.bad.length) { logger.info(`skip ${subject}: the reviewer still rejects ${review.bad.length} frame(s)`); continue; }
+      }
       const { video, seconds } = rendered;
       const dirs = { copy: base('shorts', 'copy') };
       // The photos are only needed for this render, and their credits are in the copy.
@@ -1133,6 +1255,13 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   });
   await fsp.rm(imgDir, { recursive: true, force: true });
   if (rendered.skip) throw new Error(rendered.skip);
+  // The AI reviewer watches a series part too. Its photos were picked and
+  // looked at by hand, so nothing is dropped; what it objects to is logged.
+  if (rendered.shots) {
+    const nameOf = new Map(saved.map((p) => [p.path, p.title.replace(/^File:/, '')]));
+    await reviewShort({ video: rendered.video, shots: rendered.shots, words: rendered.words, title, subject: part.subject, lane: lane.name, nameOf, logger })
+      .catch((e) => logger.warn(`review: ${String(e.message).slice(0, 120)}`));
+  }
 
   const credits = saved.map((p) => `• ${p.title.replace(/^File:/, '')} — ${String(p.artist || 'unknown').slice(0, 80)}, ${p.license}`);
   const back = prev ? `◀ Part ${n - 1}: https://youtube.com/shorts/${prev.videoId}\n\n` : '';
@@ -1190,4 +1319,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, hookProblem, promiseProblem, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
+module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
