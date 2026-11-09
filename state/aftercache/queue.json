@@ -743,6 +743,20 @@
       "shortTitle": "Kevlar Vests Were First Made for WWII Soldiers 😱",
       "article": "Bulletproof vest",
       "categoryId": "27"
+    },
+    {
+      "id": "story-gps-1978-the-u-s-dep",
+      "topic": "1978 – The U.S. Department of Defense launched the first GPS satellite to improve navigation for military ships and missiles.",
+      "keywords": [
+        "GPS",
+        "military history",
+        "everyday objects",
+        "history facts"
+      ],
+      "status": "short",
+      "shortTitle": "GPS Was Born as a Military Navigation System 🤯",
+      "article": "Global Positioning System",
+      "categoryId": "27"
     }
   ]
 }

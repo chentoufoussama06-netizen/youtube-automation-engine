@@ -167,6 +167,20 @@
       "shortTitle": "SS Arctic sank after a night collision, killing 300 + passengers 😱",
       "article": "SS Arctic",
       "categoryId": "27"
+    },
+    {
+      "id": "story-eastland-the-passenger-sh",
+      "topic": "The passenger ship capsized while tied to a Chicago dock in 1915, trapping 844 people inside.",
+      "keywords": [
+        "Eastland",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Eastland capsized on dock, 844 trapped 😳",
+      "article": "SS Eastland",
+      "categoryId": "27"
     }
   ]
 }

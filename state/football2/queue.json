@@ -405,6 +405,34 @@
       "shortTitle": "Caesar’s 23-Stab Murder 😱",
       "article": "Assassination of Julius Caesar",
       "categoryId": "27"
+    },
+    {
+      "id": "story-themistocles-p2-themistocles",
+      "topic": "Themistocles flees to Persia – 471 BC",
+      "keywords": [
+        "Themistocles",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "From Athenian star to Persian governor 🌍 (Part 2)",
+      "article": "Themistocles",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-octavian-in-31-bce-octavi",
+      "topic": "In 31 BCE Octavian defeated Mark Antony and Cleopatra at Actium, paving his way to become Augustus, Rome’s first emperor.",
+      "keywords": [
+        "Octavian",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Octavian Wins at Actium, Becomes Emperor 🤯",
+      "article": "Battle of Actium",
+      "categoryId": "27"
     }
   ]
 }

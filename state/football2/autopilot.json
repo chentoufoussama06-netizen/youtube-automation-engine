@@ -175,6 +175,18 @@
       "event": "story",
       "id": "story-julius-caesar-on-the-ides-of-m",
       "url": "https://www.youtube.com/watch?v=wJn5d4y_sk8"
+    },
+    {
+      "at": "2026-11-09T01:59:28.288Z",
+      "event": "sequel",
+      "id": "story-themistocles-p2-themistocles",
+      "url": "https://www.youtube.com/watch?v=y20mzcJVNFs"
+    },
+    {
+      "at": "2026-11-09T02:02:50.456Z",
+      "event": "story",
+      "id": "story-octavian-in-31-bce-octavi",
+      "url": "https://www.youtube.com/watch?v=NK2NmTYip3k"
     }
   ],
   "pendingLinks": [],
@@ -190,6 +202,9 @@
     },
     "story-vercingetorix-gaulish-chieftai": {
       "playlistId": "PLFobcuK7pLss"
+    },
+    "story-themistocles-themistocles-con": {
+      "playlistId": "PLLiWUFWpyAIA"
     }
   }
 }
