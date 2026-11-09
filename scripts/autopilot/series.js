@@ -208,7 +208,9 @@ const SERIES = [
         teaser: 'One game left: England, in Berlin.',
         // Open on a face and the title's promise: the 9 Nov preview opened on
         // "Fresh off their Nations League triumph..." over a Berlin crowd.
-        note: 'Open on the 119th-minute header: name Mikel Merino and hosts Germany in the first sentence. Merino and Olmo won the 2019 under-21 title under de la Fuente: his own youth players decided both games. Do not tell the final.'
+        // The 9 Nov re-render had the semi "ticking toward extra time": it was
+        // won 2-1 in normal time, Yamal's equaliser then Olmo's winner.
+        note: 'Open on the 119th-minute header: name Mikel Merino and hosts Germany in the first sentence. The semi-final against France was won 2–1 in normal time: Yamal equalised, then Dani Olmo scored the winner; tell both, and that Spain were through to the final. Merino and Olmo won the 2019 under-21 title under de la Fuente: his own youth players decided both games. Do not tell the final.'
       },
       {
         articles: ['UEFA Euro 2024 final'],   // alone, so both goal paragraphs fit the brief

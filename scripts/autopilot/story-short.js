@@ -294,7 +294,10 @@ ${numbered}
 For each sentence, decide whether every factual claim in it (who did what,
 when, in what order, scores, results, quotes) is stated or directly implied
 by the SOURCE. Pure scene-setting with no factual claim ("Tension mounted.")
-counts as supported. A claim the source does not mention counts as unsupported.
+counts as supported. But scene-setting that implies a match event (extra time,
+penalties, a late goal, a comeback, a red card, an injury) IS a claim: "the
+clock ticked toward extra time" in a semi-final won 2–1 in normal time is
+unsupported. A claim the source does not mention counts as unsupported.
 
 Return ONLY JSON: {"unsupported": [sentence numbers]}`;
   try {
