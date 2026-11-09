@@ -785,7 +785,18 @@ const NOT_THE_TEAM = /\b(logo|crest|badge|campus|handball|basketball|volleyball|
 // A trophy photo is the trophy, not a beer can, a medal or a museum case.
 const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor|tour|takaichi|cabinet|holds|holding|lifts|lifting|raises|women|womens|women's|frauen|feminin\w*)\b/i;
 // Not a photograph at all.
-const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma)/i;
+const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma|\bcoins?\b|vijfje|\bmunt\b|banknote|\bstamps?\b)/i;
+/**
+ * A trusted (main image or Commons category) file whose name never says the
+ * person but names two-word someone else shows that someone: "Neymar and Andre
+ * Santos" (Webb refereeing, Neymar in front) and "Mike Jones signals free kick"
+ * came into a Muamba story through Howard Webb's category (9 Nov preview).
+ */
+function namesSomeoneElse(title, keys) {
+  if (hasKey(title, keys)) return false;
+  const plain = String(title).replace(/\.[A-Za-z0-9]+$/, '').replace(/\([^)]*\)/g, ' ');
+  return /(?<!\p{L})\p{Lu}\p{Ll}+\s+\p{Lu}\p{Ll}+/u.test(plain);
+}
 /** Does this file show the planned thing, by its name? */
 function shows(title, item, keys) {
   if (NOT_A_PHOTO.test(title)) return false;
@@ -851,7 +862,7 @@ async function beatPhotos(archival, plan, year, { football = false, subject = ''
     }
     let found = (await archival.gatherForArticle(item.article, item.article.replace(/\([^)]*\)/g, '').trim(), { total: 14 }).catch(() => []))
       .filter((x) => !OFF_TOPIC.test(x.title) && !SNAPSHOT.test(x.title) && !(football && item.kind === 'person' && NOT_THE_PLAYER.test(x.title)))
-      .filter((x) => (item.kind === 'person' && (x.source === 'main' || x.source === 'category') && !NOT_A_PHOTO.test(x.title)) || shows(x.title, item, keys))
+      .filter((x) => (item.kind === 'person' && (x.source === 'main' || x.source === 'category') && !NOT_A_PHOTO.test(x.title) && !namesSomeoneElse(x.title, keys)) || shows(x.title, item, keys))
       .filter((x) => item.kind === 'trophy' || !tooLate(x, year))
       .filter((x) => !(ancient && item.kind !== 'person' && MODERN.test(x.title)));
     if (year) {
@@ -936,7 +947,9 @@ const subjectKind = (subject) => (EVENTISH.test(String(subject)) ? 'event' : isT
  */
 async function subjectPhotos(archival, article, subject, year, { football = false } = {}) {
   const kind = subjectKind(subject);
-  const named = (x) => x.source === 'main' || x.source === 'category' || hasKey(x.title, [folded(subjectKey(subject))]);
+  const key = [folded(subjectKey(subject))];
+  const named = (x) => hasKey(x.title, key)
+    || ((x.source === 'main' || x.source === 'category') && !(kind === 'person' && namesSomeoneElse(x.title, key)));
   const all = (await archival.gatherForArticle(article, subject, { total: 40 }).catch(() => []))
     .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title))
     .filter((x) => !(football && kind === 'person' && NOT_THE_PLAYER.test(x.title)))
