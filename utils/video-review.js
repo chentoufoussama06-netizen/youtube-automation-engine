@@ -30,8 +30,11 @@ function framesPlan(shots, words, nameOf = new Map()) {
     const g = groups.get(key) || {
       image: key,
       clip: Boolean(s.video),
+      archive: Boolean(s.archive),
       at: Math.min(s.end - 0.05, s.start + Math.min(0.9, (s.end - s.start) / 2)),
-      name: s.video ? `stock video: ${String(s.pexels || key).split('/').filter(Boolean).pop()}` : (nameOf.get(key) || path.basename(String(key))),
+      name: s.archive ? `archive film: ${s.archive.title}`
+        : s.video ? `stock video: ${String(s.pexels || key).split('/').filter(Boolean).pop()}`
+          : (nameOf.get(key) || path.basename(String(key))),
       said: []
     };
     if (said) g.said.push(said);
@@ -58,7 +61,8 @@ ${frames.map((f, i) => `${i + 1}. file: ${f.name}\n   narrator: "${f.said || '(n
 For EACH frame decide whether the picture fits what is being said at that moment.
 OK: it shows the person, team, ground, trophy or event being talked about, or a scene
 that plainly belongs to it (that team's fans, that stadium, a memorial for that death,
-the story's own era and sport).
+the story's own era and sport). An "archive film" is real footage whose title names
+the story: OK when the frame plausibly shows that event, its place or its people.
 BAD: a different sport; a different team, player, referee or person than the one named
 (the file name or a kit can show it); a politician or official; a street, gate, church,
 shop, office or landmark that has nothing to do with the story; a coin, stamp, poster,
@@ -158,7 +162,7 @@ async function reviewShort({ video, shots, words, title, subject, lane, nameOf, 
     const opening = (words.map((w) => w.word).join(' ').match(/^[^.!?]+[.!?]/) || [''])[0];
     const verdict = await judge({ lane, title, subject, opening, frames: plan, logger });
     if (!verdict) return null;
-    const bad = verdict.frames.filter((f) => !f.ok).map((f) => ({ image: plan[f.n - 1].image, clip: plan[f.n - 1].clip, name: plan[f.n - 1].name, why: f.why }));
+    const bad = verdict.frames.filter((f) => !f.ok).map((f) => ({ image: plan[f.n - 1].image, clip: plan[f.n - 1].clip, archive: plan[f.n - 1].archive, name: plan[f.n - 1].name, why: f.why }));
     logger.info?.(`review (${verdict.model}): ${plan.length - bad.length}/${plan.length} frames fit; opening ${verdict.hook.score}/10 (${verdict.hook.why.slice(0, 120)})`);
     for (const b of bad) logger.info?.(`review: does not fit: ${b.name.slice(0, 80)} (${b.why.slice(0, 140)})`);
     return { bad, hook: verdict.hook, model: verdict.model, frames: plan.length };

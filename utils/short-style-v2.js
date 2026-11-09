@@ -27,6 +27,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const { getFFmpegPath, runFFmpeg } = require('./ffmpeg');
 const { addClips } = require('./broll');
+const { addArchive } = require('./archive-footage');
 const { pickTrack } = require('./music');
 
 const ROOT = path.join(__dirname, '..');
@@ -451,7 +452,7 @@ function resolveChapters(words, chapters) {
  *   chapters  optional [{ cue, photos }]: a countdown's "Number <cue>" starts a
  *             stretch shown only with its own photos (romano-weekly.js)
  */
-async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], theme = look, clipThemes = [], stockClips = true, faceRequired = [], outputPath, workDir, logger = console }) {
+async function renderStoryV2({ words, audioPath, photos, title, look = 'football', accent = '&H004040FF&', tag = null, label = null, next = null, chapters = [], theme = look, clipThemes = [], stockClips = true, faceRequired = [], archive = [], outputPath, workDir, logger = console }) {
   if (!words?.length) throw new Error('v2 render needs word timings');
   await fsp.mkdir(workDir, { recursive: true });
   const ffmpeg = getFFmpegPath();
@@ -490,8 +491,14 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   // The hook headline holds through the first sentence, 1.8-3.2s.
   const firstStop = words.find((w) => /[.!?]["'”’]?$/.test(w.word));
   const hookEnd = Math.min(3.2, Math.max(1.8, firstStop ? firstStop.end : 2.4));
-  // Moving shots on the words a still cannot carry (utils/broll.js).
-  const shots = await addClips(planShots(words, duration, ranked, resolved, claimed.size ? claimed : null), words,
+  // Real footage of the story first (utils/archive-footage.js), then moving
+  // shots on the words a still cannot carry (utils/broll.js) where it left room.
+  let shots = planShots(words, duration, ranked, resolved, claimed.size ? claimed : null);
+  shots = await addArchive(shots, words, archive, { chapters: resolved, hookEnd, workDir, logger }).catch((e) => {
+    logger.warn?.(`archive: ${String(e.message).slice(0, 120)}`);
+    return shots;
+  });
+  shots = await addClips(shots, words,
     { look: theme, chapters: resolved, hookEnd, workDir, seed: path.basename(outputPath), logger, extraThemes: clipThemes, stock: stockClips });
   const stats = statCards(words, hookEnd);
   // The riser builds into the last sentence — or, when the video ends on

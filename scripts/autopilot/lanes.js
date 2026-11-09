@@ -122,6 +122,9 @@ const LANES = [
     // with the first look by count, if a side-by-side measure is ever wanted.
     look: 'football',
     v2: 'on',
+    // Real footage of the story from Wikimedia Commons when it exists
+    // (newsreels, clubs' own CC video): utils/archive-footage.js, 9 Nov.
+    archiveFootage: true,
     docShortsPerDay: 0,
     story: DARK_FOOTBALL_STORY,
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '

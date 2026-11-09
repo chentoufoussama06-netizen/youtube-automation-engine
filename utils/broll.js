@@ -221,6 +221,8 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
   let out = shots.slice();
   let k = 0;
   for (const m of moments) {
+    // real footage of the story (utils/archive-footage.js) already holds this stretch
+    if (out.some((s) => s.archive && s.start < m.at + 2.4 && m.at < s.end)) continue;
     try {
       if (!pools.has(m.theme)) {
         const q = m.theme.queries[Math.floor(rand() * m.theme.queries.length)];
@@ -272,7 +274,7 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
       logger.warn?.(`b-roll skipped at ${m.at.toFixed(1)}s: ${e.message}`);
     }
   }
-  const n = out.filter((s) => s.video).length;
+  const n = out.filter((s) => s.video && !s.archive).length;
   if (n) logger.info?.(`b-roll: ${n} clip(s) from Pexels`);
   return out;
 }

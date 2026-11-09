@@ -39,6 +39,7 @@ const { LANES } = require('./lanes');
 const { footballNews } = require('../../utils/news-feed');
 const { renderStoryV2 } = require('../../utils/short-style-v2');
 const { reviewShort } = require('../../utils/video-review');
+const { findFootage } = require('../../utils/archive-footage');
 const { teamTheme } = require('../../utils/broll');
 const { SERIES, seriesPartDue, partId, NUMBER_WORDS } = require('./series');
 
@@ -604,7 +605,32 @@ place (an Enke draft named both). ${WORDS.min}-${WORDS.max} words. Return only t
  * story shorts and the Sunday roundup, so a change of look happens in one place.
  * Returns { video, seconds }, or { skip } when the narration runs out of bounds.
  */
-async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [], stockClips = true, faceRequired = [] } = {}) {
+/**
+ * Up to two Commons videos of the story itself (utils/archive-footage.js): a
+ * person found by full name, a club by its name, an event by its first word,
+ * within a year of the episode. Never fails a story: no footage, no clips.
+ */
+async function footageFor(subject, moment, year, logger) {
+  try {
+    const name = String(subject).replace(/\([^)]*\)/g, '').trim();
+    const kind = subjectKind(name);
+    const keys = kind === 'person'
+      ? titleKeys(name, 'person').filter((w) => !/^(junior|jr|filho|neto|sr)$/.test(w))
+      : titleKeys(name, kind).slice(0, kind === 'event' ? 1 : 2);
+    return await findFootage({ queries: [`"${name}"`, ...(year ? [`${name} ${year}`] : [])], keys, year, max: 2, logger });
+  } catch (e) {
+    logger.warn(`archive: ${String(e.message).slice(0, 100)}`);
+    return [];
+  }
+}
+
+/** Credit lines for the archive clips a render actually used. */
+function footageCredits(shots = []) {
+  const used = [...new Map((shots || []).filter((s) => s.archive).map((s) => [s.archive.title, s.archive])).values()];
+  return used.length ? `\nVideo (Wikimedia Commons):\n${used.map((v) => `• ${v.title} — ${String(v.artist || 'unknown').slice(0, 80)}, ${v.license}`).join('\n')}` : '';
+}
+
+async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [], stockClips = true, faceRequired = [], archive = [] } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
@@ -626,7 +652,7 @@ async function renderStills(lane, id, text, photos, { style = 'v1', title = '', 
       const v2 = await renderStoryV2({
         words: narration.words, audioPath: audio, photos: photos.map((p) => p.path), title, tag, label, next, chapters,
         look: lane.look || 'football', theme: lane.theme || lane.look || 'football',
-        clipThemes: lane.categoryId === '17' ? clipTeams.map(teamTheme).filter(Boolean).slice(0, 1) : [], stockClips, faceRequired,
+        clipThemes: lane.categoryId === '17' ? clipTeams.map(teamTheme).filter(Boolean).slice(0, 1) : [], stockClips, faceRequired, archive,
         accent: lane.captionHighlight, outputPath: video, workDir, logger
       });
       // A CC BY track has to be credited in the description (utils/music.js).
@@ -830,6 +856,9 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
           ? saved.filter((p) => (subjectKind(subject) === 'person' && pool.some((x) => x.title === p.title))
             || beats.some((b) => b.kind === 'person' && b.photos.some((x) => x.title === p.title))).map((p) => p.path)
           : [] };
+      // Real footage of the story from Commons (newsreels, clubs' own CC
+      // video), when the lane asks for it: up to 2 clips on the action words.
+      if (lane.archiveFootage) opts.archive = await footageFor(subject, story.moment, year, logger);
       let rendered = await renderStills(lane, id, text, saved, opts);
       if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
 
@@ -850,7 +879,9 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
           ...opts,
           chapters: chapters.map((c) => ({ ...c, photos: c.photos.filter((p) => !drop.has(p)) })).filter((c) => c.photos.length),
           faceRequired: opts.faceRequired.filter((p) => !drop.has(p)),
-          stockClips: !review.bad.some((b) => b.clip)
+          // a rejected stock clip takes the stock clips out; a rejected archive clip, that footage
+          stockClips: !review.bad.some((b) => b.clip && !b.archive),
+          archive: (opts.archive || []).filter((v) => !review.bad.some((b) => b.archive && b.image === `archive:${v.title}`))
         });
         if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
         saved = keep;
@@ -867,7 +898,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       // A sequel's first description line points back, for anyone who lands here first.
       const back = sequel ? `◀ Part ${sequel.part - 1}: https://youtube.com/shorts/${sequelOf.videoId}\n\n` : '';
       await fsp.writeFile(path.join(dirs.copy, `${id}_short.txt`),
-        `${back}${text}\n\nSource: ${brief.url}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}${rendered.music ? `\n\n${rendered.music}` : ''}`);
+        `${back}${text}\n\nSource: ${brief.url}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}${footageCredits(rendered.shots)}${rendered.music ? `\n\n${rendered.music}` : ''}`);
 
       const queuePath = base('queue.json');
       const queue = readJson(queuePath, { topics: [] });
@@ -1251,7 +1282,8 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
     tag: of > 1 ? `Part ${n} of ${of}` : null, label: part.label || null,
     next: nextPart ? `Part ${n + 1}` : null, chapters, clipTeams: part.clipTeams || [],
     // hand-picked photos: no generic crowd clips (they show other clubs: Galatasaray in Real Madrid Part 4)
-    stockClips: !part.photos.every((g) => g.files)
+    stockClips: !part.photos.every((g) => g.files),
+    archive: lane.archiveFootage ? await footageFor(part.subject, part.moment, eventYear(part.moment), logger) : []
   });
   await fsp.rm(imgDir, { recursive: true, force: true });
   if (rendered.skip) throw new Error(rendered.skip);
@@ -1266,7 +1298,7 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   const credits = saved.map((p) => `• ${p.title.replace(/^File:/, '')} — ${String(p.artist || 'unknown').slice(0, 80)}, ${p.license}`);
   const back = prev ? `◀ Part ${n - 1}: https://youtube.com/shorts/${prev.videoId}\n\n` : '';
   await fsp.writeFile(base('shorts', 'copy', `${id}_short.txt`),
-    `${back}${full}\n\nSources:\n${brief.urls.join('\n')}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}${rendered.music ? `\n\n${rendered.music}` : ''}`);
+    `${back}${full}\n\nSources:\n${brief.urls.join('\n')}\nPhotos (Wikimedia Commons):\n${credits.join('\n')}${footageCredits(rendered.shots)}${rendered.music ? `\n\n${rendered.music}` : ''}`);
 
   const queuePath = base('queue.json');
   const queue = readJson(queuePath, { topics: [] });
