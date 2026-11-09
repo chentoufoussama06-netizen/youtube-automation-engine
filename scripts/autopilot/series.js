@@ -206,7 +206,9 @@ const SERIES = [
         moment: 'At Euro 2024 Spain won their group without conceding, knocked out hosts Germany 2–1 with a Mikel Merino header in the 119th minute, and in the semi-final against France teenager Lamine Yamal equalised from outside the box before Dani Olmo scored the winner.',
         title: 'Spain Knocked Out Germany in the 119th Minute',
         teaser: 'One game left: England, in Berlin.',
-        note: 'Merino and Olmo won the 2019 under-21 title under de la Fuente: his own youth players decided both games. Do not tell the final.'
+        // Open on a face and the title's promise: the 9 Nov preview opened on
+        // "Fresh off their Nations League triumph..." over a Berlin crowd.
+        note: 'Open on the 119th-minute header: name Mikel Merino and hosts Germany in the first sentence. Merino and Olmo won the 2019 under-21 title under de la Fuente: his own youth players decided both games. Do not tell the final.'
       },
       {
         articles: ['UEFA Euro 2024 final'],   // alone, so both goal paragraphs fit the brief

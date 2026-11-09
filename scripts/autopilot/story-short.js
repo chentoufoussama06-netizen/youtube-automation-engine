@@ -468,7 +468,11 @@ place (an Enke draft named both). ${WORDS.min}-${WORDS.max} words. Return only t
         + 'Rewrite the whole narration so it still flows without them.', { maxTokens: 1400, temperature: 0.4 }).catch(() => ''))
         .replace(/^#+.*$/gm, '').replace(/\*\*/g, '').replace(/[‐-‒]/g, '-').replace(/\s+/g, ' ').trim();
       const n = words(fixed);
-      if (fixed && !unsourcedNumbers(fixed, brief.text).length && n >= WORDS.min && n <= WORDS.max) {
+      // The rewrite must still open right: de la Fuente Part 3's rewrite (9 Nov
+      // preview) dropped Germany from the opening the title promises.
+      const opens = attempt < 3 ? (hookProblem(fixed) || promiseProblem(fixed, story.title, brief.text)) : null;
+      if (opens) logger.info(`rewrite: ${opens}`);
+      if (fixed && !opens && !unsourcedNumbers(fixed, brief.text).length && n >= WORDS.min && n <= WORDS.max) {
         const again = await unsupportedSentences(ai, fixed, brief);
         if (again && again.size === 0) { logger.info('rewrite passed the fact-check clean'); return fixed; }
         logger.info(`rewrite still had ${again ? again.size : '?'} unsupported sentence(s); using the cut draft`);
@@ -481,7 +485,15 @@ place (an Enke draft named both). ${WORDS.min}-${WORDS.max} words. Return only t
     const opener = String(story.title || '').replace(/[^\p{L}\p{N}\s'’,-]/gu, '').replace(/\s+/g, ' ').trim();
     const final = flagged.has(0) && opener ? `${opener}. ${checked}` : checked;
     const n = words(final);
-    if (flagged.size <= Math.ceil(sentences.length / 4) && n >= WORDS.min && n <= WORDS.max) return final;
+    if (flagged.size <= Math.ceil(sentences.length / 4) && n >= WORDS.min && n <= WORDS.max) {
+      // A cut can take the sentence that kept the title's promise; the last
+      // attempt ships what it has rather than losing the story.
+      const late = attempt < 3 ? (hookProblem(final) || promiseProblem(final, story.title, brief.text)) : null;
+      if (!late) return final;
+      logger.info(`draft ${attempt}: after the fact-check, ${late}`);
+      feedback = `the opening: ${late}`;
+      continue;
+    }
     logger.warn(`draft ${attempt}: ${n} usable words, unsourced figures: ${bad.join(', ') || 'none'}`);
   }
   return null;
