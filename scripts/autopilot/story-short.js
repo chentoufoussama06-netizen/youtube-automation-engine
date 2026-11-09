@@ -121,6 +121,27 @@ function footballArticle(text) {
   return soccer >= 3 && soccer >= 2 * count(OTHER_SPORT);
 }
 
+/**
+ * Is `b` the episode `a` already told, in other words? Shared distinctive
+ * words of title + moment (years included, generic football words not),
+ * stemmed to 6 letters. On Football Files' 38 stories (9 Nov) it flags the
+ * 12 repeat pairs (Munich x3, Baggio x3, Zidane, Speed, Neymar, Juventus,
+ * Cantona, Foé) and nothing else.
+ */
+const EPISODE_STOP = new Set(('football footballer footballers world after before their with from into during when which that this were have been '
+  + 'team club match game player players final finals years year season league cups championship national history career first last over under '
+  + 'about against more most dies died death killed kills tragic story what where while would could they them then than also only even just like '
+  + 'onto upon shorts part sport sports famous legend legends star stars shocking moment night today ever every never nearly home away').split(' '));
+const episodeWords = (s) => new Set((fold(`${s.title || ''} ${s.moment || ''}`).match(/[a-z]{4,}|(?:1[89]|20)\d\d/g) || [])
+  .filter((w) => !EPISODE_STOP.has(w)).map((w) => w.slice(0, 6)));
+function sameEpisode(a, b) {
+  const A = episodeWords(a);
+  const B = episodeWords(b);
+  let n = 0;
+  for (const w of A) if (B.has(w)) n++;
+  return n >= 4 && n / Math.min(A.size, B.size) >= 0.4;
+}
+
 // A star-first picker ran 7-9 Nov 2026 (today's stars, their records and
 // debuts, 20-30s). Its shorts got 84-305 views each on Football Files, where
 // the dark stories the channel was built on get ~1,000 (DARK_FOOTBALL_STORY in
@@ -612,6 +633,13 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       // The fortnight-per-subject rule is for fresh picks; a sequel is the same subject by design.
       if (!sequel && !pinned && (recent.has(fold(subject)) || takenThisRun.has(fold(subject)))) continue;
       if (done.some((d) => fold(d.moment) === fold(story.moment))) continue;
+      // The same episode under another name or wording is a repeat for good, not
+      // for 14 days: Munich 1958 went out on 9 Oct, 31 Oct and 7 Nov (as
+      // "Manchester United", then "...Busby Babes"), Baggio's miss three times.
+      if (!sequel && !pinned) {
+        const told = done.find((d) => (!d.part || d.part === 1) && sameEpisode(d, story));
+        if (told) { logger.info(`skip ${subject}: already told as "${told.title}" (${String(told.at).slice(0, 10)})`); continue; }
+      }
 
       let brief;
       if (sequel) {
@@ -953,9 +981,9 @@ const subjectKind = (subject) => (EVENTISH.test(String(subject)) ? 'event' : isT
  */
 async function subjectPhotos(archival, article, subject, year, { football = false } = {}) {
   const kind = subjectKind(subject);
-  const key = [folded(subjectKey(subject))];
-  const named = (x) => hasKey(x.title, key)
-    || ((x.source === 'main' || x.source === 'category') && !(kind === 'person' && namesSomeoneElse(x.title, key)));
+  // The subject's own category is trusted as before: the someone-else rule cut
+  // Zidane to 2 photos (9 Nov); it guards the side people's beats instead.
+  const named = (x) => x.source === 'main' || x.source === 'category' || hasKey(x.title, [folded(subjectKey(subject))]);
   const all = (await archival.gatherForArticle(article, subject, { total: 40 }).catch(() => []))
     .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title))
     .filter((x) => !(football && kind === 'person' && NOT_THE_PLAYER.test(x.title)))
