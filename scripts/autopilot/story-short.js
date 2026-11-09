@@ -995,7 +995,12 @@ async function subjectPhotos(archival, article, subject, year, { football = fals
   const kind = subjectKind(subject);
   // The subject's own category is trusted as before: the someone-else rule cut
   // Zidane to 2 photos (9 Nov); it guards the side people's beats instead.
-  const named = (x) => x.source === 'main' || x.source === 'category' || hasKey(x.title, [folded(subjectKey(subject))]);
+  // Found by search, a person needs the whole name in the file, not just the
+  // surname: "Puerta" (Spanish for gate) filled Antonio Puerta's short with
+  // Madrid's city gates (9 Nov preview).
+  const fullName = titleKeys(subject, 'person').filter((w) => !/^(junior|jr|filho|neto|sr)$/.test(w));
+  const named = (x) => x.source === 'main' || x.source === 'category'
+    || (kind === 'person' ? hasAll(x.title, fullName) : hasKey(x.title, [folded(subjectKey(subject))]));
   const all = (await archival.gatherForArticle(article, subject, { total: 40 }).catch(() => []))
     .filter((x) => !OFF_TOPIC.test(x.title) && !NOT_A_PHOTO.test(x.title))
     .filter((x) => !(football && kind === 'person' && NOT_THE_PLAYER.test(x.title)))
