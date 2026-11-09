@@ -1738,15 +1738,14 @@
     "supersededAt": "2026-11-07T20:12:10.760Z",
     "wasScheduledFor": "2026-11-10T16:30:00.000Z"
   },
-  "story-series-de-la-fuente-p2~superseded-17940827996502": {
+  "story-series-de-la-fuente-p2": {
     "videoId": "tz45ZYGTZgU",
     "url": "https://www.youtube.com/watch?v=tz45ZYGTZgU",
-    "privacyStatus": "private",
+    "privacyStatus": "public",
     "title": "The Chipped Penalty That Won Spain a Trophy (Part 2) #Shorts",
     "uploadedAt": "2026-11-07T20:10:26.221Z",
-    "superseded": true,
-    "supersededAt": "2026-11-07T20:19:59.650Z",
-    "wasScheduledFor": "2026-11-08T16:30:00.000Z"
+    "publishedAt": "2026-11-09T17:10:52.000Z",
+    "publishedBy": "hand (YouTube Studio)"
   },
   "story-series-de-la-fuente-p3~superseded-17940827996523": {
     "videoId": "DAtGYFJCcZk",

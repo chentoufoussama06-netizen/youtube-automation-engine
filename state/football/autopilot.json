@@ -16,8 +16,7 @@
     }
   },
   "failures": {
-    "sequel:story-roberto-baggio-p2-1998-world-c": 2,
-    "series:story-series-de-la-fuente-p2": 1
+    "sequel:story-roberto-baggio-p2-1998-world-c": 2
   },
   "history": [
     {
@@ -408,9 +407,24 @@
       "event": "story",
       "id": "story-vinicius-junior-born-in-sao-gonc",
       "url": "https://www.youtube.com/watch?v=ypoqhBbm768"
+    },
+    {
+      "at": "2026-11-09T17:10:52.000Z",
+      "event": "series",
+      "id": "story-series-de-la-fuente-p2",
+      "url": "https://www.youtube.com/watch?v=tz45ZYGTZgU",
+      "note": "made public by hand in YouTube Studio"
     }
   ],
-  "pendingLinks": [],
+  "pendingLinks": [
+    {
+      "root": "story-series-de-la-fuente-p1",
+      "prev": "10nY0SpHx24",
+      "next": "tz45ZYGTZgU",
+      "part": 2,
+      "subject": "Luis de la Fuente: The Quiet Genius"
+    }
+  ],
   "series": {
     "story-john-terry-in-2012-terry-wa": {
       "playlistId": "PLBtX8AND14sc"
