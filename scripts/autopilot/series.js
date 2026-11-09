@@ -245,7 +245,9 @@ const SERIES = [
         clipTeams: ['Spain'],   // Spain fans on the victory words, never random people
         label: 'World Cup Final · 2026',
         moment: 'On 19 July 2026 Spain beat defending champions Argentina 1–0 after extra time in the World Cup final, with a goal from Ferran Torres.',
-        title: 'The Youth Coach Who Won Everything',
+        // States the payoff (the old "The Youth Coach Who Won Everything"
+        // named nobody); the first lines must now say Spain and the World Cup.
+        title: 'Spain\'s Youth Coach Won the World Cup',
         note: 'This is the last part. His article says he became the first manager to win the Nations League, the European Championship and the World Cup, and the oldest to win the World Cup: land the whole story on that in the final line.'
       }
     ]

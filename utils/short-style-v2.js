@@ -169,7 +169,17 @@ function planShots(words, duration, ranked, chapters = [], claimed = null) {
     const from = pool.length ? pool : (safe.length ? safe : ranked);
     // The opener is the best photo; after that, the least-used photo that is
     // not the one just shown, best-ranked first.
-    const pick = i === 0 ? opener(from) : [...from]
+    let first = i === 0 ? opener(from) : null;
+    // A faceless opener (a stadium, a far-off match photo boxed in dark space)
+    // is what the swiped-away shorts opened on (Salah, 8 Nov: 9 views in 3h).
+    // When a name is said during this first shot, open on that face instead.
+    if (first?.card) {
+      const early = chapters.find((c) => c.photos?.length && c.at < Math.min(end, 3.5));
+      const theirs = early ? ranked.filter((r) => early.photos.includes(r.path)) : [];
+      const alt = theirs.length ? opener(theirs) : null;
+      if (alt && !alt.card) first = alt;
+    }
+    const pick = i === 0 ? first : [...from]
       .filter((r) => r.path !== prev || from.length === 1)
       .sort((a, b) => (uses.get(a.path) || 0) - (uses.get(b.path) || 0) || b.score - a.score)[0] || ranked[0];
     const n = uses.get(pick.path) || 0;

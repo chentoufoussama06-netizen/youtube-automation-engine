@@ -43,11 +43,16 @@ const DARK_FOOTBALL_STORY = {
   scope: 'About a FAMOUS footballer, manager, club or national team that casual fans\n'
     + '  worldwide know, at a DARK or shocking turn: a death, collapse, crime, scandal,\n'
     + '  disaster, meltdown, betrayal, a career destroyed overnight, karma.\n'
+    + '- NOT career trivia: a debut, a first club, a nomination, an award or a goal\n'
+    + '  record on its own (Haaland at Bryne, Vinícius debuts at 16, Salah\'s 32 goals:\n'
+    + '  84-305 views each on 8-9 Nov, against ~1,000 for every dark story).\n'
     + '- One specific episode. The title states the shocking fact or twist itself in\n'
     + '  plain words (like the first three examples), optionally ending with one emoji.',
   captionExample: 'Mario Balotelli',
   tags: ['football', 'football story', 'football tragedy'],
-  words: { min: 58, target: 66, max: 80 }      // ~20-30s: 88% of 2M+ football Shorts run under 30s
+  // ~30-55s. The 7 Nov move to 20-30s star shorts (58-80 words) went with the
+  // channel's worst run: 84-305 views a post against ~1,000 at this length.
+  words: { min: 75, target: 100, max: 135 }
 };
 
 // All lanes share one Google project's 10,000 units/day (a short ~1,700), so

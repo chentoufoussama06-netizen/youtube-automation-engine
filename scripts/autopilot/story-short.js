@@ -107,64 +107,12 @@ async function trending(limit = 150) {
 }
 
 
-const STAR_STRATEGY = `
-STRATEGY (what pulled 2-40 million views on football Shorts in late October
-2026): at least HALF of your proposals must be about today's biggest stars —
-Lamine Yamal, Kylian Mbappé, Erling Haaland, Harry Kane, Vinícius Júnior, Jude
-Bellingham, Mohamed Salah, Cristiano Ronaldo, Lionel Messi, Neymar — or about
-this week's big event (a final, El Clásico, the Ballon d'Or, a record, a
-transfer). A story from IN THE NEWS above beats everything else.
-For a current star the moment does NOT have to be dark: a record, a heartbreak,
-a final won or lost, a red card, a comeback, a meltdown — but it MUST be one
-their English Wikipedia article already tells (the 7 Nov test invented a Salah
-collapse and a Messi ban; every one was rejected). If you are not sure an
-episode is in the article, pick a different one.`;
+// A star-first picker ran 7-9 Nov 2026 (today's stars, their records and
+// debuts, 20-30s). Its shorts got 84-305 views each on Football Files, where
+// the dark stories the channel was built on get ~1,000 (DARK_FOOTBALL_STORY in
+// lanes.js), so it was taken out on 9 Nov. Famous names stay; trivia goes.
 
-// The stars the strategy leans on, and real lines about them: told only "use
-// real moments", the model still invented injuries and bans (7 Nov tests, all
-// rejected). Given their own article text, it picks from what is there.
-const STARS = ['Lamine Yamal', 'Kylian Mbappé', 'Erling Haaland', 'Harry Kane', 'Vinícius Júnior', 'Jude Bellingham',
-  'Mohamed Salah', 'Cristiano Ronaldo', 'Lionel Messi', 'Neymar'];
-const BIG_MOMENT = /record|youngest|oldest|first (player|time)|final|hat-trick|hat trick|scored|won the|winner|red card|sent off|ban|injur|ballon d|golden boot|world cup|champions league|euro|transfer|fee|debut|missed|penalt|controvers|tears|lost/i;
-async function starFactItems(research, n = 5) {
-  const day = Math.floor(Date.now() / 86400000);
-  const pick = Array.from({ length: n }, (_, i) => STARS[(day * n + i) % STARS.length]);
-  const out = [];
-  for (const star of pick) {
-    const full = await research.buildBriefFromArticle(star, { maxChars: 150000 }).catch(() => null);
-    if (!full?.text) continue;
-    const lines = (full.text.match(/[^.!?\n]+[.!?]/g) || [])
-      .map((x) => x.trim()).filter((x) => x.length > 50 && x.length < 320 && BIG_MOMENT.test(x) && /\b(19|20)\d\d\b/.test(x));
-    if (lines.length) out.push({ star, article: full.title || star, lines: lines.slice(0, 10) });
-  }
-  return out;
-}
-const factsText = (items) => items.map((it) => `${it.star} (article: "${it.article}"):\n${it.lines.map((l) => `  - ${l}`).join('\n')}`).join('\n');
-
-/**
- * Star stories made straight from those lines: the moment IS a sentence of the
- * star's own article, so it cannot be invented (the model kept proposing bans
- * and collapses that never happened, 8 Nov). The model only writes the titles.
- */
-async function factStories(ai, items, max = 10) {
-  const cands = items.flatMap((it) => it.lines.slice(0, 2).map((line) => ({ article: it.article, subject: it.star, moment: line })))
-    .slice(0, max);
-  if (!cands.length) return [];
-  const prompt = `For each real football moment below, write a YouTube Shorts title: under 55
-characters, opening on the player's name, stating what happened plainly as a
-fact (no question), ending with ONE fitting emoji. Use only what the line says.
-${cands.map((c, i) => `${i + 1}. ${c.moment}`).join('\n')}
-Return ONLY JSON: {"titles": ["...", "..."]}`;
-  try {
-    const titles = parseJson(await ai.generateText(prompt, { maxTokens: 900, temperature: 0.4 })).titles || [];
-    const named = (c) => folded(c.title).includes(folded(String(c.subject).split(/\s+/).pop()));
-    return cands.map((c, i) => ({ ...c, title: String(titles[i] || '').trim() })).filter((c) => c.title.length >= 10 && named(c));
-  } catch {
-    return [];
-  }
-}
-
-async function propose(ai, lane, avoid, hot = [], news = [], facts = '', stars = true) {
+async function propose(ai, lane, avoid, hot = [], news = []) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
@@ -181,11 +129,6 @@ TRENDING — yesterday's most-read English Wikipedia articles, i.e. what people 
 searching for right now. If any of these fits this channel's scope (a person,
 club, event or thing it would cover), make your FIRST proposals about them:
 ${hot.join(' | ')}
-` : ''}${lane.categoryId === '17' && stars ? STAR_STRATEGY : ''}${facts ? `
-STAR FACTS — real lines from these stars' English Wikipedia articles. Every
-story about one of these stars MUST be one of these lines (same event, same
-year, "article" = the article named), not anything else you think you know:
-${facts}
 ` : ''}
 Propose 10 stories like these. Rules:
 - ${story.scope}
@@ -356,6 +299,26 @@ function hookProblem(text) {
   return null;
 }
 
+/**
+ * The names in the title that the first two sentences never say, or null.
+ * "Spain Lost to Morocco, So They Hired Their Youth Coach" (7 Nov) opened on
+ * de la Fuente "staring at the empty bench" and never said Morocco at all:
+ * 213 views, Studio's verdict "more viewers swiped away". A name is a title
+ * word the source writes capitalised mid-sentence and never in lower case.
+ */
+function promiseProblem(text, title, source = '') {
+  const head = fold((String(text).match(/[^.!?]+[.!?]+/g) || [String(text)]).slice(0, 2).join(' '));
+  const src = String(source);
+  const esc = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const names = [...new Set((String(title || '').replace(/\(Part \d+\)/i, '').match(/\p{L}[\p{L}'’-]{2,}/gu) || [])
+    .map((w) => w.replace(/['’]s$/i, '')))]
+    .filter((w) => /^\p{Lu}/u.test(w)
+      && new RegExp(`[a-z,;] ${esc(w)}(?!\\p{L})`, 'u').test(src)
+      && !new RegExp(`(?<!\\p{L})${esc(w.toLowerCase())}(?!\\p{L})`, 'u').test(src));
+  const missing = names.filter((w) => !head.includes(fold(w)));
+  return missing.length ? `the title promises ${missing.join(' and ')}, but the first two sentences never say it; open on it` : null;
+}
+
 async function narrate(ai, story, brief, writer = writerAI(), WORDS = DEFAULT_WORDS) {
   // A sequel is told as the next chapter: what Part 1 said is shown so it is
   // not retold, and one reconnecting line lets a viewer who missed it follow.
@@ -410,7 +373,7 @@ Structure:
    the comments ("Was this the cruellest night in football?", "Who was really to
    blame?"). Never "subscribe", "like" or "let me know".
 
-KEEP IT SHORT: the Shorts that pull millions run 15-30 seconds. Every sentence
+${WORDS.target <= 80 ? 'KEEP IT SHORT: the Shorts that pull millions run 15-30 seconds. ' : ''}Every sentence
 must earn its place; cut background the viewer does not need.
 
 Style: spoken, energetic storytelling, short sentences, present the facts
@@ -438,7 +401,7 @@ arrived"). ${WORDS.min}-${WORDS.max} words. Return only the narration.`;
     if (bad.length) logger.info(`dropped sentences with unsourced figures (${bad.join(', ')})`);
     // A weak opener goes back before the fact-check spends a call on it; the
     // last attempt ships whatever it has rather than losing the story.
-    const weak = hookProblem(kept);
+    const weak = hookProblem(kept) || promiseProblem(kept, story.title, brief.text);
     if (weak && attempt < 3) {
       logger.info(`draft ${attempt}: weak hook (${weak}): "${(kept.match(/^[^.!?]+[.!?]/) || [kept])[0].slice(0, 90)}"`);
       feedback = `the hook: ${weak}`;
@@ -613,9 +576,6 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
     logger.info(`sequel: Part ${sequel.part} of ${sequelOf.id}`);
   }
 
-  const factItems = !sequel && !pinned && lane.categoryId === '17' ? await starFactItems(research).catch(() => []) : [];
-  const facts = factsText(factItems);
-  if (facts) logger.info(`star facts: ${facts.split('\n').filter((l) => !l.startsWith('  ')).map((l) => l.split(' (')[0]).join(', ')}`);
   for (let round = 1; round <= (sequel || pinned ? 1 : 3); round++) {
     let stories;
     try {
@@ -625,11 +585,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       stories = pinned ? [pinned] : sequel
         ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 11500)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
-        : [
-          // round 1 opens on stories made from the stars' own article lines
-          ...(round === 1 ? await factStories(ai, factItems).catch(() => []) : []),
-          ...await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], round < 3 ? facts : '', round < 3)
-        ];
+        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : []);
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
@@ -1035,7 +991,10 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   const nextPart = series.parts[n] || null;
   // Parts tell a whole act, so they run a little longer than a one-off story.
   // ~30s: a part is one act, told as tight as a one-off (2026-11-07 strategy).
-  const WORDS = { min: 48, target: 58, max: 70 };   // + the teaser line: ~30s (Part 2 ran 41s at 58-90, 8 Nov)
+  // ~32-50s + the teaser line: the series parts that pulled 1,000-2,900 views
+  // ran 38-53s (Benzema Part 1, 46s: 2,871). At 48-70 words De la Fuente
+  // Part 2 failed three drafts on length (9 Nov) and never posted.
+  const WORDS = { min: 75, target: 95, max: 125 };
   const text = await narrate(ai, {
     subject: part.subject, moment: part.moment, title: part.title,
     ...(previously ? { previously, part: n } : { part: n }),
@@ -1131,4 +1090,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, hookProblem, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
+module.exports = { makeStoryShort, hookProblem, promiseProblem, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
