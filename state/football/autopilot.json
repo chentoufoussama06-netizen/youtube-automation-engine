@@ -416,15 +416,7 @@
       "note": "made public by hand in YouTube Studio"
     }
   ],
-  "pendingLinks": [
-    {
-      "root": "story-series-de-la-fuente-p1",
-      "prev": "10nY0SpHx24",
-      "next": "tz45ZYGTZgU",
-      "part": 2,
-      "subject": "Luis de la Fuente: The Quiet Genius"
-    }
-  ],
+  "pendingLinks": [],
   "series": {
     "story-john-terry-in-2012-terry-wa": {
       "playlistId": "PLBtX8AND14sc"
@@ -449,6 +441,9 @@
     },
     "story-roberto-baggio-baggio-missed-th": {
       "playlistId": "PLTz-0jtMKeF4"
+    },
+    "story-series-de-la-fuente-p1": {
+      "playlistId": "PLGz3FoRNycdQ"
     }
   },
   "romano": {
