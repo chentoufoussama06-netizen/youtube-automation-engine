@@ -527,5 +527,14 @@
     "of": 5,
     "root": "story-series-de-la-fuente-p1",
     "sequelOf": "story-series-de-la-fuente-p2"
+  },
+  {
+    "id": "story-fabrice-muamba-muamba-suffered",
+    "subject": "Fabrice Muamba",
+    "article": "Fabrice Muamba",
+    "moment": "Muamba suffered a cardiac arrest during a 2012 FA Cup match, his heart stopped for 78 minutes before he was revived.",
+    "title": "Fabrice Muamba’s Heart Stops for 78 Minutes 😳",
+    "at": "2026-11-10T17:22:42.475Z",
+    "style": "v2"
   }
 ]
