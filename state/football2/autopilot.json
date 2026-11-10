@@ -1,6 +1,8 @@
 {
   "longform": {},
-  "failures": {},
+  "failures": {
+    "sequel:story-caligula-caligula-alleged": 1
+  },
   "history": [
     {
       "at": "2026-10-08T13:23:08.765Z",
@@ -187,6 +189,12 @@
       "event": "story",
       "id": "story-octavian-in-31-bce-octavi",
       "url": "https://www.youtube.com/watch?v=NK2NmTYip3k"
+    },
+    {
+      "at": "2026-11-10T00:34:40.990Z",
+      "event": "story",
+      "id": "story-fourth-crusade-crusaders-sack-c",
+      "url": "https://www.youtube.com/watch?v=XuZNl_ik7A4"
     }
   ],
   "pendingLinks": [],

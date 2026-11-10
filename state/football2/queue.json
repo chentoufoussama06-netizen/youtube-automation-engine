@@ -433,6 +433,20 @@
       "shortTitle": "Octavian Wins at Actium, Becomes Emperor 🤯",
       "article": "Battle of Actium",
       "categoryId": "27"
+    },
+    {
+      "id": "story-fourth-crusade-crusaders-sack-c",
+      "topic": "Crusaders sack Constantinople, looting and burning the city, 1204 CE.",
+      "keywords": [
+        "Fourth Crusade",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Crusaders Sack Constantinople in 1204 🔥",
+      "article": "Sack of Constantinople",
+      "categoryId": "27"
     }
   ]
 }
