@@ -429,6 +429,12 @@
       "event": "story",
       "id": "story-fabrice-muamba-muamba-suffered",
       "url": "https://www.youtube.com/watch?v=C0aTt-YQlBg"
+    },
+    {
+      "at": "2026-11-10T22:02:24.435Z",
+      "event": "sequel",
+      "id": "story-jude-bellingham-p2-2026-belling",
+      "url": "https://www.youtube.com/watch?v=hW3tEIi1-J4"
     }
   ],
   "pendingLinks": [],
@@ -459,6 +465,9 @@
     },
     "story-series-de-la-fuente-p1": {
       "playlistId": "PLGz3FoRNycdQ"
+    },
+    "story-jude-bellingham-at-the-2026-worl": {
+      "playlistId": "PLBW985yJKNcQ"
     }
   },
   "romano": {

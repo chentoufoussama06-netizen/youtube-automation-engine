@@ -536,5 +536,17 @@
     "title": "Fabrice Muamba’s Heart Stops for 78 Minutes 😳",
     "at": "2026-11-10T17:22:42.475Z",
     "style": "v2"
+  },
+  {
+    "id": "story-jude-bellingham-p2-2026-belling",
+    "subject": "Jude Bellingham",
+    "article": "Jude Bellingham",
+    "moment": "2026 – Bellingham wins the Bronze Boot",
+    "title": "World Cup Bronze Boot triumph 🥉 (Part 2)",
+    "at": "2026-11-10T22:02:13.511Z",
+    "style": "v2",
+    "sequelOf": "story-jude-bellingham-at-the-2026-worl",
+    "part": 2,
+    "root": "story-jude-bellingham-at-the-2026-worl"
   }
 ]
