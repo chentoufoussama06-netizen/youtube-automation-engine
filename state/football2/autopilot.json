@@ -1,7 +1,7 @@
 {
   "longform": {},
   "failures": {
-    "sequel:story-caligula-caligula-alleged": 1
+    "sequel:story-caligula-caligula-alleged": 2
   },
   "history": [
     {
@@ -195,6 +195,12 @@
       "event": "story",
       "id": "story-fourth-crusade-crusaders-sack-c",
       "url": "https://www.youtube.com/watch?v=XuZNl_ik7A4"
+    },
+    {
+      "at": "2026-11-10T02:23:04.885Z",
+      "event": "story",
+      "id": "story-nabonidus-babylonian-king",
+      "url": "https://www.youtube.com/watch?v=s8iI3_XzpeM"
     }
   ],
   "pendingLinks": [],

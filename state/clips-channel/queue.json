@@ -181,6 +181,20 @@
       "shortTitle": "Eastland capsized on dock, 844 trapped 😳",
       "article": "SS Eastland",
       "categoryId": "27"
+    },
+    {
+      "id": "story-mont-blanc-in-1917-the-fren",
+      "topic": "In 1917 the French munitions ship SS Mont‑Blanc exploded in Halifax Harbour, killing over 2,000 people.",
+      "keywords": [
+        "Mont-Blanc",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "The cargo ship that turned Halifax into a giant bomb 😱",
+      "article": "SS Mont-Blanc",
+      "categoryId": "27"
     }
   ]
 }

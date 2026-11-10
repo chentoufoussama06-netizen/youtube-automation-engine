@@ -18,7 +18,7 @@
   "failures": {
     "sequel:story-roberto-baggio-p2-1998-world-c": 2,
     "series:story-series-de-la-fuente-p3": 1,
-    "sequel:story-juventus-in-2006-juventus": 1
+    "sequel:story-juventus-in-2006-juventus": 2
   },
   "history": [
     {
@@ -416,6 +416,12 @@
       "id": "story-series-de-la-fuente-p2",
       "url": "https://www.youtube.com/watch?v=tz45ZYGTZgU",
       "note": "made public by hand in YouTube Studio"
+    },
+    {
+      "at": "2026-11-10T02:28:19.999Z",
+      "event": "series",
+      "id": "story-series-de-la-fuente-p3",
+      "url": "https://www.youtube.com/watch?v=sbk_gTznUa0"
     }
   ],
   "pendingLinks": [],

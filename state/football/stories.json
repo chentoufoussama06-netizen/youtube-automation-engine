@@ -513,5 +513,19 @@
     "title": "Vinícius Júnior debuts for Flamengo at 16 ⚽",
     "at": "2026-11-09T02:12:06.464Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-de-la-fuente-p3",
+    "subject": "Lamine Yamal",
+    "article": "UEFA Euro 2024 final",
+    "moment": "At Euro 2024 Spain won their group without conceding, knocked out hosts Germany 2–1 with a Mikel Merino header in the 119th minute, and in the semi-final against France teenager Lamine Yamal equalised from outside the box before Dani Olmo scored the winner.",
+    "title": "Spain Knocked Out Germany in the 119th Minute (Part 3)",
+    "at": "2026-11-10T02:28:07.020Z",
+    "style": "v2",
+    "series": "de-la-fuente",
+    "part": 3,
+    "of": 5,
+    "root": "story-series-de-la-fuente-p1",
+    "sequelOf": "story-series-de-la-fuente-p2"
   }
 ]
