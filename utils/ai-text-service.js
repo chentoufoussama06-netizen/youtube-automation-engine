@@ -307,6 +307,15 @@ class AITextService {
       // so on 2026-08-29 a stale Mistral model id (403) plus Pollinations
       // retiring its free text API (402) failed every job in the queue while
       // working Groq credentials sat unused in the same file.
+      // Gemini's lite models have their own free daily quotas: with the main
+      // model out (429 at 02:11 on 11 Nov) the backups invented players
+      // ("Michele Micheletti") and scandals, and nothing posted. They write
+      // before a weaker provider does.
+      const lite = await this._generateGeminiLite(prompt, options).catch(() => null);
+      if (lite) {
+        return lite;
+      }
+
       const recovered = await this._generateWithBackupProviders(prompt, options);
       if (recovered !== null) {
         return recovered;
@@ -315,6 +324,33 @@ class AITextService {
       this.logger.warn(`${this.providerName || 'Primary'} text generation failed (${String(error.message).slice(0, 70)}); falling back to Pollinations`);
       return await this._generatePollinationsText(prompt, options);
     }
+  }
+
+  // Gemini's lite models, called directly. They refuse a thinkingBudget (400),
+  // so none is sent. Returns the text, or null when none answered.
+  async _generateGeminiLite(prompt, options = {}) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return null;
+    const { GoogleGenAI } = require('@google/genai');
+    const g = new GoogleGenAI({ apiKey });
+    for (const model of ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-lite-latest']) {
+      try {
+        const response = await g.models.generateContent({
+          model,
+          contents: prompt,
+          config: { maxOutputTokens: options.maxTokens || 2048, temperature: options.temperature ?? 0.7 }
+        });
+        const parts = response.candidates?.[0]?.content?.parts || [];
+        const answer = parts.filter(p => !p.thought && p.text).map(p => p.text).join('').trim();
+        if (answer) {
+          this.logger.info(`Gemini ${model} answered in place of ${this.providerName || 'the primary'}`);
+          return answer;
+        }
+      } catch (error) {
+        // next lite model
+      }
+    }
+    return null;
   }
 
   // Try every other configured OpenAI-compatible provider in turn. Returns the
