@@ -18,7 +18,9 @@ const path = require('path');
 const { videoStats } = require('../../utils/short-stats');
 
 const ROOT = path.join(__dirname, '..', '..');
-const MIN_VIEWS = Number(process.env.SEQUEL_MIN_VIEWS) || 300;
+// A sequel is for a breakout, not an average short: at 300, a 905-view star
+// trivia short "earned" a Part 2 on 10 Nov (the usual band is ~740-1,200).
+const MIN_VIEWS = Number(process.env.SEQUEL_MIN_VIEWS) || 1300;
 const MIN_AVG_PCT = Number(process.env.SEQUEL_MIN_AVG_PCT) || 60;
 // Analytics lags a day or two, so a short younger than this has no honest
 // number yet; older than the max, its audience has moved on.

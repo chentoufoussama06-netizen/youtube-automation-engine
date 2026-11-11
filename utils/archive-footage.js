@@ -13,6 +13,7 @@
  * read from the middle of the file with HTTP ranges: no full download.
  */
 const path = require('path');
+const fsp = require('fs').promises;
 const { runFFmpeg } = require('./ffmpeg');
 
 const UA = { 'User-Agent': 'yt-automation-research/1.0 (personal project)' };
@@ -30,6 +31,17 @@ const NOT_FOOTAGE = /\b(fifa ?\d{2}|pes ?\d{2,4}|efootball|video ?games?|gamepla
 const FOOTBALL = /\b(soccer|football|futbol|fussball|fu.ball|voetbal|calcio|futebol|mundial|world cup|weltmeisterschaft|copa|euro ?20\d\d|uefa|fifa|champions league|liga|match|goal|goals|gol|stadium|stadion|estadio|fans?|supporters|elftal|wedstrijd|selecao|nationalmannschaft)\b/i;
 
 const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** A Commons transcode to a local file, refused over 60 MB. */
+async function fetchVideo(url, out, maxBytes = 60e6) {
+  const res = await fetch(url, { headers: UA, signal: AbortSignal.timeout(120000) });
+  if (!res.ok) throw new Error(`video download ${res.status}`);
+  if (Number(res.headers.get('content-length') || 0) > maxBytes) throw new Error('video over 60 MB');
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (buf.length > maxBytes) throw new Error('video over 60 MB');
+  await fsp.writeFile(out, buf);
+  return out;
+}
 
 async function api(params) {
   // Commons answers 429 to a quick run of searches: pace them and retry.
@@ -133,7 +145,10 @@ async function addArchive(shots, words, archive, { chapters = [], hookEnd = 2.4,
       const span = stop - start;
       const from = v.duration <= 8 ? 0.3 : Math.min(Math.max(3, v.duration * 0.2), v.duration - span - 0.3);
       const clip = path.join(workDir, `archive${i}.mp4`);
-      await runFFmpeg(['-y', '-loglevel', 'error', '-ss', from.toFixed(2), '-i', v.src, '-t', (span + 0.1).toFixed(3), '-an',
+      // Read from a local copy: ffmpeg on the runner failed reading Commons'
+      // URL directly (Juventus-Cagliari, 10 Nov). The transcodes are small.
+      const local = await fetchVideo(v.src, path.join(workDir, `archive-src${i}${path.extname(new URL(v.src).pathname) || '.webm'}`));
+      await runFFmpeg(['-y', '-loglevel', 'error', '-ss', from.toFixed(2), '-i', local, '-t', (span + 0.1).toFixed(3), '-an',
         '-filter_complex', '[0:v]split[a][b];[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=24:2[bg];'
           + '[b]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,fps=30,format=yuv420p',
         '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', clip]);
@@ -150,7 +165,9 @@ async function addArchive(shots, words, archive, { chapters = [], hookEnd = 2.4,
       out = [...kept, shot].sort((a, b) => a.start - b.start);
       logger.info?.(`archive at ${at.toFixed(1)}s: "${v.title.slice(0, 80)}" from ${from.toFixed(1)}s`);
     } catch (e) {
-      logger.warn?.(`archive skipped at ${at.toFixed(1)}s: ${String(e.message).slice(0, 120)}`);
+      // ffmpeg's own words, not just "Command failed: <the command>"
+      const why = String(e.stderr || '').trim().split('\n').slice(-2).join(' ') || String(e.message);
+      logger.warn?.(`archive skipped at ${at.toFixed(1)}s: ${why.slice(0, 200)}`);
     }
   }
   return out;

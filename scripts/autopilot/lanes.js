@@ -96,7 +96,8 @@ const LANES = [
       tags: ['ancient history', 'roman empire', 'history'],
       // The 950K/695K battle shorts above run ~20s: 22-38s here (check-video
       // rejects anything under 20s).
-      words: { min: 58, target: 66, max: 80 }   // ~20-30s (2026-11-07 strategy)
+      // back to the range of its ~1,000-view weeks (23 Oct - 7 Nov)
+      words: { min: 55, target: 70, max: 95 }
     }
   },
   {

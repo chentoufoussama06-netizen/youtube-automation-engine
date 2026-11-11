@@ -147,6 +147,8 @@ function sameEpisode(a, b) {
   const B = episodeWords(b);
   let n = 0;
   for (const w of A) if (B.has(w)) n++;
+  // An old upload is a title alone, with fewer words to share.
+  if (!a.moment || !b.moment) return n >= 3 && n / Math.min(A.size, B.size) >= 0.5;
   return n >= 4 && n / Math.min(A.size, B.size) >= 0.4;
 }
 
@@ -180,8 +182,9 @@ Propose 10 stories like these. Rules:
 - "subject": the name a photo caption would use (e.g. "${story.captionExample}"), no parentheses.
 - "moment": one sentence naming the episode, with its year.
 - "title": under 55 characters, opens on the name people know, states the shocking
-  fact or twist in plain words, curiosity gap, and ENDS WITH ONE fitting emoji
-  (😱 🤯 💀 🔥 🏆 😳 💔) — 121 of the 176 biggest football Shorts had one.
+  fact or twist in plain words, curiosity gap. Usually NO emoji; at most ONE, and
+  only where it truly fits (the 1,000-view weeks before 8 Nov had none; the
+  emoji-on-every-title weeks after fell to a few hundred on both channels).
   Capitalise like the examples. Never promise something the article cannot back.
   A suicide is "took his own life" or "died by suicide", never "commits suicide".
   A death or a suicide gets 💔 or no emoji, never 😱 🤯 🔥 😳.
@@ -218,7 +221,7 @@ Propose up to 4 follow-up episodes for the next part. Rules:
   know. The first one that passes the fact-check is the one that gets made.
 - "moment": one sentence naming the follow-up episode, with its year.
 - "title": under 50 characters, states the twist in plain words, and makes sense
-  to a viewer who never saw the first part. Ends with ONE fitting emoji, no "Part" (added later).
+  to a viewer who never saw the first part. No emoji, no "Part" (added later).
 
 Return ONLY JSON: {"stories": [{"moment": "...", "title": "..."}]}`;
   return parseJson(await ai.generateText(prompt, { maxTokens: 2000, temperature: 0.7 })).stories || [];
@@ -520,9 +523,9 @@ Structure:
    by sentence. Who scored, when and how must match the source exactly — if the
    source does not say how a goal was scored, do not describe it.
 4. The payoff: what actually happened, and what it cost or meant.
-5. End with ONE short question built on the payoff that makes people answer in
-   the comments ("Was this the cruellest night in football?", "Who was really to
-   blame?"). Never "subscribe", "like" or "let me know".
+5. End on one short, punchy line that lands the story. No question to the
+   viewer: the comment-bait endings ran from 8 Nov, the weeks both channels fell
+   from ~1,000 a short. Never "subscribe", "like" or "let me know".
 
 ${WORDS.target <= 80 ? 'KEEP IT SHORT: the Shorts that pull millions run 15-30 seconds. ' : ''}Every sentence
 must earn its place; cut background the viewer does not need.
@@ -737,6 +740,16 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
   const storiesPath = base('stories.json');
   const done = readJson(storiesPath, []);
   const ledger = readJson(base('shorts', 'uploads.json'), {});
+  // Uploads from before the stories list (Muamba was posted twice in October
+  // that way, and a third time on 10 Nov): their titles count as told too.
+  const listed = new Set(done.map((d) => d.id));
+  const oldTold = Object.entries(ledger)
+    .filter(([id, v]) => v.videoId && !id.includes('~') && !listed.has(id) && !id.startsWith('reddit-') && v.title)
+    // its "subject" is the first two capitalised words (the name), not "collapses ... pitch"
+    .map(([id, v]) => {
+      const t = String(v.title).replace(/\s*#Shorts$/i, '');
+      return { id, title: t, subject: (t.match(/\p{Lu}[\p{L}'’-]+/gu) || []).slice(0, 2).join(' '), moment: '', at: v.publishedAt || v.uploadedAt || '' };
+    });
   const avoid = [...done.map((d) => `${d.subject}: ${d.moment}`),
     ...Object.entries(ledger).filter(([id]) => !id.startsWith('reddit-')).map(([, v]) => String(v.title || '').replace(/\s*#Shorts$/i, ''))].slice(-120);
   // Same subject at most once a fortnight, so the feed is not one player.
@@ -790,7 +803,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       // for 14 days: Munich 1958 went out on 9 Oct, 31 Oct and 7 Nov (as
       // "Manchester United", then "...Busby Babes"), Baggio's miss three times.
       if (!sequel && !pinned) {
-        const told = done.find((d) => (!d.part || d.part === 1) && sameEpisode(d, story));
+        const told = [...done, ...oldTold].find((d) => (!d.part || d.part === 1) && sameEpisode(d, story));
         if (told) { logger.info(`skip ${subject}: already told as "${told.title}" (${String(told.at).slice(0, 10)})`); continue; }
       }
 
