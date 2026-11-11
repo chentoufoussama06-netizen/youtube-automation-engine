@@ -548,5 +548,37 @@
     "sequelOf": "story-jude-bellingham-at-the-2026-worl",
     "part": 2,
     "root": "story-jude-bellingham-at-the-2026-worl"
+  },
+  {
+    "id": "story-series-de-la-fuente-p4",
+    "subject": "Spain",
+    "article": "UEFA Euro 2024 final",
+    "moment": "On 14 July 2024 in Berlin Spain beat England 2–1 in the Euro 2024 final to win a record fourth European Championship, after winning all seven of their games.",
+    "title": "Seven Games, Seven Wins: Spain's Perfect Euro (Part 4)",
+    "at": "2026-11-11T10:04:44.138Z",
+    "style": "v2",
+    "series": "de-la-fuente",
+    "part": 4,
+    "of": 5,
+    "root": "story-series-de-la-fuente-p1",
+    "sequelOf": "story-series-de-la-fuente-p3"
+  },
+  {
+    "id": "story-marco-van-basten-van-basten-was-f",
+    "subject": "Marco van Basten",
+    "article": "Marco van Basten",
+    "moment": "Van Basten was forced to retire at 28 after a persistent ankle injury ended his career in 1995.",
+    "title": "Marco van Basten’s career ends by ankle injury",
+    "at": "2026-11-11T10:21:33.105Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-heysel-stadium-disas-on-29-may-1985-a",
+    "subject": "Heysel Stadium disaster",
+    "article": "Heysel Stadium disaster",
+    "moment": "On 29 May 1985 a wall collapse caused by fan violence killed 39 people before the European Cup final.",
+    "title": "Heysel disaster kills 39 before European Cup",
+    "at": "2026-11-11T10:30:14.313Z",
+    "style": "v2"
   }
 ]

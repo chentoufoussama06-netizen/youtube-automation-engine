@@ -771,6 +771,20 @@
       "shortTitle": "MREs were designed for combat meals 🤯",
       "article": "Meal, Ready-to-Eat",
       "categoryId": "27"
+    },
+    {
+      "id": "story-duct-tape-world-war-ii-sol",
+      "topic": "World War II soldiers used a waterproof cloth tape to seal ammunition boxes, later marketed to civilians as “duck tape”.",
+      "keywords": [
+        "Duct tape",
+        "military history",
+        "everyday objects",
+        "history facts"
+      ],
+      "status": "short",
+      "shortTitle": "Duct Tape Was Invented to Keep Ammo Dry in WWII",
+      "article": "Duct tape",
+      "categoryId": "27"
     }
   ]
 }
