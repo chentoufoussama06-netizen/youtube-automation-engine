@@ -40,6 +40,7 @@ const { footballNews } = require('../../utils/news-feed');
 const { renderStoryV2 } = require('../../utils/short-style-v2');
 const { reviewShort } = require('../../utils/video-review');
 const { findFootage } = require('../../utils/archive-footage');
+const { storyBank } = require('./story-bank');
 const { teamTheme } = require('../../utils/broll');
 const { SERIES, seriesPartDue, partId, NUMBER_WORDS } = require('./series');
 
@@ -157,7 +158,7 @@ function sameEpisode(a, b) {
 // the dark stories the channel was built on get ~1,000 (DARK_FOOTBALL_STORY in
 // lanes.js), so it was taken out on 9 Nov. Famous names stay; trivia goes.
 
-async function propose(ai, lane, avoid, hot = [], news = []) {
+async function propose(ai, lane, avoid, hot = [], news = [], bank = []) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
@@ -174,6 +175,12 @@ TRENDING — yesterday's most-read English Wikipedia articles, i.e. what people 
 searching for right now. If any of these fits this channel's scope (a person,
 club, event or thing it would cover), make your FIRST proposals about them:
 ${hot.join(' | ')}
+` : ''}${bank.length ? `
+STORY BANK: famous subjects this channel has NEVER covered, most-read first
+(English Wikipedia readers a month; scripts/autopilot/story-bank.js). Make at least
+7 of your 10 proposals about these, each on the most shocking or dramatic episode
+its own article tells, with "article" exactly as written here:
+${bank.map((b) => `- ${b.article} (${b.views.toLocaleString('en-US')} a month)`).join('\n')}
 ` : ''}
 Propose 10 stories like these. Rules:
 - ${story.scope}
@@ -755,6 +762,10 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
   // Same subject at most once a fortnight, so the feed is not one player.
   const recent = new Set(done.filter((d) => Date.now() - Date.parse(d.at) < 14 * 86400000).map((d) => fold(d.subject)));
   const hot = sequelOf || pinned ? [] : await trending();
+  // Famous subjects not told yet, most-read first (scripts/autopilot/story-bank.js):
+  // from memory the AI kept proposing the same dozen stories (10 Nov).
+  const bank = sequelOf || pinned ? [] : await storyBank(lane, [...done, ...oldTold], { n: 45, logger }).catch(() => []);
+  if (bank.length) logger.info(`story bank: ${bank.slice(0, 8).map((b) => b.article).join(' | ')} …`);
   if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
   const news = sequelOf || pinned || !lane.news ? [] : (await footballNews()).slice(0, 30);
   if (news.length) logger.info(`news: ${news.length} headlines, e.g. ${news.slice(0, 3).map((n) => n.title).join(' | ')}`);
@@ -788,7 +799,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       stories = pinned ? [pinned] : sequel
         ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 11500)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
-        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : []);
+        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], bank.slice((round - 1) * 15, round * 15 + 15));
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
