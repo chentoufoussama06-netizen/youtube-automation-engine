@@ -195,6 +195,20 @@
       "shortTitle": "The cargo ship that turned Halifax into a giant bomb 😱",
       "article": "SS Mont-Blanc",
       "categoryId": "27"
+    },
+    {
+      "id": "story-uss-indianapolis-in-july-1945-the",
+      "topic": "In July 1945 the cruiser USS Indianapolis was torpedoed, and the surviving crew suffered the worst shark‑attack disaster in history.",
+      "keywords": [
+        "USS Indianapolis",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "USS Indianapolis crew attacked by sharks 💀",
+      "article": "USS Indianapolis (CA-35)",
+      "categoryId": "27"
     }
   ]
 }
