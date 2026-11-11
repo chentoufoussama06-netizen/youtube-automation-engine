@@ -461,6 +461,34 @@
       "shortTitle": "Babylon’s King Leaves His Capital for a Desert Oasis 😳",
       "article": "Nabonidus",
       "categoryId": "27"
+    },
+    {
+      "id": "story-vercingetorix-p3-16th-century",
+      "topic": "16th century – Renaissance scholars revive Vercingetorix",
+      "keywords": [
+        "Vercingetorix",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Forgotten King Reborn in the Renaissance 📜 (Part 3)",
+      "article": "Vercingetorix",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-hatshepsut-pharaoh-hatsheps",
+      "topic": "Pharaoh Hatshepsut disguised herself as a male king to rule Egypt, 1479–1458 BCE.",
+      "keywords": [
+        "Hatshepsut",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Hatshepsut Poses as a Male Pharaoh to Seize Power 😳",
+      "article": "Hatshepsut",
+      "categoryId": "27"
     }
   ]
 }

@@ -305,5 +305,26 @@
     "title": "Babylon’s King Leaves His Capital for a Desert Oasis 😳",
     "at": "2026-11-10T02:22:50.577Z",
     "style": "v2"
+  },
+  {
+    "id": "story-vercingetorix-p3-16th-century",
+    "subject": "Vercingetorix",
+    "article": "Vercingetorix",
+    "moment": "16th century – Renaissance scholars revive Vercingetorix",
+    "title": "Forgotten King Reborn in the Renaissance 📜 (Part 3)",
+    "at": "2026-11-11T00:26:28.515Z",
+    "style": "v2",
+    "sequelOf": "story-vercingetorix-p2-execution-af",
+    "part": 3,
+    "root": "story-vercingetorix-gaulish-chieftai"
+  },
+  {
+    "id": "story-hatshepsut-pharaoh-hatsheps",
+    "subject": "Hatshepsut",
+    "article": "Hatshepsut",
+    "moment": "Pharaoh Hatshepsut disguised herself as a male king to rule Egypt, 1479–1458 BCE.",
+    "title": "Hatshepsut Poses as a Male Pharaoh to Seize Power 😳",
+    "at": "2026-11-11T00:45:30.488Z",
+    "style": "v2"
   }
 ]

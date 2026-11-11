@@ -201,6 +201,18 @@
       "event": "story",
       "id": "story-nabonidus-babylonian-king",
       "url": "https://www.youtube.com/watch?v=s8iI3_XzpeM"
+    },
+    {
+      "at": "2026-11-11T00:26:43.857Z",
+      "event": "sequel",
+      "id": "story-vercingetorix-p3-16th-century",
+      "url": "https://www.youtube.com/watch?v=dP3aCLHv290"
+    },
+    {
+      "at": "2026-11-11T00:45:42.652Z",
+      "event": "story",
+      "id": "story-hatshepsut-pharaoh-hatsheps",
+      "url": "https://www.youtube.com/watch?v=8G9qbZoaRIw"
     }
   ],
   "pendingLinks": [],
