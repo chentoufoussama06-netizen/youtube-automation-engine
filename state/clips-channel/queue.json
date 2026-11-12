@@ -209,6 +209,20 @@
       "shortTitle": "USS Indianapolis crew attacked by sharks 💀",
       "article": "USS Indianapolis (CA-35)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-squalus-the-u-s-navy-sub",
+      "topic": "The U.S. Navy submarine Squalus sank during a test dive off New Hampshire in 1939; 33 were rescued in a pioneering rescue, 26 died.",
+      "keywords": [
+        "Squalus",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Squalus sank, saved by the first submarine rescue",
+      "article": "USS Sailfish (SS-192)",
+      "categoryId": "27"
     }
   ]
 }

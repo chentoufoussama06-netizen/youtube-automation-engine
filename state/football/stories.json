@@ -580,5 +580,37 @@
     "title": "Heysel disaster kills 39 before European Cup",
     "at": "2026-11-11T10:30:14.313Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-de-la-fuente-p5",
+    "subject": "Luis de la Fuente",
+    "article": "2026 FIFA World Cup final",
+    "moment": "On 19 July 2026 Spain beat defending champions Argentina 1–0 after extra time in the World Cup final, with a goal from Ferran Torres.",
+    "title": "Spain's Youth Coach Won the World Cup (Part 5)",
+    "at": "2026-11-12T02:42:03.001Z",
+    "style": "v2",
+    "series": "de-la-fuente",
+    "part": 5,
+    "of": 5,
+    "root": "story-series-de-la-fuente-p1",
+    "sequelOf": "story-series-de-la-fuente-p4"
+  },
+  {
+    "id": "story-andre-onana-in-2021-onana-wa",
+    "subject": "André Onana",
+    "article": "André Onana",
+    "moment": "In 2021, Onana was banned for 12 months after testing positive for a prohibited substance, ending his Champions League run.",
+    "title": "André Onana receives 12-month ban for doping violation",
+    "at": "2026-11-12T02:46:29.864Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-manchester-city-in-2020-uefa-fin",
+    "subject": "Manchester City",
+    "article": "Manchester City F.C. financial breaches scandal",
+    "moment": "In 2020 UEFA fined the club €30 million for breaching Financial Fair Play rules, threatening their Champions League future.",
+    "title": "Manchester City hit with €30 m FFP fine",
+    "at": "2026-11-12T03:06:45.886Z",
+    "style": "v2"
   }
 ]

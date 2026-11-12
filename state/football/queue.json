@@ -1851,6 +1851,49 @@
       "shortTitle": "Heysel disaster kills 39 before European Cup",
       "article": "Heysel Stadium disaster",
       "categoryId": "17"
+    },
+    {
+      "id": "story-series-de-la-fuente-p5",
+      "topic": "On 19 July 2026 Spain beat defending champions Argentina 1–0 after extra time in the World Cup final, with a goal from Ferran Torres.",
+      "keywords": [
+        "Luis de la Fuente",
+        "Luis de la Fuente: The Quiet Genius",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Spain's Youth Coach Won the World Cup (Part 5)",
+      "article": "2026 FIFA World Cup final",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-andre-onana-in-2021-onana-wa",
+      "topic": "In 2021, Onana was banned for 12 months after testing positive for a prohibited substance, ending his Champions League run.",
+      "keywords": [
+        "André Onana",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "André Onana receives 12-month ban for doping violation",
+      "article": "André Onana",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-manchester-city-in-2020-uefa-fin",
+      "topic": "In 2020 UEFA fined the club €30 million for breaching Financial Fair Play rules, threatening their Champions League future.",
+      "keywords": [
+        "Manchester City",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Manchester City hit with €30 m FFP fine",
+      "article": "Manchester City F.C. financial breaches scandal",
+      "categoryId": "17"
     }
   ]
 }
