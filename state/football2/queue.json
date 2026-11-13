@@ -545,6 +545,34 @@
       "shortTitle": "Hannibal Leads War Elephants Over the Alps",
       "article": "Hannibal",
       "categoryId": "27"
+    },
+    {
+      "id": "story-agrippina-the-younge-empress-agrippin",
+      "topic": "Empress Agrippina was killed when a collapsible boat designed to sink her went awry in 59 CE.",
+      "keywords": [
+        "Agrippina the Younger",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Agrippina’s Deadly Boat Plot",
+      "article": "Agrippina the Younger",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-cyrus-the-great-cyrus-the-great",
+      "topic": "Cyrus the Great frees the Jews from Babylonian captivity and allows them to return to Jerusalem, 538 BCE.",
+      "keywords": [
+        "Cyrus the Great",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Cyrus Lets the Jews Return to Jerusalem",
+      "article": "Cyrus the Great",
+      "categoryId": "27"
     }
   ]
 }

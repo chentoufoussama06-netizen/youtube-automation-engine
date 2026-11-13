@@ -300,15 +300,32 @@
   "story-artemisia-in-480-bce-artem": {
     "videoId": "6q66G-4sxXY",
     "url": "https://www.youtube.com/watch?v=6q66G-4sxXY",
-    "privacyStatus": "private",
+    "privacyStatus": "public",
     "title": "story-artemisia-in-480-bce-artem #Shorts",
-    "uploadedAt": "2026-11-13T00:58:43.816Z"
+    "uploadedAt": "2026-11-13T00:58:43.816Z",
+    "publishedAt": "2026-11-13T02:53:03.919Z"
   },
   "story-boudica-in-60-61-ce-boud": {
     "videoId": "aWuCip7g_d0",
     "url": "https://www.youtube.com/watch?v=aWuCip7g_d0",
-    "privacyStatus": "private",
+    "privacyStatus": "public",
     "title": "story-boudica-in-60-61-ce-boud #Shorts",
-    "uploadedAt": "2026-11-13T01:17:07.349Z"
+    "uploadedAt": "2026-11-13T01:17:07.349Z",
+    "publishedAt": "2026-11-13T02:53:05.060Z"
+  },
+  "story-agrippina-the-younge-empress-agrippin": {
+    "videoId": "JKy-vI9V39g",
+    "url": "https://www.youtube.com/watch?v=JKy-vI9V39g",
+    "privacyStatus": "public",
+    "title": "Agrippina’s Deadly Boat Plot #Shorts",
+    "uploadedAt": "2026-11-13T03:43:52.757Z",
+    "publishedAt": "2026-11-13T03:43:56.415Z"
+  },
+  "story-battle-of-the-granic-in-334-bce-alexa": {
+    "videoId": "E866RpMHy1U",
+    "url": "https://www.youtube.com/watch?v=E866RpMHy1U",
+    "privacyStatus": "private",
+    "title": "story-battle-of-the-granic-in-334-bce-alexa #Shorts",
+    "uploadedAt": "2026-11-13T04:14:07.861Z"
   }
 }

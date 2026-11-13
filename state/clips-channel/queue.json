@@ -223,6 +223,20 @@
       "shortTitle": "Squalus sank, saved by the first submarine rescue",
       "article": "USS Sailfish (SS-192)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-general-slocum-the-passenger-st",
+      "topic": "The passenger steamboat caught fire on New York’s East River in 1904, killing over 1,000, many of them women and children.",
+      "keywords": [
+        "General Slocum",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "General Slocum fire claimed over 1,000 lives in 1904",
+      "article": "PS General Slocum",
+      "categoryId": "27"
     }
   ]
 }
