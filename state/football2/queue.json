@@ -517,6 +517,34 @@
       "shortTitle": "How Rama’s Monkey Army Built a Sea Bridge 🏗️",
       "article": "Ramayana",
       "categoryId": "27"
+    },
+    {
+      "id": "story-nero-in-64-ce-nero-al",
+      "topic": "In 64 CE Nero allegedly sang while Rome burned, blaming Christians for the disaster.",
+      "keywords": [
+        "Nero",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Nero Sang as Rome Burned",
+      "article": "Nero",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-hannibal-in-218-bce-hanni",
+      "topic": "In 218 BCE Hannibal led a contingent of war elephants over the Alps into Italy.",
+      "keywords": [
+        "Hannibal",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Hannibal Leads War Elephants Over the Alps",
+      "article": "Hannibal",
+      "categoryId": "27"
     }
   ]
 }

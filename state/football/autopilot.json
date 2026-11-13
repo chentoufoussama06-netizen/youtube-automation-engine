@@ -21,7 +21,8 @@
     "sequel:story-juventus-in-2006-juventus": 2,
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
-    "sequel:story-mohamed-salah-in-his-first-sea": 1
+    "sequel:story-mohamed-salah-in-his-first-sea": 1,
+    "series:story-series-ajax-1995": 1
   },
   "history": [
     {
@@ -473,6 +474,12 @@
       "event": "story",
       "id": "story-ronaldinho-in-march-2020-th",
       "url": "https://www.youtube.com/watch?v=uhvCK96Qw5c"
+    },
+    {
+      "at": "2026-11-13T01:22:02.258Z",
+      "event": "story",
+      "id": "story-lev-yashin-in-1990-the-lege",
+      "url": "https://www.youtube.com/watch?v=grI8Iss5nDY"
     }
   ],
   "pendingLinks": [],
