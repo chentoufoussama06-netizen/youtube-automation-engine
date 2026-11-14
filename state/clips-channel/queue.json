@@ -237,6 +237,20 @@
       "shortTitle": "General Slocum fire claimed over 1,000 lives in 1904",
       "article": "PS General Slocum",
       "categoryId": "27"
+    },
+    {
+      "id": "story-princess-of-the-star-in-2008-the-phil",
+      "topic": "In 2008 the Philippine ferry MV Princess of the Stars capsized during Typhoon Fengshen, sinking with over 800 people aboard.",
+      "keywords": [
+        "Princess of the Stars",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "A ferry capsized in a typhoon, killing 800+",
+      "article": "MV Princess of the Stars",
+      "categoryId": "27"
     }
   ]
 }

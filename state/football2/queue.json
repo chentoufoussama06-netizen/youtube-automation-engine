@@ -587,6 +587,20 @@
       "shortTitle": "Boudica’s Revolt: She Burned London to the Ground",
       "article": "Boudica",
       "categoryId": "27"
+    },
+    {
+      "id": "story-jerusalem-roman-legions-un",
+      "topic": "Roman legions under Titus capture Jerusalem, 70 CE",
+      "keywords": [
+        "Jerusalem",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "When Rome Crushed Jerusalem in 70 CE",
+      "article": "Siege of Jerusalem (70 CE)",
+      "categoryId": "27"
     }
   ]
 }
