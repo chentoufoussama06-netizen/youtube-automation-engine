@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 7
+    "series:story-series-ajax-1995": 8
   },
   "history": [
     {
@@ -480,6 +480,12 @@
       "event": "story",
       "id": "story-lev-yashin-in-1990-the-lege",
       "url": "https://www.youtube.com/watch?v=grI8Iss5nDY"
+    },
+    {
+      "at": "2026-11-14T02:53:20.188Z",
+      "event": "story",
+      "id": "story-hillsborough-disaste-in-2016-the-coro",
+      "url": "https://www.youtube.com/watch?v=3ceGuC2aWTs"
     }
   ],
   "pendingLinks": [],

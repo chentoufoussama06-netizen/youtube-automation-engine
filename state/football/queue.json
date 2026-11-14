@@ -1922,6 +1922,20 @@
       "shortTitle": "Lev Yashin Dies of Stomach Cancer at 60",
       "article": "Lev Yashin",
       "categoryId": "17"
+    },
+    {
+      "id": "story-hillsborough-disaste-in-2016-the-coro",
+      "topic": "In 2016, the coroner’s inquest finally ruled the 96 victims were unlawfully killed due to police negligence.",
+      "keywords": [
+        "Hillsborough disaster",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Hillsborough: Coroner Declares Unlawful Killing of 96 Fans",
+      "article": "Hillsborough disaster",
+      "categoryId": "17"
     }
   ]
 }

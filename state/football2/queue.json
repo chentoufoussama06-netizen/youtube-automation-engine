@@ -601,6 +601,20 @@
       "shortTitle": "When Rome Crushed Jerusalem in 70 CE",
       "article": "Siege of Jerusalem (70 CE)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-ashurbanipal-the-assyrian-kin",
+      "topic": "The Assyrian king creates the world’s first library of clay tablets, c. 668 BCE",
+      "keywords": [
+        "Ashurbanipal",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Ashurbanipal Builds the First Library of Written Knowledge",
+      "article": "Ashurbanipal",
+      "categoryId": "27"
     }
   ]
 }
