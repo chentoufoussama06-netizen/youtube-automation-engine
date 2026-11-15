@@ -643,6 +643,20 @@
       "shortTitle": "Caracalla Killed While Using the Loo 💔",
       "article": "Caracalla",
       "categoryId": "27"
+    },
+    {
+      "id": "story-temple-of-artemis-a-man-named-hero",
+      "topic": "A man named Herostratus set fire to the Temple of Artemis, one of the Seven Wonders, in 356 BCE.",
+      "keywords": [
+        "Temple of Artemis",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Herostratus Burned a Wonder to Fame",
+      "article": "Temple of Artemis",
+      "categoryId": "27"
     }
   ]
 }
