@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 17
+    "series:story-series-ajax-1995": 18
   },
   "history": [
     {
@@ -498,6 +498,18 @@
       "event": "story",
       "id": "story-franz-beckenbauer-in-2006-beckenba",
       "url": "https://www.youtube.com/watch?v=7303vp51X9A"
+    },
+    {
+      "at": "2026-11-15T21:26:04.921Z",
+      "event": "story",
+      "id": "story-alfredo-di-stefano-in-1964-di-stefa",
+      "url": "https://www.youtube.com/watch?v=9Ju9PUTkxz8"
+    },
+    {
+      "at": "2026-11-15T21:35:41.607Z",
+      "event": "story",
+      "id": "story-gerd-muller-the-german-strik",
+      "url": "https://www.youtube.com/watch?v=TXMCmT3ADMo"
     }
   ],
   "pendingLinks": [],

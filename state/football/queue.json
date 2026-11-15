@@ -1967,6 +1967,34 @@
       "shortTitle": "Franz Beckenbauer Accused in FIFA Bribery Scandal",
       "article": "Franz Beckenbauer",
       "categoryId": "17"
+    },
+    {
+      "id": "story-alfredo-di-stefano-in-1964-di-stefa",
+      "topic": "In 1964, Di Stéfano survived an attempted kidnapping by a gang demanding a large ransom.",
+      "keywords": [
+        "Alfredo Di Stéfano",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Alfredo Di Stéfano Survives a 1964 Kidnapping Attempt",
+      "article": "Alfredo Di Stéfano",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-gerd-muller-the-german-strik",
+      "topic": "The German striker died in 2021 after battling Alzheimer's disease, ending the life of a legendary goalscorer.",
+      "keywords": [
+        "Gerd Müller",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Gerd Müller dies after long battle with Alzheimer's",
+      "article": "Gerd Müller",
+      "categoryId": "17"
     }
   ]
 }
