@@ -1936,6 +1936,37 @@
       "shortTitle": "Hillsborough: Coroner Declares Unlawful Killing of 96 Fans",
       "article": "Hillsborough disaster",
       "categoryId": "17"
+    },
+    {
+      "id": "story-romano-week-2026-11-15",
+      "topic": "Fabrizio Romano's football news, week to 2026-11-15",
+      "status": "short",
+      "shortTitle": "Fabrizio Romano's 5 Biggest Stories This Week",
+      "categoryId": "17",
+      "keywords": [
+        "Fabrizio Romano",
+        "transfer news",
+        "football news",
+        "Mauricio Pochettino",
+        "Tyler Adjei",
+        "Trent Alexander‑Arnold",
+        "Bruno Fernandes",
+        "Adrien Rabiot"
+      ]
+    },
+    {
+      "id": "story-franz-beckenbauer-in-2006-beckenba",
+      "topic": "In 2006, Beckenbauer was investigated for alleged bribery linked to the FIFA World Cup bidding process, casting a dark shadow over his legacy.",
+      "keywords": [
+        "Franz Beckenbauer",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Franz Beckenbauer Accused in FIFA Bribery Scandal",
+      "article": "Franz Beckenbauer",
+      "categoryId": "17"
     }
   ]
 }

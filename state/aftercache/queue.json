@@ -813,6 +813,20 @@
       "shortTitle": "Zippo lighters were made for WWII soldiers",
       "article": "Zippo",
       "categoryId": "27"
+    },
+    {
+      "id": "story-m-m-s-during-world-ii",
+      "topic": "During World II the U.S. Army needed a chocolate that wouldn’t melt in tropical climates, resulting in the creation of M&M's.",
+      "keywords": [
+        "M&M's",
+        "military history",
+        "everyday objects",
+        "history facts"
+      ],
+      "status": "short",
+      "shortTitle": "M&M's were made so soldiers could carry chocolate that wouldn’t melt",
+      "article": "M&M's",
+      "categoryId": "27"
     }
   ]
 }

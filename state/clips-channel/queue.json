@@ -251,6 +251,20 @@
       "shortTitle": "A ferry capsized in a typhoon, killing 800+",
       "article": "MV Princess of the Stars",
       "categoryId": "27"
+    },
+    {
+      "id": "story-ss-central-america-the-side-wheel-s",
+      "topic": "The side‑wheel steamer sank in a hurricane off the Carolina coast in 1857, taking a massive gold cargo and over 300 lives.",
+      "keywords": [
+        "SS Central America",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "The gold-laden ship that vanished in a 1857 hurricane",
+      "article": "SS Central America",
+      "categoryId": "27"
     }
   ]
 }

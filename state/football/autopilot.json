@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 13
+    "series:story-series-ajax-1995": 14
   },
   "history": [
     {
@@ -486,6 +486,18 @@
       "event": "story",
       "id": "story-hillsborough-disaste-in-2016-the-coro",
       "url": "https://www.youtube.com/watch?v=3ceGuC2aWTs"
+    },
+    {
+      "at": "2026-11-15T02:55:18.472Z",
+      "event": "romano",
+      "id": "story-romano-week-2026-11-15",
+      "url": "https://www.youtube.com/watch?v=qUxvSpCmDpM"
+    },
+    {
+      "at": "2026-11-15T03:02:46.193Z",
+      "event": "story",
+      "id": "story-franz-beckenbauer-in-2006-beckenba",
+      "url": "https://www.youtube.com/watch?v=7303vp51X9A"
     }
   ],
   "pendingLinks": [],
@@ -522,8 +534,8 @@
     }
   },
   "romano": {
-    "day": "2026-11-08",
-    "id": "story-romano-week-2026-11-08",
-    "url": "https://www.youtube.com/watch?v=UaIC4zbJ6Bk"
+    "day": "2026-11-15",
+    "id": "story-romano-week-2026-11-15",
+    "url": "https://www.youtube.com/watch?v=qUxvSpCmDpM"
   }
 }
