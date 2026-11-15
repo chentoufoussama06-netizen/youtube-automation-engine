@@ -265,6 +265,20 @@
       "shortTitle": "The gold-laden ship that vanished in a 1857 hurricane",
       "article": "SS Central America",
       "categoryId": "27"
+    },
+    {
+      "id": "story-karluk-in-1913-the-cana",
+      "topic": "In 1913 the Canadian Arctic Expedition’s ship Karluk was trapped in ice and crushed, killing most of the crew.",
+      "keywords": [
+        "Karluk",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Karluk: Arctic Expedition Ship Crushed by Ice",
+      "article": "Karluk (ship)",
+      "categoryId": "27"
     }
   ]
 }
