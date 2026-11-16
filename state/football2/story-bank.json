@@ -1,4 +1,113 @@
 {
- "entries": [],
- "failedAt": "2026-11-16T02:42:15.889Z"
+ "builtAt": "2026-11-16T22:50:31.696Z",
+ "entries": [
+  {
+   "article": "Cleopatra",
+   "views": 580020,
+   "from": "Pharaohs",
+   "about": "Pharaoh of Egypt from 51 to 30 BC"
+  },
+  {
+   "article": "Alexander the Great",
+   "views": 223110,
+   "from": "Ancient Greek generals",
+   "about": "King of Macedon from 336 to 323 BC"
+  },
+  {
+   "article": "Augustus",
+   "views": 138810,
+   "from": "Roman emperors",
+   "about": "Roman emperor from 27 BC to AD 14"
+  },
+  {
+   "article": "Caligula",
+   "views": 94770,
+   "from": "Roman emperors",
+   "about": "Roman emperor from AD 37 to 41"
+  },
+  {
+   "article": "Commodus",
+   "views": 63360,
+   "from": "Roman emperors",
+   "about": "Roman emperor from 177 to 192"
+  },
+  {
+   "article": "Hadrian",
+   "views": 53010,
+   "from": "Roman emperors",
+   "about": ""
+  },
+  {
+   "article": "Claudius",
+   "views": 50610,
+   "from": "Roman emperors",
+   "about": "Roman emperor from AD 41 to 54"
+  },
+  {
+   "article": "Caracalla",
+   "views": 48390,
+   "from": "Roman emperors",
+   "about": "Roman emperor from 198 to 217"
+  },
+  {
+   "article": "Library of Alexandria",
+   "views": 44280,
+   "from": "Crisis of the Third Century",
+   "about": ""
+  },
+  {
+   "article": "Diocletian",
+   "views": 39030,
+   "from": "Roman emperors",
+   "about": "Roman emperor from 284 to 305"
+  },
+  {
+   "article": "Hatshepsut",
+   "views": 36660,
+   "from": "Pharaohs",
+   "about": "Pharaoh of Egypt from 1479 to 1458 BC"
+  },
+  {
+   "article": "Elagabalus",
+   "views": 36450,
+   "from": "Roman emperors",
+   "about": "Roman emperor from 218 to 222"
+  },
+  {
+   "article": "Domitian",
+   "views": 27390,
+   "from": "Roman emperors",
+   "about": "Roman emperor from AD 81 to 96"
+  },
+  {
+   "article": "Roman emperor",
+   "views": 26280,
+   "from": "Roman emperors",
+   "about": ""
+  },
+  {
+   "article": "Aurelian",
+   "views": 23760,
+   "from": "Roman emperors",
+   "about": "Roman emperor from 270 to 275"
+  },
+  {
+   "article": "Antoninus Pius",
+   "views": 23490,
+   "from": "Roman emperors",
+   "about": "Roman emperor from 138 to 161"
+  },
+  {
+   "article": "Geta (emperor)",
+   "views": 21480,
+   "from": "Roman emperors",
+   "about": ""
+  },
+  {
+   "article": "Julian (emperor)",
+   "views": 21210,
+   "from": "Roman emperors",
+   "about": ""
+  }
+ ]
 }
