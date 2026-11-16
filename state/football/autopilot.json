@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 21
+    "series:story-series-ajax-1995": 22
   },
   "history": [
     {
@@ -516,6 +516,18 @@
       "event": "story",
       "id": "story-mason-greenwood-in-january-2022",
       "url": "https://www.youtube.com/watch?v=tcL7dboYI_g"
+    },
+    {
+      "at": "2026-11-16T22:59:26.300Z",
+      "event": "story",
+      "id": "story-samir-nasri-he-was-suspended",
+      "url": "https://www.youtube.com/watch?v=dqUZHpFQ1i0"
+    },
+    {
+      "at": "2026-11-16T23:08:29.126Z",
+      "event": "story",
+      "id": "story-mykhailo-mudryk-on-29-april-2026",
+      "url": "https://www.youtube.com/watch?v=x09QIl4lpyw"
     }
   ],
   "pendingLinks": [],
