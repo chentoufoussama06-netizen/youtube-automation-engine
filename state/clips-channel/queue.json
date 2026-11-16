@@ -279,6 +279,20 @@
       "shortTitle": "Karluk: Arctic Expedition Ship Crushed by Ice",
       "article": "Karluk (ship)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-shinano-sunk-by-a-u-s-su",
+      "topic": "Sunk by a U.S. submarine on her maiden voyage in 1944.",
+      "keywords": [
+        "Shinano",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Shinano sank on its maiden voyage before seeing combat",
+      "article": "Japanese aircraft carrier Shinano",
+      "categoryId": "27"
     }
   ]
 }

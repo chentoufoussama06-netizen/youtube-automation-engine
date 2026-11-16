@@ -657,6 +657,20 @@
       "shortTitle": "Herostratus Burned a Wonder to Fame",
       "article": "Temple of Artemis",
       "categoryId": "27"
+    },
+    {
+      "id": "story-akhenaten-around-1353-bce",
+      "topic": "Around 1353 BCE Akhenaten abandoned Thebes and built a new capital, Akhetaten (Amarna).",
+      "keywords": [
+        "Akhenaten",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Akhenaten Abandoned Thebes for a New City",
+      "article": "Akhenaten",
+      "categoryId": "27"
     }
   ]
 }

@@ -827,6 +827,20 @@
       "shortTitle": "M&M's were made so soldiers could carry chocolate that wouldn’t melt",
       "article": "M&M's",
       "categoryId": "27"
+    },
+    {
+      "id": "story-paracord-parachute-cord-w",
+      "topic": "Parachute cord was developed in the 1940s for U.S. military parachutes and later became a staple for camping, crafts, and everyday utility knots.",
+      "keywords": [
+        "Paracord",
+        "military history",
+        "everyday objects",
+        "history facts"
+      ],
+      "status": "short",
+      "shortTitle": "Paracord Started as WWII Parachute Rope",
+      "article": "Parachute cord",
+      "categoryId": "27"
     }
   ]
 }
