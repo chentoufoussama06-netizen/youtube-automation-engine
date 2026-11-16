@@ -158,6 +158,68 @@ function sameEpisode(a, b) {
 // the dark stories the channel was built on get ~1,000 (DARK_FOOTBALL_STORY in
 // lanes.js), so it was taken out on 9 Nov. Famous names stay; trivia goes.
 
+// Sentences this kind of channel is made of: a death, a crime, a ban, a disaster.
+const DARK_LINE = /\b(died|dies|death|dead|killed|murder(ed)?|assassinat\w+|execut(ed|ion)|poison(ed)?|shot|stabbed|suicide|took (his|her) own life|arrest(ed)?|jailed|imprison(ed|ment)|prison|sentenced|convicted|charged|fraud|brib(e|ed|ery)|corrupt(ion)?|scandal|banned|ban|suspen(ded|sion)|doping|tested positive|crash(ed)?|disaster|collapsed|cardiac arrest|heart attack|cancer|kidnapp(ed|ing)|riots?|stampede|crush|relegat(ed|ion)|bankrupt(cy)?|sacked|dismissed|expelled|explosion|career-ending|assault(ed)?|stripped|match-fixing|racis[mt]|coma|paraly[sz]ed|exiled?|betray(ed|al)|massacre|siege|revolt|plague|burn(ed|t))\b/i;
+const DATED = /\b(1[89]\d\d|20\d\d)\b|\b\d{1,4}\s?(BC|BCE|AD|CE)\b/;
+// Not offered to an automatic picker: one sentence cannot carry how a sexual
+// offence case ended (the first test offered Dani Alves's 2024 rape sentence,
+// which an appeal court overturned in 2025).
+const NOT_FOR_AUTO = /\b(rape[ds]?|sexual(ly)?|sex|minors?|underage|child(ren)?|paedophil\w*|pedophil\w*|domestic (violence|abuse))\b/i;
+
+/**
+ * Stories for the bank's famous names, each made from a sentence of the
+ * subject's own article: the model chooses among real lines and writes the
+ * title, so it cannot invent the episode. Given only the names (11-16 Nov
+ * 2026) it invented one for nearly every name ("Modrić was arrested in 2020
+ * for a €3 million tax fraud", "Owen's 2009 car crash left a passenger
+ * dead"); the article check rejected them all and Football Files fell to one
+ * short a day. A different handful of subjects each run and round (`seed`).
+ */
+async function bankStories(ai, research, lane, bank, { seed = '', subjects = 6 } = {}) {
+  if (!bank.length) return [];
+  let h = 2166136261;
+  for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const rand = () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0) / 4294967296);
+  const pool = bank.map((b) => [rand(), b]).sort((a, b) => a[0] - b[0]).map(([, b]) => b).slice(0, subjects);
+  const cands = [];
+  for (const b of pool) {
+    const full = await research.buildBriefFromArticle(b.article, { maxChars: 150000 }).catch(() => null);
+    if (!full?.text || full.text.length < 3000) continue;
+    const all = [...new Set((full.text.match(/[^.!?\n]+[.!?]/g) || []).map((x) => x.replace(/\s+/g, ' ').trim()))]
+      .filter((x) => x.length > 60 && x.length < 300 && DARK_LINE.test(x) && DATED.test(x) && !NOT_FOR_AUTO.test(x));
+    // up to 14, spread over the whole article: the end of a life is at the end
+    const step = Math.max(1, all.length / 14);
+    const lines = Array.from({ length: Math.min(14, all.length) }, (_, i) => all[Math.floor(i * step)]);
+    if (lines.length) cands.push({ article: full.title || b.article, subject: b.article.replace(/\([^)]*\)/g, '').trim(), lines });
+  }
+  if (!cands.length) return [];
+  const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
+Below are real sentences from Wikipedia articles, grouped by subject. For each subject
+choose the ONE sentence that would make the most gripping short: a death, a crime, a
+scandal, a ban, a disaster, a collapse, a betrayal. Answer line 0 for a subject with no
+gripping sentence (routine career facts, results, transfers).
+Then write that story's title: under 55 characters, opening on the name people know,
+stating what happened plainly as a fact, no question, no emoji. Use only what the
+sentence says.
+${cands.map((c, i) => `\nSubject ${i + 1}: ${c.subject}\n${c.lines.map((l, j) => `  ${j + 1}. ${l}`).join('\n')}`).join('\n')}
+
+Return ONLY JSON: {"picks": [{"subject": 1, "line": 3, "title": "..."}]}`;
+  const picks = parseJson(await ai.generateText(prompt, { maxTokens: 900, temperature: 0.3 })).picks || [];
+  const out = [];
+  for (const p of picks) {
+    const c = cands[Number(p.subject) - 1];
+    const line = c?.lines[Number(p.line) - 1];
+    const title = String(p.title || '').trim();
+    if (!c || !line || title.length < 10 || title.length > 80) continue;
+    // the title names its subject (one of the name's own words)
+    const names = fold(c.subject).match(/[a-z]{4,}/g) || [];
+    if (!names.some((w) => fold(title).includes(w))) continue;
+    out.push({ article: c.article, subject: c.subject, moment: line, title });
+  }
+  if (out.length) logger.info(`bank stories: ${out.map((s) => s.title).join(' | ')}`);
+  return out;
+}
+
 async function propose(ai, lane, avoid, hot = [], news = [], bank = []) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
@@ -529,7 +591,10 @@ Structure:
 3. Tell the episode in the order the SOURCE gives it, building tension sentence
    by sentence. Who scored, when and how must match the source exactly — if the
    source does not say how a goal was scored, do not describe it.
-4. The payoff: what actually happened, and what it cost or meant.
+4. The payoff: what actually happened, and what it cost or meant. If the SOURCE
+   says an arrest, charge, conviction or ban was later dropped, overturned,
+   reduced or cleared, say so plainly: never leave a real person guilty of
+   something the source says they were cleared of.
 5. End on one short, punchy line that lands the story. No question to the
    viewer: the comment-bait endings ran from 8 Nov, the weeks both channels fell
    from ~1,000 a short. Never "subscribe", "like" or "let me know".
@@ -799,7 +864,15 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       stories = pinned ? [pinned] : sequel
         ? (await proposeSequel(ai, lane, sequelOf, sequel.previously, focusBrief(sequel.full, sequelOf, 11500)))
           .map((s) => ({ ...s, article: sequelOf.article, subject: sequelOf.subject }))
-        : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], bank.slice((round - 1) * 15, round * 15 + 15));
+        : [
+          // The bank's famous names, each on a sentence of its own article.
+          // Given the names alone (11-16 Nov), the proposer invented an
+          // episode for nearly every one; all were rejected and runs ended
+          // with no story. propose() no longer sees the bank.
+          ...(round <= 2 ? await bankStories(ai, research, lane, bank, { seed: `${new Date().toISOString().slice(0, 13)}-${round}` })
+            .catch((e) => { logger.info(`bank stories failed: ${String(e.message).slice(0, 80)}`); return []; }) : []),
+          ...await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [])
+        ];
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
@@ -1286,6 +1359,14 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   const brief = await seriesBrief(research, part);
   if (!(await supported(ai, part, brief))) throw new Error(`"${part.moment}" is not in its articles`);
 
+  // Photos first. Ajax 1995 Part 1 was written in every run from 13 to 16 Nov
+  // (three drafts and a hook contest each time, out of the script writer's ~20
+  // free requests a day) and only then failed on "only 3 usable photos".
+  const imgDir = base('reference', id);
+  const dropPhotos = () => fsp.rm(imgDir, { recursive: true, force: true }).catch(() => {});
+  const { saved, chapters } = dryRun ? { saved: [], chapters: [] }
+    : await seriesPhotos(new ArchivalImageService(), part, imgDir);
+
   // What Part n-1 said, so it is not retold.
   const previously = prev
     ? (await fsp.readFile(base('shorts', 'copy', `${prev.id}_short.txt`), 'utf8').catch(() => ''))
@@ -1302,8 +1383,8 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
     subject: part.subject, moment: part.moment, title: part.title,
     ...(previously ? { previously, part: n } : { part: n }),
     series: { name: series.name, of, nextMoment: nextPart?.moment || null, note: part.note || null }
-  }, brief, writerAI(), WORDS);
-  if (!text) throw new Error('no clean narration');
+  }, brief, writerAI(), WORDS).catch(async (e) => { await dropPhotos(); throw e; });
+  if (!text) { await dropPhotos(); throw new Error('no clean narration'); }
 
   // The line that sells the next part, checked against the NEXT part's
   // articles; one the checker cannot back is dropped, the promise is not.
@@ -1324,8 +1405,6 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
   logger.success(`${id}: "${title}" — ${words(full)} words`);
   if (dryRun) return { id, title, text: full, subject: part.subject, article: brief.title, part: n, of };
 
-  const imgDir = base('reference', id);
-  const { saved, chapters } = await seriesPhotos(new ArchivalImageService(), part, imgDir);
   const done = readJson(base('stories.json'), []);
   const rendered = await renderStills(lane, id, full, saved, {
     style: chooseStyle(lane, done), title: part.title,
@@ -1401,4 +1480,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, sameEpisode, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
+module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, sameEpisode, bankStories, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
