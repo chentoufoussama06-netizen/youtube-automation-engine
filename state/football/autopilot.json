@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 20
+    "series:story-series-ajax-1995": 21
   },
   "history": [
     {
@@ -510,6 +510,12 @@
       "event": "story",
       "id": "story-gerd-muller-the-german-strik",
       "url": "https://www.youtube.com/watch?v=TXMCmT3ADMo"
+    },
+    {
+      "at": "2026-11-16T20:01:29.784Z",
+      "event": "story",
+      "id": "story-mason-greenwood-in-january-2022",
+      "url": "https://www.youtube.com/watch?v=tcL7dboYI_g"
     }
   ],
   "pendingLinks": [],
