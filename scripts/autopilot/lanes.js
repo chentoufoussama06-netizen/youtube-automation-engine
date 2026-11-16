@@ -91,7 +91,14 @@ const LANES = [
         + '  viewer has half-heard of or will not believe: a famous battle, an emperor\'s\n'
         + '  madness or murder, a betrayal, a siege, a lost city, a bizarre law or custom.\n'
         + '- One specific episode with a clear arc and a payoff. The title names it plainly\n'
-        + '  (like the examples), optionally ending with one emoji.',
+        + '  (like the examples), optionally ending with one emoji.\n'
+        + '- History only: no prophets, founders of religions, gods or scripture stories\n'
+        + '  (Muhammad, Jesus, Moses, Buddha, Rama, Krishna), and nothing after 500 CE.',
+      // Never made, whatever proposes them: between 12 and 16 Nov the trending
+      // list pulled in two Rama shorts (128 and 19 views) and a Battle of the
+      // Trench short about Muhammad, which was only lost to an upload bug.
+      // Pictures of a prophet or a god are not this channel's to make.
+      avoid: /\b(muhammad|mohammed|mahomet|prophet|jesus|christ|moses|abraham|buddha|rama|krishna|shiva|vishnu|ramayana|mahabharata|quran|koran|bible|gospel|allah)\b/i,
       captionExample: 'Hannibal',
       tags: ['ancient history', 'roman empire', 'history'],
       // The 950K/695K battle shorts above run ~20s: 22-38s here (check-video

@@ -304,7 +304,8 @@ function publishMade(lane, st, made, kind, event) {
     fs.rmSync(made.video, { force: true });
     return { ok: false, msg: `${lane.name}: ${kind} ${made.id} rejected — ${gate.problems.join('; ')}` };
   }
-  run(lane, 'scripts/youtube/upload-shorts.js', ['--no-subs', '--limit', '1'], 15);
+  // --only: this short, never another file left in the video folder.
+  run(lane, 'scripts/youtube/upload-shorts.js', ['--no-subs', '--limit', '1', '--only', made.id], 15);
   if (!ledgerOf(lane)[made.id]) return { ok: false, uploaded: true, msg: `${lane.name}: ${kind} ${made.id} rendered but upload failed` };
   run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', made.id], 10);
   const entry = ledgerOf(lane)[made.id];

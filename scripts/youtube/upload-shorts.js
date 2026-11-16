@@ -182,7 +182,11 @@ async function main() {
   }
 
   const files = (await fsp.readdir(VIDEO_DIR)).filter(f => f.endsWith('_short.mp4'));
-  const pending = files.map(f => f.replace('_short.mp4', '')).filter(id => !ledger[id]);
+  // --only <id>: upload this short and nothing else in the folder. The
+  // autopilot names the one it just made; without it, "the first file not yet
+  // uploaded" was a render the AI reviewer had rejected (12-15 Nov 2026).
+  const only = args.includes('--only') ? args[args.indexOf('--only') + 1] : null;
+  const pending = files.map(f => f.replace('_short.mp4', '')).filter(id => !ledger[id] && (!only || id === only));
 
   if (!pending.length) {
     logger.info(`Nothing new — ${Object.keys(ledger).length} short(s) already on the channel.`);
@@ -209,6 +213,12 @@ async function main() {
     const videoPath = path.join(VIDEO_DIR, `${jobId}_short.mp4`);
     const copy = await fsp.readFile(path.join(COPY_DIR, `${jobId}_short.txt`), 'utf8').catch(() => job.topic);
     const metadata = buildMetadata(copy, job);
+    // No queue entry and no copy file leaves the file name as the title:
+    // such a video was never finished, and is not uploaded.
+    if (metadata.snippet.title.replace(/ #Shorts$/, '').trim() === jobId) {
+      logger.warn(`${jobId}: no title or description on record; not uploading an unfinished short`);
+      continue;
+    }
     const sizeMb = Math.round((await fsp.stat(videoPath)).size / 1048576);
 
     if (dryRun) {

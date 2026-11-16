@@ -808,6 +808,11 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const subject = String(story.subject || '').replace(/\([^)]*\)/g, '').trim();
       if (!story.article || !subject) continue;
       // The fortnight-per-subject rule is for fresh picks; a sequel is the same subject by design.
+      // What this channel never makes (lanes.js `avoid`): religious figures on Ancient Untold.
+      if (lane.story?.avoid?.test(fold(`${story.article} | ${subject} | ${story.title} | ${story.moment}`))) {
+        logger.info(`skip ${subject}: outside what this channel makes`);
+        continue;
+      }
       if (!sequel && !pinned && (recent.has(fold(subject)) || takenThisRun.has(fold(subject)))) continue;
       if (done.some((d) => fold(d.moment) === fold(story.moment))) continue;
       // The same episode under another name or wording is a repeat for good, not
@@ -909,11 +914,17 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const nameOf = new Map(saved.map((p) => [p.path, p.title.replace(/^File:/, '')]));
       const watch = () => (rendered.shots ? reviewShort({ video: rendered.video, shots: rendered.shots, words: rendered.words, title, subject, lane: lane.name, nameOf, logger })
         .catch((e) => { logger.warn(`review: ${String(e.message).slice(0, 120)}`); return null; }) : null);
+      // A short the reviewer turns down is deleted, never left in the video
+      // folder: the uploader takes whatever is there, and from 12 to 15 Nov it
+      // posted five rejected renders under their file names ("story-artemisia-
+      // in-480-bce-artem") while the approved shorts were thrown away.
+      const rejectedVideo = rendered.video;
+      const discard = () => fsp.rm(rejectedVideo, { force: true }).catch(() => {});
       let review = await watch();
       if (review?.bad.length) {
         const drop = new Set(review.bad.filter((b) => !b.clip).map((b) => b.image));
         const keep = saved.filter((p) => !drop.has(p.path));
-        if (keep.length < minPhotos) { logger.info(`skip ${subject}: the reviewer rejected ${drop.size} photo(s), ${keep.length} left`); continue; }
+        if (keep.length < minPhotos) { logger.info(`skip ${subject}: the reviewer rejected ${drop.size} photo(s), ${keep.length} left`); await discard(); continue; }
         rendered = await renderStills(lane, id, text, keep, {
           ...opts,
           chapters: chapters.map((c) => ({ ...c, photos: c.photos.filter((p) => !drop.has(p)) })).filter((c) => c.photos.length),
@@ -922,10 +933,10 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
           stockClips: !review.bad.some((b) => b.clip && !b.archive),
           archive: (opts.archive || []).filter((v) => !review.bad.some((b) => b.archive && b.image === `archive:${v.title}`))
         });
-        if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); continue; }
+        if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); await discard(); continue; }
         saved = keep;
         review = await watch();
-        if (review?.bad.length) { logger.info(`skip ${subject}: the reviewer still rejects ${review.bad.length} frame(s)`); continue; }
+        if (review?.bad.length) { logger.info(`skip ${subject}: the reviewer still rejects ${review.bad.length} frame(s)`); await discard(); continue; }
       }
       const { video, seconds } = rendered;
       const dirs = { copy: base('shorts', 'copy') };
