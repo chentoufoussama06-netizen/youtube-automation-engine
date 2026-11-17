@@ -685,6 +685,34 @@
       "shortTitle": "Why Rama Was Exiled for 14 Years",
       "article": "Ramayana",
       "categoryId": "27"
+    },
+    {
+      "id": "story-hannibal-hannibal-annihil",
+      "topic": "Hannibal annihilates a larger Roman army at Cannae, 216 BCE",
+      "keywords": [
+        "Hannibal",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Hannibal’s Crushing Victory at Cannae",
+      "article": "Battle of Cannae",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-gauls-gauls-sack-rome",
+      "topic": "Gauls sack Rome after defeating the Romans at the Allia River, 390 BCE",
+      "keywords": [
+        "Gauls",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Gauls Sack Rome After Allia Defeat",
+      "article": "Battle of the Allia",
+      "categoryId": "27"
     }
   ]
 }

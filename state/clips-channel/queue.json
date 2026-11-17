@@ -293,6 +293,20 @@
       "shortTitle": "Shinano sank on its maiden voyage before seeing combat",
       "article": "Japanese aircraft carrier Shinano",
       "categoryId": "27"
+    },
+    {
+      "id": "story-ss-yongala-the-australian-p",
+      "topic": "The Australian passenger liner was lost with all hands during a cyclone off Queensland in 1911, its wreck only discovered in 1958.",
+      "keywords": [
+        "SS Yongala",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "SS Yongala vanished in a cyclone, wreck found after 47 years",
+      "article": "SS Yongala",
+      "categoryId": "27"
     }
   ]
 }

@@ -2037,6 +2037,48 @@
       "shortTitle": "Mykhailo Mudryk handed four-year Premier League ban",
       "article": "Mykhailo Mudryk",
       "categoryId": "17"
+    },
+    {
+      "id": "story-kolo-toure-on-3-march-2011",
+      "topic": "On 3 March 2011, it was revealed that Touré had failed a drug test and had been suspended.",
+      "keywords": [
+        "Kolo Touré",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Kolo Touré fails drug test and receives suspension",
+      "article": "Kolo Touré",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-pep-guardiola-his-time-in-ital",
+      "topic": "His time in Italy, however, was unsuccessful and included a four-month ban for testing positive for nandrolone (for which he was later cleared of all charges after a protracted legal process in 2009).",
+      "keywords": [
+        "Pep Guardiola",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Pep Guardiola received a four-month ban for testing positive for nandrolone",
+      "article": "Pep Guardiola",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-stanley-matthews-he-died-in-north",
+      "topic": "He died in North Staffordshire Nuffield Hospital in Newcastle-under-Lyme on 23 February 2000, aged 85, after suffering a fall at his holiday home in Tenerife.",
+      "keywords": [
+        "Stanley Matthews",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Stanley Matthews dies after Tenerife fall",
+      "article": "Stanley Matthews",
+      "categoryId": "17"
     }
   ]
 }
