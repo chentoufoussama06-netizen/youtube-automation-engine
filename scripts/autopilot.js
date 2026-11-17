@@ -493,8 +493,10 @@ async function main() {
       const res = run(lane, 'scripts/youtube/check-scheduled.js', [], 5);
       summary.push(`${lane.name}: scheduled parts published${res.ok ? '' : ' (with errors)'}`);
     }
+    // `hidden`: made private on purpose (the five broken-title videos, 17 Nov),
+    // never to be published again by this self-heal.
     const stuck = Object.entries(ledgerOf(lane))
-      .filter(([id, v]) => /^(story|doc)-/.test(id) && v.privacyStatus === 'private' && !v.scheduledPublishAt && !v.superseded)
+      .filter(([id, v]) => /^(story|doc)-/.test(id) && v.privacyStatus === 'private' && !v.scheduledPublishAt && !v.superseded && !v.hidden)
       .map(([id]) => id);
     if (stuck.length && !DRY) {
       log(`${lane.name}: publishing ${stuck.length} short(s) left private: ${stuck.join(', ')}`);
