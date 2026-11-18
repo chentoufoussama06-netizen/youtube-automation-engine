@@ -2093,6 +2093,34 @@
       "shortTitle": "Edgar Davids suspended for steroid use",
       "article": "Edgar Davids",
       "categoryId": "17"
+    },
+    {
+      "id": "story-luis-suarez-luis-suarez-bit",
+      "topic": "Luis Suárez bit Italy’s Giorgio Chiellini during the 2014 World Cup match on 24 June 2014.",
+      "keywords": [
+        "Luis Suárez",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Luis Suárez Bites Opponent in 2014 World Cup",
+      "article": "Luis Suárez (Uruguayan footballer)",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-vichai-srivaddhanapr-vichai-died-in-a",
+      "topic": "Vichai died in a helicopter crash outside Leicester City’s stadium on 27 October 2018.",
+      "keywords": [
+        "Vichai Srivaddhanaprabha",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Leicester Owner Vichai Dies in Helicopter Crash",
+      "article": "Vichai Srivaddhanaprabha",
+      "categoryId": "17"
     }
   ]
 }
