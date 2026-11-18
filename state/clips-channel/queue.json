@@ -307,6 +307,20 @@
       "shortTitle": "SS Yongala vanished in a cyclone, wreck found after 47 years",
       "article": "SS Yongala",
       "categoryId": "27"
+    },
+    {
+      "id": "story-wairarapa-in-1894-the-new",
+      "topic": "In 1894 the New Zealand steamer SS Wairarapa struck cliffs at Great Bays, killing 130 of the 300 aboard.",
+      "keywords": [
+        "Wairarapa",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "The steamer that crashed into cliffs, killing 130",
+      "article": "SS Wairarapa",
+      "categoryId": "27"
     }
   ]
 }

@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 24
+    "series:story-series-ajax-1995": 25
   },
   "history": [
     {
@@ -546,6 +546,12 @@
       "event": "story",
       "id": "story-stanley-matthews-he-died-in-north",
       "url": "https://www.youtube.com/watch?v=moviYGJyT4o"
+    },
+    {
+      "at": "2026-11-18T03:55:12.342Z",
+      "event": "story",
+      "id": "story-edgar-davids-on-17-may-2001-d",
+      "url": "https://www.youtube.com/watch?v=G3oQEcHqlMc"
     }
   ],
   "pendingLinks": [],
