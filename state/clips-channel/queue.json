@@ -321,6 +321,20 @@
       "shortTitle": "The steamer that crashed into cliffs, killing 130",
       "article": "SS Wairarapa",
       "categoryId": "27"
+    },
+    {
+      "id": "story-grandcamp-the-french-cargo",
+      "topic": "The French cargo ship Grandcamp exploded in the Texas City disaster of 1947, killing 581 people.",
+      "keywords": [
+        "Grandcamp",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "A Texas port turned into a giant bomb when Grandcamp blew up",
+      "article": "Texas City disaster",
+      "categoryId": "27"
     }
   ]
 }
