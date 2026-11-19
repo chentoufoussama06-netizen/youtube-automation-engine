@@ -1149,7 +1149,7 @@ const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|bal
 // carries the name. "San Diego Comic-Con 2011 - Spartacus photo op (Starz
 // booth)" sat in the Spartacus preview (19 Nov); the find-broll skill's rule
 // is to source the moment, not the name.
-const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma|\bcoins?\b|vijfje|\bmunt\b|banknote|\bstamps?\b|comic-?con|cosplay|\bconvention\b|photo ?op\b|\bbooth\b|\bstarz\b|\bhbo\b|netflix|tv series|television series|miniseries|film still|\bmovie\b|\bpremiere\b|\btrailer\b|\bposter\b|graffit|\blego\b|playmobil|\btoys?\b|figurine|action figure|video ?game|\bcomic\b|fan ?art|\banime\b|\bmanga\b|theme park)/i;
+const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma|\bcoins?\b|vijfje|\bmunt\b|banknote|\bstamps?\b|comic-?con|cosplay|\bconvention\b|photo ?op\b|\bstarz\b|\bhbo\b|netflix|tv series|television series|miniseries|film still|\bmovie\b|\bpremiere\b|\btrailer\b|\bposter\b|graffit|\blego\b|playmobil|\btoys?\b|figurine|action figure|video ?game|\bcomic\b|fan ?art|\banime\b|\bmanga\b|theme park)/i;
 /**
  * A trusted (main image or Commons category) file whose name never says the
  * person but names two-word someone else shows that someone: "Neymar and Andre
