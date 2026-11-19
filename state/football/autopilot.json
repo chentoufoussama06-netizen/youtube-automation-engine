@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 27
+    "series:story-series-ajax-1995": 28
   },
   "history": [
     {
@@ -564,6 +564,12 @@
       "event": "story",
       "id": "story-vichai-srivaddhanapr-vichai-died-in-a",
       "url": "https://www.youtube.com/watch?v=3NRp-IiIYdk"
+    },
+    {
+      "at": "2026-11-19T04:02:36.806Z",
+      "event": "story",
+      "id": "story-rio-ferdinand-in-september-200",
+      "url": "https://www.youtube.com/watch?v=t1saDtuvu8Y"
     }
   ],
   "pendingLinks": [],

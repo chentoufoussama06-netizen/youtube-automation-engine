@@ -755,6 +755,20 @@
       "shortTitle": "Rome Burns Carthage to the Ground",
       "article": "Carthage",
       "categoryId": "27"
+    },
+    {
+      "id": "story-nero-emperor-nero-all",
+      "topic": "Emperor Nero allegedly watches Rome burn while playing the lyre, 64 CE.",
+      "keywords": [
+        "Nero",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Nero Plays as Rome Burns",
+      "article": "Nero",
+      "categoryId": "27"
     }
   ]
 }
