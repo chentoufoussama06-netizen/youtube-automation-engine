@@ -115,16 +115,21 @@ function faceTopInFrame(r, zoom = 1.22) {
 /**
  * Cut points on word starts, about every `target` seconds, preferring the
  * start of a sentence or clause so the picture changes when the thought does.
+ * Between `fast[0]` and `fast[1]` (the seconds right after the hook) the cuts
+ * come quicker, never under 1.2s: the find-broll skill's front-loaded cadence,
+ * dense while a viewer is deciding to stay, sparser once they have.
  */
-function cutTimes(words, duration, { target = 2.1, min = 1.4, max = 2.9 } = {}) {
+function cutTimes(words, duration, { target = 2.1, min = 1.4, max = 2.9, fast = null } = {}) {
   const cuts = [0];
   let last = 0;
   for (let i = 1; i < words.length; i++) {
     const t = words[i].start;
     const gap = t - last;
+    const quick = fast && t >= fast[0] && t < fast[1];
+    const [tg, mn, mx, any] = quick ? [1.6, 1.2, 2.3, 1.8] : [target, min, max, target + 0.35];
     const afterSentence = /[.!?]["'”’]?$/.test(words[i - 1].word);
     const afterClause = /[,;:—]$/.test(words[i - 1].word);
-    if (gap >= max || (gap >= min && afterSentence) || (gap >= target && afterClause) || gap >= target + 0.35) {
+    if (gap >= mx || (gap >= mn && afterSentence) || (gap >= tg && afterClause) || gap >= any) {
       cuts.push(t);
       last = t;
     }
@@ -139,10 +144,12 @@ function cutTimes(words, duration, { target = 2.1, min = 1.4, max = 2.9 } = {}) 
  * must show López, not whichever photo ranks best overall. Chapter starts are
  * also forced cuts, so the picture changes on "Number four".
  */
-function planShots(words, duration, ranked, chapters = [], claimed = null) {
+function planShots(words, duration, ranked, chapters = [], claimed = null, { hookEnd = null } = {}) {
   const forced = chapters.map((c) => c.at).filter((t) => t > 0.5 && t < duration - 1);
+  // The opener keeps the hook headline; the next six seconds cut quicker.
+  const fast = hookEnd ? [hookEnd, hookEnd + 6] : null;
   // A regular cut just before a chapter start would leave a flash of a shot.
-  const cuts = [...new Set([...cutTimes(words, duration).filter((t) => t === 0 || !forced.some((f) => Math.abs(f - t) < 0.8)), ...forced])]
+  const cuts = [...new Set([...cutTimes(words, duration, { fast }).filter((t) => t === 0 || !forced.some((f) => Math.abs(f - t) < 0.8)), ...forced])]
     .sort((a, b) => a - b);
   const chapterAt = (t) => [...chapters].reverse().find((c) => c.at <= t + 0.05);
   // Before the first chapter (the intro), only the photos no chapter claims.
@@ -245,6 +252,60 @@ function statCards(words, hookEnd) {
     if (out.length >= 6) break;
   }
   return out;
+}
+
+// The words a narrator leans on: what happened to someone, and the absolutes
+// that make it a story.
+const STRONG = new RegExp('^(banned|bans?|suspended|sacked|fired|arrested|jailed|imprisoned|prison|sentenced|convicted|charged|guilty|'
+  + 'killed|murdered|murder|shot|stabbed|died|dies|dead|death|collapsed|vanished|disappeared|executed|poisoned|strangled|beheaded|'
+  + 'burned|burnt|buried|betrayed|exiled|assassinated|crashed|destroyed|exploded|sank|drowned|kidnapped|bankrupt|scandal|cheated|'
+  + 'bribed|doping|cocaine|ruined|massacre|massacred|slaughtered|plague|fraud|stole|stolen|blinded|paralysed|paralyzed|lynched|'
+  + 'hanged|crucified|enslaved|abandoned|refused|forgotten|erased|cursed)$');
+const ABSOLUTE = /^(never|nobody|nothing|everything|everyone|only|first|last|record|youngest|oldest|fastest|biggest|greatest|worst|forever|alone|secret|impossible|miracle|zero|none)$/;
+
+/**
+ * Punch-ins, from the add-zooms skill: on a word the narrator leans on, the
+ * frame jumps in (one frame, no ramp, which reads as a creep), holds, and
+ * jumps back. The story's numbers punch too (and keep their impact sound).
+ * Not every line: ~3s apart and about one per 7 seconds, so the plain
+ * stretches make them land. Never inside a cut's own punch or a whip, never
+ * running into the next cut.
+ */
+function punchIns(words, shots, stats, { duration, hookEnd = 2.4 } = {}) {
+  const fit = (t, want) => {
+    const s = shots.find((x) => x.start <= t && t < x.end);
+    if (!s || t - s.start < 0.35) return 0;
+    return Math.min(want, s.end - t - 0.2);
+  };
+  const out = [];
+  for (const s of stats) {
+    const hold = fit(s.t, 0.45);
+    if (hold >= 0.25) out.push({ t: s.t, hold, peak: 1.15, why: s.text });
+  }
+  const limit = Math.max(3, Math.min(6, Math.round(duration / 7)));
+  const sentenceEnd = (w) => /[.!?]["'”’]?$/.test(w.word);
+  const cands = [];
+  words.forEach((w, i) => {
+    const b = bare(w.word).replace(/'s$/, '');
+    let score = STRONG.test(b) ? 3 : ABSOLUTE.test(b) ? 2 : 0;
+    // The last word of a short sentence is where its point lands.
+    if (sentenceEnd(w) && b.length >= 3 && !STOP.has(b) && !/\d/.test(b)) {
+      let k = i;
+      while (k > 0 && !sentenceEnd(words[k - 1])) k--;
+      if (i - k + 1 <= 7) score += 1.5;
+    }
+    if (score >= 1.5 && w.start >= Math.min(1.0, hookEnd)) cands.push({ t: w.start, score, word: b });
+  });
+  cands.sort((a, b) => b.score - a.score || a.t - b.t);
+  for (const c of cands) {
+    if (out.length >= limit) break;
+    if (out.some((p) => Math.abs(p.t - c.t) < 3)) continue;
+    const hold = fit(c.t, c.score >= 3 ? 0.4 : 0.35);
+    if (hold < 0.22) continue;
+    out.push({ t: c.t, hold, peak: c.score >= 3 ? 1.16 : 1.13, why: c.word });
+  }
+  const r = (x) => Number(x.toFixed(3));
+  return out.sort((a, b) => a.t - b.t).map((p) => ({ ...p, t: r(p.t), hold: r(p.hold) }));
 }
 
 /** Captions in 1-3 word chunks that never end on a dangling "the" or "and". */
@@ -494,7 +555,7 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   const hookEnd = Math.min(3.2, Math.max(1.8, firstStop ? firstStop.end : 2.4));
   // Real footage of the story first (utils/archive-footage.js), then moving
   // shots on the words a still cannot carry (utils/broll.js) where it left room.
-  let shots = planShots(words, duration, ranked, resolved, claimed.size ? claimed : null);
+  let shots = planShots(words, duration, ranked, resolved, claimed.size ? claimed : null, { hookEnd });
   shots = await addArchive(shots, words, archive, { chapters: resolved, hookEnd, workDir, logger }).catch((e) => {
     logger.warn?.(`archive: ${String(e.message).slice(0, 120)}`);
     return shots;
@@ -502,6 +563,8 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   shots = await addClips(shots, words,
     { look: theme, chapters: resolved, hookEnd, workDir, seed: path.basename(outputPath), logger, extraThemes: clipThemes, stock: stockClips });
   const stats = statCards(words, hookEnd);
+  const zooms = punchIns(words, shots, stats, { duration, hookEnd });
+  if (zooms.length) logger.info?.(`v2: punch-ins on ${zooms.map((z) => `"${z.why}" ${z.t.toFixed(1)}s`).join(', ')}`);
   // The riser builds into the last sentence — or, when the video ends on
   // "Part two is next.", into the teaser just before it.
   const stops = words.map((w, i) => (/[.!?]["'”’]?$/.test(w.word) && i < words.length - 1 ? i : -1)).filter((i) => i >= 0);
@@ -518,6 +581,7 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
     look, duration, shots, ffmpeg,
     accentBgr: bgrOf(accent),
     punches: stats.map((s) => s.t),
+    zooms,
     payoff,
     videoOut: path.join(workDir, 'frames.mp4'),
     musicOut: path.join(workDir, 'music.wav'),
@@ -561,4 +625,4 @@ async function renderStoryV2({ words, audioPath, photos, title, look = 'football
   return { outputPath, shots, stats, hookEnd, duration, music: track ? track.credit : null };
 }
 
-module.exports = { renderStoryV2, planShots, resolveChapters, opener, faceTopInFrame, cutTimes, chunkWords, statCards, rankPhotos, buildAss };
+module.exports = { renderStoryV2, planShots, resolveChapters, opener, faceTopInFrame, cutTimes, chunkWords, statCards, punchIns, rankPhotos, buildAss };

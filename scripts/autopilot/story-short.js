@@ -40,6 +40,7 @@ const { footballNews } = require('../../utils/news-feed');
 const { renderStoryV2 } = require('../../utils/short-style-v2');
 const { reviewShort } = require('../../utils/video-review');
 const { findFootage } = require('../../utils/archive-footage');
+const { tightenNarration } = require('../../utils/tighten-narration');
 const { storyBank } = require('./story-bank');
 const { teamTheme } = require('../../utils/broll');
 const { SERIES, seriesPartDue, partId, NUMBER_WORDS } = require('./series');
@@ -720,14 +721,38 @@ function footageCredits(shots = []) {
   return used.length ? `\nVideo (Wikimedia Commons):\n${used.map((v) => `• ${v.title} — ${String(v.artist || 'unknown').slice(0, 80)}, ${v.license}`).join('\n')}` : '';
 }
 
+/**
+ * The narration with its pauses cut to a beat (utils/tighten-narration.js,
+ * from the cut-video skill). Untouched when Edge gave no word timings, when it
+ * would drop under the 20s gate, or with TIGHTEN_PAUSES=off.
+ */
+async function paced(narration, factory, logger) {
+  if (!narration.timed || process.env.TIGHTEN_PAUSES === 'off') return narration;
+  try {
+    const t = await tightenNarration(narration.audioPath, narration.words);
+    if (!t) return narration;
+    const seconds = await factory.probeDuration(t.audioPath);
+    if (seconds < 21) {
+      logger.info(`pace: pauses kept (tightened it would run ${seconds.toFixed(1)}s, under 21s)`);
+      return narration;
+    }
+    logger.info(`pace: cut ${t.cut.toFixed(1)}s of pauses in ${t.gaps} place(s), now ${seconds.toFixed(1)}s`);
+    return { ...narration, audioPath: t.audioPath, words: t.words };
+  } catch (e) {
+    logger.warn(`pace: pauses kept (${String(e.message).slice(0, 120)})`);
+    return narration;
+  }
+}
+
 async function renderStills(lane, id, text, photos, { style = 'v1', title = '', tag = null, label = null, next = null, chapters = [], clipTeams = [], stockClips = true, faceRequired = [], archive = [] } = {}) {
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const factory = new ShortsFactory({});
   const dirs = Object.fromEntries(['audio', 'captions', 'copy', 'video', 'work'].map((k) => [k, base('shorts', k)]));
   for (const d of Object.values(dirs)) await fsp.mkdir(d, { recursive: true });
 
-  const audio = path.join(dirs.audio, `${id}_short.mp3`);
-  const narration = await factory.narrateWithTiming(text, lane.voice, audio);
+  const spoken = path.join(dirs.audio, `${id}_short.mp3`);
+  const narration = await paced(await factory.narrateWithTiming(text, lane.voice, spoken), factory, logger);
+  const audio = narration.audioPath;
   const seconds = await factory.probeDuration(audio);
   if (seconds > 178) return { skip: `${seconds.toFixed(0)}s is over the 3-minute Shorts limit` };
   if (seconds < 20.5) return { skip: `${seconds.toFixed(0)}s is under the 20s quality gate` };

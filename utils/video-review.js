@@ -68,6 +68,11 @@ BAD: a different sport; a different team, player, referee or person than the one
 shop, office or landmark that has nothing to do with the story; a coin, stamp, poster,
 map, document or logo; a cartoon or drawing; a celebrating crowd while a death or
 injury is told; anything a viewer would find random or misleading.
+Also BAD: text that came with the picture itself (a TV channel's logo or a watermark, a
+name caption under someone, the original film's own subtitles), or a collage of several
+photos in one frame. This video's OWN graphics never count against a frame: the big bold
+word captions, the boxed headline at the top, big number cards, a photo shown as a framed
+card on a dark background, and the blurred copy of a film behind it.
 You cannot recognise faces: judge by the file name, kits, setting and objects.
 
 Then rate the OPENING (frame 1 and the opening line) 1-10 as a scroll-stopper for a

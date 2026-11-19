@@ -140,7 +140,13 @@ async function addArchive(shots, words, archive, { chapters = [], hookEnd = 2.4,
     try {
       const nextName = chapters.find((c) => c.photos && c.at > at + 0.3)?.at ?? Infinity;
       const start = at;
-      const stop = Math.min(at + 3.0, nextName, total);
+      let stop = Math.min(at + 3.0, nextName, total);
+      // No flash of a shot either side (the find-broll skill): a sliver under
+      // 0.6s before the film goes to the photo before it, one after it is run over.
+      const before = out.find((s) => s.start < start && start < s.end);
+      const prev = before && start - before.start < 0.6 ? out.find((s) => Math.abs(s.end - before.start) < 1e-3 && !s.video) : null;
+      const after = out.find((s) => s.start < stop && stop < s.end);
+      if (after && after.end - stop < 0.6 && after.end <= Math.min(nextName, total)) stop = after.end;
       if (stop - start < 1.6) continue;
       const span = stop - start;
       const from = v.duration <= 8 ? 0.3 : Math.min(Math.max(3, v.duration * 0.2), v.duration - span - 0.3);
@@ -158,6 +164,11 @@ async function addArchive(shots, words, archive, { chapters = [], hookEnd = 2.4,
       };
       const kept = [];
       for (const s of out) {
+        if (prev && s === prev) { kept.push({ ...s, end: r3(start) }); continue; }
+        if (prev && s === before) {
+          if (s.end > stop) kept.push({ ...s, start: r3(stop), transition: 'punch' });
+          continue;
+        }
         if (s.end <= start || s.start >= stop) { kept.push(s); continue; }
         if (s.start < start) kept.push({ ...s, end: r3(start) });
         if (s.end > stop) kept.push({ ...s, start: r3(stop), transition: 'punch' });

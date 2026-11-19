@@ -244,8 +244,16 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
       const nextName = chapters.find((c) => c.photos && c.at > m.at + 0.3)?.at ?? Infinity;
       let start = m.at;
       let stop = Math.min(m.at + 2.4, nextName, total);
+      // On the word, never before it (the find-broll skill: b-roll that lands
+      // early reads as a mistake). A sliver of the shot underneath goes to the
+      // photo before it; only when there is none does the clip start early.
       const before = out.find((s) => s.start < start && start < s.end);
-      if (before && start - before.start < 0.6) start = before.start;
+      let absorb = null;
+      if (before && start - before.start < 0.6) {
+        const prev = out.find((s) => Math.abs(s.end - before.start) < 1e-3 && !s.video);
+        if (prev) absorb = { prev, before };
+        else start = before.start;
+      }
       const after = out.find((s) => s.start < stop && stop < s.end);
       if (after && after.end - stop < 0.6) stop = after.end;
       if (stop - start < 1.2) { logger.info?.(`b-roll: no room at ${m.at.toFixed(1)}s`); continue; }
@@ -265,6 +273,11 @@ async function addClips(shots, words, { look, chapters = [], hookEnd, workDir, s
       // Shots before and after keep what lies outside the clip.
       const kept = [];
       for (const s of out) {
+        if (absorb && s === absorb.prev) { kept.push({ ...s, end: r3(start) }); continue; }
+        if (absorb && s === absorb.before) {
+          if (s.end > stop) kept.push({ ...s, start: r3(stop), transition: 'punch' });
+          continue;
+        }
         if (s.end <= start || s.start >= stop) { kept.push(s); continue; }
         if (s.start < start) kept.push({ ...s, end: r3(start) });
         if (s.end > stop) kept.push({ ...s, start: r3(stop), transition: 'punch' });

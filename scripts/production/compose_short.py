@@ -395,6 +395,10 @@ def render(plan):
     duration = plan['duration']
     shots = plan['shots']
     punches = plan.get('punches', [])
+    # Hard punch-ins (short-style-v2.js punchIns, from the add-zooms skill):
+    # in on one frame, hold, out on one frame. A plan without them keeps the
+    # old soft bump on the numbers.
+    zooms = plan.get('zooms')
 
     sources, depths = {}, {}
     gx, gy = np.meshgrid(np.arange(W, dtype=np.float32), np.arange(H, dtype=np.float32))
@@ -456,10 +460,16 @@ def render(plan):
         zoom = z0 + (z1 - z0) * prog
         if idx > 0 and shot['transition'] == 'punch' and u < 0.22:
             zoom *= 1 + 0.16 * (1 - ease_out(u / 0.22))
-        for p in punches:
-            x = (t - p) / 0.32
-            if 0 <= x <= 1:
-                zoom *= 1 + 0.06 * math.sin(math.pi * x)
+        if zooms is not None:
+            for z in zooms:
+                if z['t'] <= t < z['t'] + z['hold']:
+                    zoom *= z['peak']
+                    break
+        else:
+            for p in punches:
+                x = (t - p) / 0.32
+                if 0 <= x <= 1:
+                    zoom *= 1 + 0.06 * math.sin(math.pi * x)
 
         fx, cy, cw, ch = window_for(meta, shot) if shot['mode'] == 'bleed' else (sw / 2, sh / 2, sw, sh)
         cw_z, ch_z = cw / zoom, ch / zoom
