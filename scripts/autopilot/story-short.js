@@ -1037,18 +1037,38 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         rendered = await renderStills(lane, id, text, keep, retry);
         if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); await discard(); continue; }
         saved = keep;
+        const first = review;
         review = await watch();
-        // A beat that fails twice is dropped, not the whole short (the find-broll
-        // skill): when the only frames still turned down are moving clips, the
-        // short is cut once more without them and watched again. Football War's
-        // preview (19 Nov) lost the story to one stock aerial of a stadium.
-        if (review?.bad.length && review.bad.every((b) => b.clip)) {
-          logger.info(`review: dropping ${review.bad.length} rejected clip(s) and cutting once more`);
-          rendered = await renderStills(lane, id, text, keep, withoutClips(retry, review.bad));
+        // A beat that fails is dropped, not the short (the find-broll skill).
+        // The reviewer does not always agree with itself (Spartacus preview,
+        // 19 Nov: a print and a Colosseum aerial it passed, it turned down the
+        // next time), so a second objection no longer kills the story: the
+        // short is cut a last time from only the photos a look has seen and
+        // passed, no stock clips, no footage either look turned down. Nothing
+        // in it is new, so it posts without a third look. Too few of those
+        // photos and the story is skipped, as before.
+        if (review?.bad.length) {
+          const looks = [first, review];
+          const rejected = new Set(looks.flatMap((r) => r.bad.map((b) => b.image)));
+          const seen = new Set(looks.flatMap((r) => r.seen || []));
+          const approved = keep.filter((p) => seen.has(p.path) && !rejected.has(p.path));
+          if (approved.length < minPhotos) {
+            logger.info(`skip ${subject}: the reviewer still rejects ${review.bad.length} frame(s); ${approved.length} passed photo(s) left`);
+            await discard();
+            continue;
+          }
+          const ok = new Set(approved.map((p) => p.path));
+          logger.info(`review: last cut from the ${approved.length} photo(s) the reviewer passed`);
+          rendered = await renderStills(lane, id, text, approved, {
+            ...retry,
+            chapters: retry.chapters.map((c) => ({ ...c, photos: c.photos.filter((p) => ok.has(p)) })).filter((c) => c.photos.length),
+            faceRequired: retry.faceRequired.filter((p) => ok.has(p)),
+            stockClips: false,
+            archive: (retry.archive || []).filter((v) => seen.has(`archive:${v.title}`) && !rejected.has(`archive:${v.title}`))
+          });
           if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); await discard(); continue; }
-          review = await watch();
+          saved = approved;
         }
-        if (review?.bad.length) { logger.info(`skip ${subject}: the reviewer still rejects ${review.bad.length} frame(s)`); await discard(); continue; }
       }
       const { video, seconds } = rendered;
       const dirs = { copy: base('shorts', 'copy') };

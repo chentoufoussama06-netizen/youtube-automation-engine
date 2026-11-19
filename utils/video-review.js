@@ -173,7 +173,9 @@ async function reviewShort({ video, shots, words, title, subject, lane, nameOf, 
     const bad = verdict.frames.filter((f) => !f.ok).map((f) => ({ image: plan[f.n - 1].image, clip: plan[f.n - 1].clip, archive: plan[f.n - 1].archive, name: plan[f.n - 1].name, why: f.why }));
     logger.info?.(`review (${verdict.model}): ${plan.length - bad.length}/${plan.length} frames fit; opening ${verdict.hook.score}/10 (${verdict.hook.why.slice(0, 120)})`);
     for (const b of bad) logger.info?.(`review: does not fit: ${b.name.slice(0, 80)} (${b.why.slice(0, 140)})`);
-    return { bad, hook: verdict.hook, model: verdict.model, frames: plan.length };
+    // `seen`: every photo or clip this look judged, so a caller can tell a
+    // passed photo from one that was never shown to it.
+    return { bad, hook: verdict.hook, model: verdict.model, frames: plan.length, seen: plan.map((f) => f.image) };
   } finally {
     await fsp.rm(dir, { recursive: true, force: true }).catch(() => {});
   }
