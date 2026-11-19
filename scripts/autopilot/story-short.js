@@ -1023,17 +1023,31 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         const drop = new Set(review.bad.filter((b) => !b.clip).map((b) => b.image));
         const keep = saved.filter((p) => !drop.has(p.path));
         if (keep.length < minPhotos) { logger.info(`skip ${subject}: the reviewer rejected ${drop.size} photo(s), ${keep.length} left`); await discard(); continue; }
-        rendered = await renderStills(lane, id, text, keep, {
+        // a rejected stock clip takes the stock clips out; a rejected archive clip, that footage
+        const withoutClips = (o, bad) => ({
+          ...o,
+          stockClips: o.stockClips !== false && !bad.some((b) => b.clip && !b.archive),
+          archive: (o.archive || []).filter((v) => !bad.some((b) => b.archive && b.image === `archive:${v.title}`))
+        });
+        const retry = withoutClips({
           ...opts,
           chapters: chapters.map((c) => ({ ...c, photos: c.photos.filter((p) => !drop.has(p)) })).filter((c) => c.photos.length),
-          faceRequired: opts.faceRequired.filter((p) => !drop.has(p)),
-          // a rejected stock clip takes the stock clips out; a rejected archive clip, that footage
-          stockClips: !review.bad.some((b) => b.clip && !b.archive),
-          archive: (opts.archive || []).filter((v) => !review.bad.some((b) => b.archive && b.image === `archive:${v.title}`))
-        });
+          faceRequired: opts.faceRequired.filter((p) => !drop.has(p))
+        }, review.bad);
+        rendered = await renderStills(lane, id, text, keep, retry);
         if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); await discard(); continue; }
         saved = keep;
         review = await watch();
+        // A beat that fails twice is dropped, not the whole short (the find-broll
+        // skill): when the only frames still turned down are moving clips, the
+        // short is cut once more without them and watched again. Football War's
+        // preview (19 Nov) lost the story to one stock aerial of a stadium.
+        if (review?.bad.length && review.bad.every((b) => b.clip)) {
+          logger.info(`review: dropping ${review.bad.length} rejected clip(s) and cutting once more`);
+          rendered = await renderStills(lane, id, text, keep, withoutClips(retry, review.bad));
+          if (rendered.skip) { logger.warn(`${id}: ${rendered.skip}`); await discard(); continue; }
+          review = await watch();
+        }
         if (review?.bad.length) { logger.info(`skip ${subject}: the reviewer still rejects ${review.bad.length} frame(s)`); await discard(); continue; }
       }
       const { video, seconds } = rendered;
@@ -1131,8 +1145,11 @@ const hasAll = (title, keys) => keys.every((k) => folded(title).includes(k));
 const NOT_THE_TEAM = /\b(logo|crest|badge|campus|handball|basketball|volleyball|futsal|women|womens|frauen|femenino|feminino|ladies|bus|shop|store|office|building|headquarters|museum|academy|youth|u19|u21|u23|mascot|ads?|advert|advertising|sponsor|balm|mannschaftsbus|teambus)\b/i;
 // A trophy photo is the trophy, not a beer can, a medal or a museum case.
 const NOT_THE_TROPHY = /\b(can|beer|heineken|medal|medals|museum|poster|logo|ball|balls|ballen|ticket|replica|sticker|stamp|minister|president|sheikh|hasina|views|governor|mayor|tour|takaichi|cabinet|holds|holding|lifts|lifting|raises|women|womens|women's|frauen|feminin\w*)\b/i;
-// Not a photograph at all.
-const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma|\bcoins?\b|vijfje|\bmunt\b|banknote|\bstamps?\b)/i;
+// Not a photograph at all — or not of the real thing: pop culture that only
+// carries the name. "San Diego Comic-Con 2011 - Spartacus photo op (Starz
+// booth)" sat in the Spartacus preview (19 Nov); the find-broll skill's rule
+// is to source the moment, not the name.
+const NOT_A_PHOTO = /(\bhistogram|\bchart|\bmap\b|diagram|graph|\btable\b|host countries|\bflag|\blogo|\bkit\b|\bsvg$|platzierung|placement|ranking|standings|before the first|territor|\bextent\b|\bcampaigns?\b|siege\w*\.png|genealog|descendante|famille|\bjersey|\bshirt\b|adidas|nike|puma|\bcoins?\b|vijfje|\bmunt\b|banknote|\bstamps?\b|comic-?con|cosplay|\bconvention\b|photo ?op\b|\bbooth\b|\bstarz\b|\bhbo\b|netflix|tv series|television series|miniseries|film still|\bmovie\b|\bpremiere\b|\btrailer\b|\bposter\b|graffit|\blego\b|playmobil|\btoys?\b|figurine|action figure|video ?game|\bcomic\b|fan ?art|\banime\b|\bmanga\b|theme park)/i;
 /**
  * A trusted (main image or Commons category) file whose name never says the
  * person but names two-word someone else shows that someone: "Neymar and Andre

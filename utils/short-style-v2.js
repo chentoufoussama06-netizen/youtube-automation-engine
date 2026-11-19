@@ -260,8 +260,9 @@ const STRONG = new RegExp('^(banned|bans?|suspended|sacked|fired|arrested|jailed
   + 'killed|murdered|murder|shot|stabbed|died|dies|dead|death|collapsed|vanished|disappeared|executed|poisoned|strangled|beheaded|'
   + 'burned|burnt|buried|betrayed|exiled|assassinated|crashed|destroyed|exploded|sank|drowned|kidnapped|bankrupt|scandal|cheated|'
   + 'bribed|doping|cocaine|ruined|massacre|massacred|slaughtered|plague|fraud|stole|stolen|blinded|paralysed|paralyzed|lynched|'
-  + 'hanged|crucified|enslaved|abandoned|refused|forgotten|erased|cursed)$');
-const ABSOLUTE = /^(never|nobody|nothing|everything|everyone|only|first|last|record|youngest|oldest|fastest|biggest|greatest|worst|forever|alone|secret|impossible|miracle|zero|none)$/;
+  + 'hanged|crucified|enslaved|abandoned|refused|forgotten|erased|cursed|war|invaded|invasion|bombed|riots?|rioting|attacked|'
+  + 'fled|revolt|rebellion|siege|besieged|starved|famine|hunted|captured|tortured|mutiny|coup|overthrown|deposed|banished|wiped)$');
+const ABSOLUTE = /^(never|nobody|nothing|everything|everyone|only|first|last|record|youngest|oldest|fastest|biggest|greatest|worst|forever|alone|secret|impossible|miracle|zero|none|thousands?|hundreds|millions?)$/;
 
 /**
  * Punch-ins, from the add-zooms skill: on a word the narrator leans on, the
@@ -272,10 +273,12 @@ const ABSOLUTE = /^(never|nobody|nothing|everything|everyone|only|first|last|rec
  * running into the next cut.
  */
 function punchIns(words, shots, stats, { duration, hookEnd = 2.4 } = {}) {
+  // Clear of the cut's own punch (0.22s) and, before a whip, of the whip-out (0.16s).
   const fit = (t, want) => {
-    const s = shots.find((x) => x.start <= t && t < x.end);
-    if (!s || t - s.start < 0.35) return 0;
-    return Math.min(want, s.end - t - 0.2);
+    const i = shots.findIndex((x) => x.start <= t && t < x.end);
+    const s = shots[i];
+    if (!s || t - s.start < 0.26) return 0;
+    return Math.min(want, s.end - t - (shots[i + 1]?.transition === 'whip' ? 0.2 : 0.08));
   };
   const out = [];
   for (const s of stats) {
@@ -301,7 +304,7 @@ function punchIns(words, shots, stats, { duration, hookEnd = 2.4 } = {}) {
     if (out.length >= limit) break;
     if (out.some((p) => Math.abs(p.t - c.t) < 3)) continue;
     const hold = fit(c.t, c.score >= 3 ? 0.4 : 0.35);
-    if (hold < 0.22) continue;
+    if (hold < 0.2) continue;
     out.push({ t: c.t, hold, peak: c.score >= 3 ? 1.16 : 1.13, why: c.word });
   }
   const r = (x) => Number(x.toFixed(3));

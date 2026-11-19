@@ -70,7 +70,10 @@ map, document or logo; a cartoon or drawing; a celebrating crowd while a death o
 injury is told; anything a viewer would find random or misleading.
 Also BAD: text that came with the picture itself (a TV channel's logo or a watermark, a
 name caption under someone, the original film's own subtitles), or a collage of several
-photos in one frame. This video's OWN graphics never count against a frame: the big bold
+photos in one frame. And a modern picture in a story about the past: a fan convention or
+photo booth, a film or TV production, actors or fans in costume, a toy, a modern street,
+unless the narrator is talking about today at that moment. The right name in the file
+name is NOT enough: judge what the picture actually shows. This video's OWN graphics never count against a frame: the big bold
 word captions, the boxed headline at the top, big number cards, a photo shown as a framed
 card on a dark background, and the blurred copy of a film behind it.
 You cannot recognise faces: judge by the file name, kits, setting and objects.
