@@ -21,7 +21,8 @@
     "short:philips-cd-i": 2,
     "build:every-online-game-shut-down-while": 2,
     "build:every-major-social-platform-that-was": 2,
-    "long:every-file-sharing-site-that-shut-down": 2
+    "long:every-file-sharing-site-that-shut-down": 2,
+    "sequel:story-paracord-parachute-cord-w": 1
   },
   "history": [
     {
@@ -224,6 +225,12 @@
       "event": "story",
       "id": "story-stainless-steel-during-wwi-briti",
       "url": "https://www.youtube.com/watch?v=x-jZD2qkEfc"
+    },
+    {
+      "at": "2026-11-19T01:56:20.254Z",
+      "event": "story",
+      "id": "story-penicillin-1942-mass-produc",
+      "url": "https://www.youtube.com/watch?v=McVsSq9PX78"
     }
   ]
 }

@@ -741,6 +741,20 @@
       "shortTitle": "Claudius' Father Drusus Dies Falling From Horse",
       "article": "Claudius",
       "categoryId": "27"
+    },
+    {
+      "id": "story-carthage-carthage-is-raze",
+      "topic": "Carthage is razed by Rome after the Third Punic War, 146 BCE",
+      "keywords": [
+        "Carthage",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Rome Burns Carthage to the Ground",
+      "article": "Carthage",
+      "categoryId": "27"
     }
   ]
 }
