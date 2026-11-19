@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 30
+    "series:story-series-ajax-1995": 31
   },
   "history": [
     {
@@ -570,6 +570,12 @@
       "event": "story",
       "id": "story-rio-ferdinand-in-september-200",
       "url": "https://www.youtube.com/watch?v=t1saDtuvu8Y"
+    },
+    {
+      "at": "2026-11-19T18:48:53.759Z",
+      "event": "story",
+      "id": "story-george-weah-on-15-august-202",
+      "url": "https://www.youtube.com/watch?v=WH82-UsiRz4"
     }
   ],
   "pendingLinks": [],
