@@ -190,8 +190,15 @@ const SEXUAL_CASE = /\b(rape[ds]?|raping|rapist|sexual(ly)? (assault\w*|abuse\w*
  * dead"); the article check rejected them all and Football Files fell to one
  * short a day. A different handful of subjects each run and round (`seed`).
  */
-async function bankStories(ai, research, lane, bank, { seed = '', subjects = 6 } = {}) {
+// What the bank picks for the ordinary dark format. A format test (lanes.js
+// `test.story.bank`) passes its own: which lines, from which year on, which pick.
+const DARK_PICK = 'the most gripping short: a death, a crime, a scandal, a ban, a disaster, a collapse, a betrayal. '
+  + 'Answer line 0 for a subject with no gripping sentence (routine career facts, results, transfers).';
+const DARK_TITLE = 'under 55 characters, opening on the name people know, stating what happened plainly as a fact, no question, no emoji.';
+async function bankStories(ai, research, lane, bank, { seed = '', subjects = 6, line: lineRule = DARK_LINE, minYear = 0, pick = DARK_PICK, title: titleRule = DARK_TITLE } = {}) {
   if (!bank.length) return [];
+  // a line about a year this recent or later: photos from then exist (the era rule)
+  const recentEnough = (x) => !minYear || (x.match(/\b(?:19|20)\d\d\b/g) || []).some((y) => Number(y) >= minYear);
   let h = 2166136261;
   for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
   const rand = () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0) / 4294967296);
@@ -201,7 +208,7 @@ async function bankStories(ai, research, lane, bank, { seed = '', subjects = 6 }
     const full = await research.buildBriefFromArticle(b.article, { maxChars: 150000 }).catch(() => null);
     if (!full?.text || full.text.length < 3000) continue;
     const all = [...new Set((full.text.match(/[^.!?\n]+[.!?]/g) || []).map((x) => x.replace(/\s+/g, ' ').trim()))]
-      .filter((x) => x.length > 60 && x.length < 300 && DARK_LINE.test(x) && DATED.test(x) && !NOT_FOR_AUTO.test(x));
+      .filter((x) => x.length > 60 && x.length < 300 && lineRule.test(x) && DATED.test(x) && !NOT_FOR_AUTO.test(x) && recentEnough(x));
     // up to 14, spread over the whole article: the end of a life is at the end
     const step = Math.max(1, all.length / 14);
     const lines = Array.from({ length: Math.min(14, all.length) }, (_, i) => all[Math.floor(i * step)]);
@@ -210,11 +217,8 @@ async function bankStories(ai, research, lane, bank, { seed = '', subjects = 6 }
   if (!cands.length) return [];
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 Below are real sentences from Wikipedia articles, grouped by subject. For each subject
-choose the ONE sentence that would make the most gripping short: a death, a crime, a
-scandal, a ban, a disaster, a collapse, a betrayal. Answer line 0 for a subject with no
-gripping sentence (routine career facts, results, transfers).
-Then write that story's title: under 55 characters, opening on the name people know,
-stating what happened plainly as a fact, no question, no emoji. Use only what the
+choose the ONE sentence that would make ${pick}
+Then write that story's title: ${titleRule} Use only what the
 sentence says.
 ${cands.map((c, i) => `\nSubject ${i + 1}: ${c.subject}\n${c.lines.map((l, j) => `  ${j + 1}. ${l}`).join('\n')}`).join('\n')}
 
@@ -829,6 +833,11 @@ function chooseStyle(lane, done) {
   return n('v2') <= n('v1') ? 'v2' : 'v1';
 }
 
+const wikiTitle = (s) => {
+  const t = String(s || '');
+  try { return decodeURIComponent(t).replace(/_/g, ' ').trim(); } catch { return t.replace(/_/g, ' ').trim(); }
+};
+
 // Subjects any lane picked in this process. Every lane sees the same trending
 // list, and on 2026-10-22 AFTER CACHE and Viral Vault Clip both chose
 // Elizabeth Holmes; one channel per subject per day.
@@ -873,8 +882,13 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
   const hot = sequelOf || pinned ? [] : await trending();
   // Famous subjects not told yet, most-read first (scripts/autopilot/story-bank.js):
   // from memory the AI kept proposing the same dozen stories (10 Nov).
-  // A test picks by its own scope: the bank's sentences are the dark lines of the ordinary format.
-  const bank = sequelOf || pinned || variant ? [] : await storyBank(lane, [...done, ...oldTold], { n: 45, logger }).catch(() => []);
+  // A test picks by its own scope: the bank's sentences are the dark lines of
+  // the ordinary format. A test with its own bank (the megastar names) reads
+  // real lines from those articles instead, minus anyone told this fortnight.
+  const ownBank = lane.story?.bank;
+  const bank = sequelOf || pinned ? []
+    : ownBank ? ownBank.articles.filter((a) => !recent.has(fold(a.replace(/\([^)]*\)/g, '').trim()))).map((article) => ({ article }))
+      : variant ? [] : await storyBank(lane, [...done, ...oldTold], { n: 45, logger }).catch(() => []);
   if (bank.length) logger.info(`story bank: ${bank.slice(0, 8).map((b) => b.article).join(' | ')} …`);
   if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
   const news = sequelOf || pinned || !lane.news ? [] : (await footballNews()).slice(0, 30);
@@ -914,15 +928,20 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
           // Given the names alone (11-16 Nov), the proposer invented an
           // episode for nearly every one; all were rejected and runs ended
           // with no story. propose() no longer sees the bank.
-          ...(round <= 2 ? await bankStories(ai, research, lane, bank, { seed: `${new Date().toISOString().slice(0, 13)}-${round}` })
+          ...(round <= 2 || ownBank ? await bankStories(ai, research, lane, bank, { seed: `${new Date().toISOString().slice(0, 13)}-${round}`, ...(ownBank || {}) })
             .catch((e) => { logger.info(`bank stories failed: ${String(e.message).slice(0, 80)}`); return []; }) : []),
-          ...await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [])
+          // A test with its own bank takes real lines only: from names alone the
+          // proposer invented the megastars' lives (20 Nov preview).
+          ...(ownBank ? [] : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : []))
         ];
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
       continue;
     }
-    for (const story of stories) {
+    for (const raw of stories) {
+      // The proposer sometimes writes an article's URL form ("Kylian_Mbapp%C3%A9",
+      // "Zlatan_Ibrahimovi%C4%87" in the 20 Nov preview), which no lookup finds.
+      const story = { ...raw, article: wikiTitle(raw.article), subject: wikiTitle(raw.subject) };
       const subject = String(story.subject || '').replace(/\([^)]*\)/g, '').trim();
       if (!story.article || !subject) continue;
       // The fortnight-per-subject rule is for fresh picks; a sequel is the same subject by design.

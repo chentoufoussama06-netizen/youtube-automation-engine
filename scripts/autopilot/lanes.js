@@ -132,6 +132,22 @@ const MEGASTAR_STORY = {
     + '  Never promise something the article cannot back.',
   // the subject (or its article) must be one of MEGASTARS
   only: /\b(ronaldo|messi|neymar|mbappe|yamal|haaland|salah|vinicius|bellingham|de bruyne|modric|ibrahimovic|zlatan|ronaldinho|beckham|zidane|mourinho|guardiola|sergio ramos|lewandowski|harry kane|benzema|rooney|thierry henry|kaka|buffon|iniesta|son heung|maradona|pele)\b/,
+  // The picker reads real lines from these articles and chooses one. Given the
+  // names alone it invented their lives (20 Nov preview: "Ronaldo's mother died
+  // in 2005"; it was his father) and the article check refused every story.
+  // From 2008 on, so Commons has photos of them from that time (the era rule).
+  // Ronaldo Nazário is left out: as "Ronaldo" his photos mix with Cristiano's.
+  bank: {
+    articles: MEGASTARS.filter((n) => n !== 'Ronaldo Nazário'),
+    subjects: 8,
+    minYear: 2008,
+    line: /\b(cried|crying|tears|wept|emotional|mother|father|parents|son|daughter|brother|sister|family|wife|died|death|funeral|injur(ed|y|ies)|surgery|retire(d|ment)?|heartbreak|lost|defeat|missed|final|revenge|rival(ry|s)?|loyal(ty)?|refused|rejected|donat(ed|ion|es)|charity|sacrific\w*|struggl\w*|poverty|childhood|comeback|returned|booed|insult\w*|apologi[sz]\w*|tribute|dedicat\w*|tattoo|banned|red card|sent off|suspen\w*|arrest\w*|prison|jail|kidnap\w*|threat\w*|racis\w*|abuse\w*|protest\w*|sacked|farewell|statue)\b/i,
+    pick: 'the most EMOTIONAL or SURPRISING short for fans: family, a sacrifice, tears, heartbreak, revenge, '
+      + 'loyalty, a rivalry, a comeback, a strange habit or rule, the moment that changed a career. Answer line 0 '
+      + 'for a subject with only routine career facts (caps, transfers, goal counts, an award on its own).',
+    title: 'under 60 characters, opening on the megastar\'s name, an emotional or curiosity angle ("Why ...", '
+      + '"The Day ...", "When ..."), may be a question, no emoji.'
+  },
   captionExample: 'Cristiano Ronaldo',
   tags: ['football', 'football story', 'football legends'],
   // 40-50s, around the 48s median of the football shorts that broke 1M
