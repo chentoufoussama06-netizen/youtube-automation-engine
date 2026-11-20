@@ -138,6 +138,12 @@ const EPISODE_STOP = new Set(('football footballer footballers world after befor
   + 'onto upon shorts part sport sports famous legend legends star stars shocking moment night today ever every never nearly home away').split(' '));
 const episodeWords = (s) => new Set((fold(`${s.title || ''} ${s.moment || ''}`).match(/[a-z]{4,}|(?:1[89]|20)\d\d/g) || [])
   .filter((w) => !EPISODE_STOP.has(w)).map((w) => w.slice(0, 6)));
+// Ancient dates ("146 BCE", "AD 59", "64 CE") as "146bc" / "59ad". The modern
+// 4-digit years above never see them, so Rome razing Carthage in 146 BCE went
+// out on 19 Nov (as "Carthage") and again on 20 Nov (as "Scipio Aemilianus").
+const ancientYears = (s) => new Set([...fold(`${s.title || ''} ${s.moment || ''}`)
+  .matchAll(/\b(\d{1,4})\s?bce?\b|\b(?:ad|ce)\s?(\d{1,4})\b|\b(\d{1,4})\s?(?:ad|ce)\b/g)]
+  .map((m) => (m[1] ? `${m[1]}bc` : `${m[2] || m[3]}ad`)));
 function sameEpisode(a, b) {
   // Two different clubs going bust are two stories: Leeds was blocked as a
   // repeat of Portsmouth's administration (9 Nov preview). One story must
@@ -145,6 +151,9 @@ function sameEpisode(a, b) {
   const subj = (s) => (fold(s.subject).match(/[a-z]{4,}/g) || []).filter((w) => !EPISODE_STOP.has(w));
   const text = (s) => fold(`${s.title || ''} ${s.moment || ''} ${s.subject || ''}`);
   if (!subj(a).some((w) => text(b).includes(w)) && !subj(b).some((w) => text(a).includes(w))) return false;
+  // Linked subjects in the same ancient year are the same episode told twice.
+  const yearsA = ancientYears(a);
+  if ([...ancientYears(b)].some((y) => yearsA.has(y))) return true;
   const A = episodeWords(a);
   const B = episodeWords(b);
   let n = 0;
@@ -166,6 +175,11 @@ const DATED = /\b(1[89]\d\d|20\d\d)\b|\b\d{1,4}\s?(BC|BCE|AD|CE)\b/;
 // offence case ended (the first test offered Dani Alves's 2024 rape sentence,
 // which an appeal court overturned in 2025).
 const NOT_FOR_AUTO = /\b(rape[ds]?|sexual(ly)?|sex|minors?|underage|child(ren)?|paedophil\w*|pedophil\w*|domestic (violence|abuse))\b/i;
+// The same rule for whole candidates and finished scripts, narrower so a death
+// story that mentions "his two children" still goes out. On 20 Nov a news pick
+// slipped past the bank-only filter: Dani Alves's case went out titled "Dani
+// Alves was allegedly assaulted", as if he were the victim.
+const SEXUAL_CASE = /\b(rape[ds]?|raping|rapist|sexual(ly)? (assault\w*|abuse\w*|offen[cs]e\w*|misconduct|harass\w*)|sex(ual)? (offen[cs]e\w*|crimes?|abuse)|paedophil\w*|pedophil\w*|child (sex|abuse)\w*)\b/i;
 
 /**
  * Stories for the bank's famous names, each made from a sentence of the
@@ -911,6 +925,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         logger.info(`skip ${subject}: outside what this channel makes`);
         continue;
       }
+      if (!pinned && SEXUAL_CASE.test(`${story.title} ${story.moment}`)) { logger.info(`skip ${subject}: a sexual-offence case`); continue; }
       if (!sequel && !pinned && (recent.has(fold(subject)) || takenThisRun.has(fold(subject)))) continue;
       if (done.some((d) => fold(d.moment) === fold(story.moment))) continue;
       // The same episode under another name or wording is a repeat for good, not
@@ -953,6 +968,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const text = await narrate(ai, { ...story, subject, writerNote: lane.story?.writerNote, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
         brief, writer, lane.story?.words || DEFAULT_WORDS);
       if (!text) { logger.info(`skip ${subject}: no clean narration`); continue; }
+      if (!pinned && SEXUAL_CASE.test(text)) { logger.info(`skip ${subject}: the script tells a sexual-offence case`); continue; }
 
       // The model still stacks emojis ("😳💀") despite the rule; keep the first.
       let seen = false;
