@@ -335,6 +335,20 @@
       "shortTitle": "A Texas port turned into a giant bomb when Grandcamp blew up",
       "article": "Texas City disaster",
       "categoryId": "27"
+    },
+    {
+      "id": "story-uss-cyclops-the-navy-cargo-s",
+      "topic": "The Navy cargo ship vanished without a trace in the Bermuda Triangle in 1918, taking 306 crew members with her.",
+      "keywords": [
+        "USS Cyclops",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "The Navy freighter USS Cyclops disappeared with 306 souls in 1918",
+      "article": "USS Cyclops",
+      "categoryId": "27"
     }
   ]
 }

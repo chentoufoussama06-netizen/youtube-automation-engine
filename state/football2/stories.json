@@ -479,5 +479,23 @@
     "title": "Nero Plays as Rome Burns",
     "at": "2026-11-19T03:57:09.724Z",
     "style": "v2"
+  },
+  {
+    "id": "story-bessus-bessus-betrayed",
+    "subject": "Bessus",
+    "article": "Bessus",
+    "moment": "Bessus betrayed Darius III and proclaimed himself king in 330 BCE.",
+    "title": "Bessus Turned on Darius III and Claimed the Throne",
+    "at": "2026-11-20T01:30:38.657Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-scipio-aemilianus-scipio-aemilianu",
+    "subject": "Scipio Aemilianus",
+    "article": "Siege of Carthage (Third Punic War)",
+    "moment": "Scipio Aemilianus orders the complete destruction of Carthage after a three‑year siege, 146 BCE.",
+    "title": "Scipio Obliterates Carthage After a Brutal Siege",
+    "at": "2026-11-20T01:39:31.954Z",
+    "style": "v2"
   }
 ]
