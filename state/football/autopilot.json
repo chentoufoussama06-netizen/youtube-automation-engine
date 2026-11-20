@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 36
+    "series:story-series-ajax-1995": 37
   },
   "history": [
     {
@@ -576,6 +576,12 @@
       "event": "story",
       "id": "story-george-weah-on-15-august-202",
       "url": "https://www.youtube.com/watch?v=WH82-UsiRz4"
+    },
+    {
+      "at": "2026-11-20T15:12:24.322Z",
+      "event": "story",
+      "id": "story-dani-alves-the-alleged-assa",
+      "url": "https://www.youtube.com/watch?v=2dCS6EvHoqk"
     }
   ],
   "pendingLinks": [],

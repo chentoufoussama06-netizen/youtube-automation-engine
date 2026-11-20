@@ -2149,6 +2149,20 @@
       "shortTitle": "US sanctions three members of George Weah's cabinet",
       "article": "George Weah",
       "categoryId": "17"
+    },
+    {
+      "id": "story-dani-alves-the-alleged-assa",
+      "topic": "The alleged assault occurred at a Barcelona nightclub on 30 December 2022.",
+      "keywords": [
+        "Dani Alves",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Dani Alves was allegedly assaulted in a Barcelona nightclub",
+      "article": "Dani Alves",
+      "categoryId": "17"
     }
   ]
 }
