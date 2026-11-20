@@ -55,6 +55,89 @@ const DARK_FOOTBALL_STORY = {
   words: { min: 75, target: 100, max: 135 }
 };
 
+// Never made on Ancient Untold, whatever proposes them: between 12 and 16 Nov
+// the trending list pulled in two Rama shorts (128 and 19 views) and a Battle
+// of the Trench short about Muhammad, which was only lost to an upload bug.
+// Pictures of a prophet or a god are not this channel's to make.
+const ANCIENT_AVOID = /\b(muhammad|mohammed|mahomet|prophet|jesus|christ|moses|abraham|buddha|rama|krishna|shiva|vishnu|ramayana|mahabharata|quran|koran|bible|gospel|allah)\b/i;
+
+/*
+ * Format tests (2026-11-20, the user: "make these channels reach millions").
+ * Every short on the four channels stopped at the ~1,000-view first batch.
+ * An API study of the Shorts that broke 1M in the month to 20 Nov:
+ * - history: a median 76s, curiosity explainers ("The Secret Engineering
+ *   Behind Rani Ki Vav" 16.4M on a 17k-subscriber channel, "How Did Ancient
+ *   Humans Make the First Sharp Stone Tools?" 9.2M on 36k);
+ * - football: a median 48s, about megastars told with emotion or curiosity
+ *   (Ronaldo above all; Mourinho's "Special One" 6.2M, Yamal and his little
+ *   brother 4.7M on a 28k-subscriber channel), not trivia.
+ * A lane's `test` takes `perDay` of its story slots (autopilot.js); a test
+ * story that finds nothing hands its slot to an ordinary one. Stories record
+ * `variant`, so stay rate and 48h views can be compared slot against slot.
+ */
+const EXPLAINER_STORY = {
+  examples: [
+    'The Secret Engineering Behind Rani Ki Vav  (17k-subscriber channel: 16.4M)',
+    'How Did Ancient Humans Make the First Sharp Stone Tools?  (36k-subscriber channel: 9.2M)',
+    'How the Aztecs Fed Millions Without Cows or Sheep  (16k-subscriber channel: 1.5M)',
+    'The Dark History of Treadmills  (121k-subscriber channel: 1.8M)',
+    'Caracalla Killed While Using the Loo  (this channel: 1,222, one of its best)'
+  ],
+  scope: 'HOW or WHY something in the ancient world worked, that a casual viewer never\n'
+    + '  thought about and will hardly believe: engineering (Roman concrete, aqueducts,\n'
+    + '  the pyramids, the Antikythera mechanism, Greek fire), daily life (toilets, teeth,\n'
+    + '  food, heating, cosmetics), medicine, a strange invention, a lost technique, the\n'
+    + '  ancient origin of something we still use. Rome, Greece, Egypt, Mesopotamia,\n'
+    + '  Persia, Carthage, the Celts. Nothing after 500 CE; no religions or scripture.\n'
+    + '- "article": the thing itself ("Roman concrete", "Antikythera mechanism"), whose\n'
+    + '  article explains how it worked. "moment": the one surprising fact the short\n'
+    + '  explains, with its date or era.',
+  titleRule: 'under 60 characters, a curiosity question or reveal about the thing people\n'
+    + '  know: "How Did ...?", "Why ...?", "The Secret Behind ...", "The Dark History of\n'
+    + '  ...". No emoji. Never promise something the article cannot back.',
+  writerNote: 'This short EXPLAINS how or why it worked, like a sharp documentary, not a battle\n'
+    + 'story. Open on the most surprising fact, then the question it raises, then the\n'
+    + 'answer in 3 to 5 concrete steps the SOURCE gives (materials, numbers, how it was\n'
+    + 'made or used), then why it still matters today. Every step must come from the SOURCE.',
+  avoid: ANCIENT_AVOID,
+  captionExample: 'Roman concrete',
+  tags: ['ancient history', 'history facts', 'ancient engineering'],
+  // 60-75s, the length of the history shorts that broke 1M (median 76s)
+  words: { min: 145, target: 170, max: 200 }
+};
+
+// Names casual fans everywhere know (the football shorts that broke 1M).
+const MEGASTARS = ['Cristiano Ronaldo', 'Lionel Messi', 'Neymar', 'Kylian Mbappé', 'Lamine Yamal', 'Erling Haaland',
+  'Mohamed Salah', 'Vinícius Júnior', 'Jude Bellingham', 'Kevin De Bruyne', 'Luka Modrić', 'Zlatan Ibrahimović',
+  'Ronaldinho', 'David Beckham', 'Zinedine Zidane', 'José Mourinho', 'Pep Guardiola', 'Sergio Ramos',
+  'Robert Lewandowski', 'Harry Kane', 'Karim Benzema', 'Wayne Rooney', 'Thierry Henry', 'Ronaldo Nazário',
+  'Kaká', 'Gianluigi Buffon', 'Andrés Iniesta', 'Son Heung-min', 'Diego Maradona', 'Pelé'];
+const MEGASTAR_STORY = {
+  examples: [
+    'Ronaldo\'s Goat DNA Passed Down To His Sons  (352k-subscriber channel: 9.2M)',
+    'This Is Where José Mourinho Became THE SPECIAL ONE  (164k-subscriber channel: 6.2M)',
+    'Lamine Yamal & His Little Brother Keyne  (28k-subscriber channel: 4.7M)',
+    'When Ronaldo Took Revenge On Atlético  (62k-subscriber channel: 1.4M)',
+    'Seventeen minutes. That is all Karim Benzema needed.  (this channel: 2,871, its best)'
+  ],
+  scope: `About ONE of these megastars, the names that pull millions: ${MEGASTARS.join(', ')}.\n`
+    + '  An emotional or surprising episode of their life that fans feel: family, a\n'
+    + '  sacrifice, a childhood struggle, heartbreak, revenge, loyalty, a rivalry, a\n'
+    + '  comeback, a strange habit or rule, the moment that changed everything.\n'
+    + '- NOT career trivia on its own: a debut, a first club, a nomination, a goal\n'
+    + '  record (Haaland at Bryne, Salah\'s 32 goals: 84-305 views each on 8-9 Nov).\n'
+    + '- One specific episode, with its year.',
+  titleRule: 'under 60 characters, opens on the megastar\'s name, an emotional or curiosity\n'
+    + '  angle ("Why ...", "The Day ...", "When ..."), may be a question. At most one emoji.\n'
+    + '  Never promise something the article cannot back.',
+  // the subject (or its article) must be one of MEGASTARS
+  only: /\b(ronaldo|messi|neymar|mbappe|yamal|haaland|salah|vinicius|bellingham|de bruyne|modric|ibrahimovic|zlatan|ronaldinho|beckham|zidane|mourinho|guardiola|sergio ramos|lewandowski|harry kane|benzema|rooney|thierry henry|kaka|buffon|iniesta|son heung|maradona|pele)\b/,
+  captionExample: 'Cristiano Ronaldo',
+  tags: ['football', 'football story', 'football legends'],
+  // 40-50s, around the 48s median of the football shorts that broke 1M
+  words: { min: 100, target: 120, max: 140 }
+};
+
 // All lanes share one Google project's 10,000 units/day (a short ~1,700), so
 // order is priority: a lane that runs out of quota loses its posts, not others'.
 const LANES = [
@@ -94,18 +177,17 @@ const LANES = [
         + '  (like the examples), optionally ending with one emoji.\n'
         + '- History only: no prophets, founders of religions, gods or scripture stories\n'
         + '  (Muhammad, Jesus, Moses, Buddha, Rama, Krishna), and nothing after 500 CE.',
-      // Never made, whatever proposes them: between 12 and 16 Nov the trending
-      // list pulled in two Rama shorts (128 and 19 views) and a Battle of the
-      // Trench short about Muhammad, which was only lost to an upload bug.
-      // Pictures of a prophet or a god are not this channel's to make.
-      avoid: /\b(muhammad|mohammed|mahomet|prophet|jesus|christ|moses|abraham|buddha|rama|krishna|shiva|vishnu|ramayana|mahabharata|quran|koran|bible|gospel|allah)\b/i,
+      avoid: ANCIENT_AVOID,
       captionExample: 'Hannibal',
       tags: ['ancient history', 'roman empire', 'history'],
       // The 950K/695K battle shorts above run ~20s: 22-38s here (check-video
       // rejects anything under 20s).
       // back to the range of its ~1,000-view weeks (23 Oct - 7 Nov)
       words: { min: 55, target: 70, max: 95 }
-    }
+    },
+    // One of the two daily shorts (2026-11-20 test, see EXPLAINER_STORY).
+    // 60-75s needs more pictures than a 25s battle short.
+    test: { name: 'explainer', perDay: 1, story: EXPLAINER_STORY, minPhotos: 6 }
   },
   {
     name: 'Football Files',
@@ -135,6 +217,8 @@ const LANES = [
     archiveFootage: true,
     docShortsPerDay: 0,
     story: DARK_FOOTBALL_STORY,
+    // One of the daily shorts (2026-11-20 test, see MEGASTAR_STORY).
+    test: { name: 'megastar', perDay: 1, story: MEGASTAR_STORY },
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
       + 'disappearances, crimes, cursed careers, collapses and rise-and-fall stories '
       + 'of real footballers, managers, clubs, referees and matches, from any country and era.',

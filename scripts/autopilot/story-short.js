@@ -265,11 +265,11 @@ Propose 10 stories like these. Rules:
 - "article": the EXACT English Wikipedia article title of the person, event or thing.
 - "subject": the name a photo caption would use (e.g. "${story.captionExample}"), no parentheses.
 - "moment": one sentence naming the episode, with its year.
-- "title": under 55 characters, opens on the name people know, states the shocking
+- "title": ${story.titleRule || `under 55 characters, opens on the name people know, states the shocking
   fact or twist in plain words, curiosity gap. Usually NO emoji; at most ONE, and
   only where it truly fits (the 1,000-view weeks before 8 Nov had none; the
   emoji-on-every-title weeks after fell to a few hundred on both channels).
-  Capitalise like the examples. Never promise something the article cannot back.
+  Capitalise like the examples. Never promise something the article cannot back.`}
   A suicide is "took his own life" or "died by suicide", never "commits suicide".
   A death or a suicide gets 💔 or no emoji, never 😱 🤯 🔥 😳.
 - Do NOT reuse anything already posted:
@@ -838,10 +838,15 @@ const takenThisRun = new Set();
  * `sequelOf` is a stories.json entry (with its videoId) to continue: the next
  * part of that story replaces a fresh pick. See scripts/autopilot/sequels.js.
  */
-async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story: pinned = null, seriesDue = null, rerender = false } = {}) {
-  const lane = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
-  if (!lane) throw new Error(`no lane "${laneName}"`);
-  if (seriesDue) return makeSeriesPart(lane, seriesDue, { dryRun, rerender });
+async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story: pinned = null, seriesDue = null, rerender = false, variant = null } = {}) {
+  const home = LANES.find((l) => l.name.toLowerCase() === String(laneName).toLowerCase());
+  if (!home) throw new Error(`no lane "${laneName}"`);
+  if (seriesDue) return makeSeriesPart(home, seriesDue, { dryRun, rerender });
+  // A format test (lanes.js `test`) is the same channel with the test's own
+  // story rules: what to pick, how long, how to title it, how many photos.
+  if (variant && home.test?.name !== variant) throw new Error(`${home.name} has no "${variant}" test`);
+  const lane = variant ? { ...home, story: home.test.story, minPhotos: home.test.minPhotos ?? home.minPhotos } : home;
+  if (variant) logger.info(`${home.name}: a "${variant}" test story`);
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
 
   const ai = new AITextService({});
@@ -868,7 +873,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
   const hot = sequelOf || pinned ? [] : await trending();
   // Famous subjects not told yet, most-read first (scripts/autopilot/story-bank.js):
   // from memory the AI kept proposing the same dozen stories (10 Nov).
-  const bank = sequelOf || pinned ? [] : await storyBank(lane, [...done, ...oldTold], { n: 45, logger }).catch(() => []);
+  // A test picks by its own scope: the bank's sentences are the dark lines of the ordinary format.
+  const bank = sequelOf || pinned || variant ? [] : await storyBank(lane, [...done, ...oldTold], { n: 45, logger }).catch(() => []);
   if (bank.length) logger.info(`story bank: ${bank.slice(0, 8).map((b) => b.article).join(' | ')} …`);
   if (hot.length) logger.info(`trending: ${hot.slice(0, 12).join(' | ')} …`);
   const news = sequelOf || pinned || !lane.news ? [] : (await footballNews()).slice(0, 30);
@@ -926,6 +932,8 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
         continue;
       }
       if (!pinned && SEXUAL_CASE.test(`${story.title} ${story.moment}`)) { logger.info(`skip ${subject}: a sexual-offence case`); continue; }
+      // The megastar test is only those names.
+      if (lane.story?.only && !lane.story.only.test(fold(`${subject} | ${story.article}`))) { logger.info(`skip ${subject}: not one of this test's names`); continue; }
       if (!sequel && !pinned && (recent.has(fold(subject)) || takenThisRun.has(fold(subject)))) continue;
       if (done.some((d) => fold(d.moment) === fold(story.moment))) continue;
       // The same episode under another name or wording is a repeat for good, not
@@ -962,7 +970,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       if (event.length) logger.info(`${subject}: ${event.length} photo(s) of the episode itself`);
       // Football: 4 photos over 40 seconds is the same few faces on repeat
       // (Muamba preview, 9 Nov), what viewers swiped on de la Fuente's Part 1.
-      const minPhotos = lane.categoryId === '17' ? 5 : 3;
+      const minPhotos = lane.minPhotos || (lane.categoryId === '17' ? 5 : 3);
       if (found.length < minPhotos) { logger.info(`skip ${subject}: only ${found.length} usable photo(s)`); continue; }
 
       const text = await narrate(ai, { ...story, subject, writerNote: lane.story?.writerNote, ...(sequel ? { previously: sequel.previously, part: sequel.part } : {}) },
@@ -988,7 +996,7 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       while (ledger[id]) id += 'x';
       takenThisRun.add(fold(subject));
       logger.success(`${id}: "${title}" — ${words(text)} words`);
-      if (dryRun) return { id, title, text, subject, article: brief.title, photos: found.length, ...(sequel ? { part: sequel.part } : {}) };
+      if (dryRun) return { id, title, text, subject, article: brief.title, photos: found.length, ...(sequel ? { part: sequel.part } : {}), ...(variant ? { variant } : {}) };
 
       // ---- render
       // Who and what the narration names, each with its own photos on its words.
@@ -1104,9 +1112,9 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       await fsp.writeFile(queuePath, JSON.stringify(queue, null, 2));
 
       const series = sequel ? { sequelOf: sequelOf.id, part: sequel.part, root: sequel.root } : {};
-      done.push({ id, subject, article: brief.title, moment: story.moment, title, at: new Date().toISOString(), style: rendered.style, ...series });
+      done.push({ id, subject, article: brief.title, moment: story.moment, title, at: new Date().toISOString(), style: rendered.style, ...series, ...(variant ? { variant } : {}) });
       await fsp.writeFile(storiesPath, JSON.stringify(done, null, 2));
-      return { id, title, video, seconds, ...series };
+      return { id, title, video, seconds, ...series, ...(variant ? { variant } : {}) };
     }
   }
   throw new Error('no story survived verification this run');
@@ -1523,7 +1531,7 @@ async function makeSeriesPart(lane, due, { dryRun = false, rerender = false } = 
 
 if (require.main === module) {
   const args = process.argv.slice(2);
-  const valueFlags = ['--sequel', '--article', '--subject', '--moment', '--title', '--series-part'];
+  const valueFlags = ['--sequel', '--article', '--subject', '--moment', '--title', '--series-part', '--variant'];
   const laneName = args.find((a, i) => !a.startsWith('--') && !valueFlags.includes(args[i - 1]));
   let sequelOf = null;
   if (args.includes('--sequel')) {
@@ -1553,9 +1561,9 @@ if (require.main === module) {
     if (!s || !s.parts[n - 1]) { logger.error(`no series part "${opt('--series-part')}"`); process.exit(1); }
     pickedPart = { series: s, part: s.parts[n - 1], n, prev: n > 1 ? { id: partId(s, n - 1), videoId: 'PREVIEW' } : null };
   }
-  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned, seriesDue: pickedPart || seriesDue, rerender: Boolean(pickedPart) })
+  makeStoryShort(laneName, { dryRun: args.includes('--dry-run'), sequelOf, story: pinned, seriesDue: pickedPart || seriesDue, rerender: Boolean(pickedPart), variant: opt('--variant') })
     .then((r) => console.log(JSON.stringify({ ...r, text: r.text ? `${r.text.slice(0, 400)}…` : undefined }, null, 2)))
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, sameEpisode, bankStories, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
+module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, sameEpisode, bankStories, propose, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };

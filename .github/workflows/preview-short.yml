@@ -33,6 +33,9 @@ on:
       series_key:
         description: "Optional: render EVERY part of this planned series (series.js key, e.g. de-la-fuente), or one part with key:n"
         default: ""
+      variant:
+        description: "Optional: the lane's format test (lanes.js `test`, e.g. explainer, megastar)"
+        default: ""
 
 permissions:
   contents: read
@@ -55,6 +58,7 @@ jobs:
       PIN_MOMENT: ${{ github.event.inputs.moment }}
       PIN_TITLE: ${{ github.event.inputs.title }}
       SERIES_KEY: ${{ github.event.inputs.series_key }}
+      PREVIEW_VARIANT: ${{ github.event.inputs.variant }}
       PIPER_BIN: ${{ github.workspace }}/.piper/piper/piper
       PIPER_VOICES_DIR: ${{ github.workspace }}/data/piper-voices
     steps:
@@ -167,6 +171,10 @@ jobs:
               extra=(--article "$PIN_ARTICLE" --moment "$PIN_MOMENT" --title "$PIN_TITLE")
             elif [ "$PREVIEW_SERIES" = "true" ] && [ "$i" = 1 ]; then
               extra=(--series)
+            fi
+            # a format test applies to one-off and named stories, never to series parts
+            if [ -n "$PREVIEW_VARIANT" ] && [ -z "$SERIES_KEY" ] && [ "${extra[0]:-}" != "--series" ]; then
+              extra+=(--variant "$PREVIEW_VARIANT")
             fi
             # Each run records its story in the (never committed) state, so
             # the next one picks a different story.

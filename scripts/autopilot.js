@@ -276,18 +276,18 @@ async function postShort(lane, st, ai) {
  * Returns { ok, uploaded, msg }; `uploaded` says an upload was attempted, so a
  * failure there (usually quota) is not retried with a fresh story.
  */
-async function postStoryShort(lane, st, sequelOf = null, pinned = null, seriesDue = null) {
+async function postStoryShort(lane, st, sequelOf = null, pinned = null, seriesDue = null, variant = null) {
   const kind = seriesDue ? `${seriesDue.series.name} Part ${seriesDue.n}`
-    : sequelOf ? `Part ${(sequelOf.part || 1) + 1} of ${sequelOf.id}` : 'story short';
+    : sequelOf ? `Part ${(sequelOf.part || 1) + 1} of ${sequelOf.id}` : variant ? `${variant} test short` : 'story short';
   let made;
   try {
-    made = await makeStoryShort(lane.name, { dryRun: DRY, sequelOf, story: pinned, seriesDue });
+    made = await makeStoryShort(lane.name, { dryRun: DRY, sequelOf, story: pinned, seriesDue, variant });
   } catch (error) {
     return { ok: false, msg: `${lane.name}: no ${kind} — ${error.message}` };
   }
   if (DRY) return { ok: true, msg: `${lane.name}: would post ${kind} "${made.title}"` };
 
-  const res = publishMade(lane, st, made, kind, seriesDue ? 'series' : sequelOf ? 'sequel' : 'story');
+  const res = publishMade(lane, st, made, kind, seriesDue ? 'series' : sequelOf ? 'sequel' : 'story', variant);
   // Linked at the end of the run, once every lane has had its uploads.
   const prev = seriesDue ? seriesDue.prev?.videoId : sequelOf?.videoId;
   if (res.ok && prev) {
@@ -298,7 +298,7 @@ async function postStoryShort(lane, st, sequelOf = null, pinned = null, seriesDu
 }
 
 /** Gate, upload and publish a rendered short ({ id, video, title }). */
-function publishMade(lane, st, made, kind, event) {
+function publishMade(lane, st, made, kind, event, variant = null) {
   const gate = check(made.video, 'short');
   if (!gate.ok) {
     fs.rmSync(made.video, { force: true });
@@ -309,7 +309,7 @@ function publishMade(lane, st, made, kind, event) {
   if (!ledgerOf(lane)[made.id]) return { ok: false, uploaded: true, msg: `${lane.name}: ${kind} ${made.id} rendered but upload failed` };
   run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', made.id], 10);
   const entry = ledgerOf(lane)[made.id];
-  st.history.push({ at: new Date().toISOString(), event, id: made.id, url: entry.url });
+  st.history.push({ at: new Date().toISOString(), event, id: made.id, url: entry.url, ...(variant ? { variant } : {}) });
   return { ok: true, entry, msg: `${lane.name}: ${kind} ${entry.privacyStatus} ${entry.url} "${entry.title}"` };
 }
 
@@ -525,6 +525,10 @@ async function main() {
     const today = new Date().toISOString().slice(0, 10);
     const postedToday = st.history.filter((h) => ['story', 'sequel', 'series'].includes(h.event) && String(h.at).startsWith(today)).length;
     if (postedToday) log(`${lane.name}: ${postedToday} story short(s) already posted today`);
+    // The format test (lanes.js `test`) gets its daily share of the slots no
+    // series part or sequel takes. A test story that finds nothing gives its
+    // slot to an ordinary story, so the day never posts less for it.
+    const testToday = () => (lane.test ? st.history.filter((h) => h.variant === lane.test.name && String(h.at).startsWith(today)).length : 0);
     for (let i = postedToday; i < (lane.storyShortsPerDay ?? 0); i++) {
       try {
         let res = null;
@@ -534,6 +538,13 @@ async function main() {
           if (!res.ok && !res.uploaded) {
             st.failures[sp.key] = (st.failures[sp.key] || 0) + 1;
             log(`${res.msg}; posting a fresh story instead`);
+            summary.push(res.msg);
+            res = null;
+          }
+        } else if (lane.test && testToday() < (lane.test.perDay ?? 1)) {
+          res = await postStoryShort(lane, st, null, null, null, lane.test.name);
+          if (!res.ok && !res.uploaded) {
+            log(`${res.msg}; posting an ordinary story instead`);
             summary.push(res.msg);
             res = null;
           }
