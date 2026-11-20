@@ -2163,6 +2163,34 @@
       "shortTitle": "Dani Alves was allegedly assaulted in a Barcelona nightclub",
       "article": "Dani Alves",
       "categoryId": "17"
+    },
+    {
+      "id": "story-sepp-blatter-he-received-an-e",
+      "topic": "He received an eight‑year FIFA ban in December 2015 for his role in the 2015 corruption scandal.",
+      "keywords": [
+        "Sepp Blatter",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Sepp Blatter Banned for FIFA Bribery Scandal",
+      "article": "Sepp Blatter",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-eusebio-eusebio-died-at",
+      "topic": "Eusébio died at his home on 5 January 2014 of heart failure, aged 71.",
+      "keywords": [
+        "Eusébio",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Eusébio died of heart failure",
+      "article": "Eusébio",
+      "categoryId": "17"
     }
   ]
 }

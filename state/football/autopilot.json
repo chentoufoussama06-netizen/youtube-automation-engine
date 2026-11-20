@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 37
+    "series:story-series-ajax-1995": 38
   },
   "history": [
     {
@@ -582,6 +582,18 @@
       "event": "story",
       "id": "story-dani-alves-the-alleged-assa",
       "url": "https://www.youtube.com/watch?v=2dCS6EvHoqk"
+    },
+    {
+      "at": "2026-11-20T16:31:57.074Z",
+      "event": "story",
+      "id": "story-sepp-blatter-he-received-an-e",
+      "url": "https://www.youtube.com/watch?v=_F9LrUsUbY0"
+    },
+    {
+      "at": "2026-11-20T16:43:26.251Z",
+      "event": "story",
+      "id": "story-eusebio-eusebio-died-at",
+      "url": "https://www.youtube.com/watch?v=PXCR_0YHTeY"
     }
   ],
   "pendingLinks": [],
