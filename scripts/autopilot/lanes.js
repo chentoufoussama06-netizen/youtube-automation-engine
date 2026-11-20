@@ -217,8 +217,11 @@ const LANES = [
     archiveFootage: true,
     docShortsPerDay: 0,
     story: DARK_FOOTBALL_STORY,
-    // One of the daily shorts (2026-11-20 test, see MEGASTAR_STORY).
-    test: { name: 'megastar', perDay: 1, story: MEGASTAR_STORY },
+    // One of the daily shorts (2026-11-20 test, see MEGASTAR_STORY). Held at 0
+    // a day: its first preview (20 Nov) made nothing. Given the names alone,
+    // the picker invented life events ("Ronaldo's mother died in 2005"; it was
+    // his father), and the article check rightly refused all of them.
+    test: { name: 'megastar', perDay: 0, story: MEGASTAR_STORY },
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
       + 'disappearances, crimes, cursed careers, collapses and rise-and-fall stories '
       + 'of real footballers, managers, clubs, referees and matches, from any country and era.',
