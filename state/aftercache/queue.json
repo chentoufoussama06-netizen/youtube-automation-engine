@@ -883,6 +883,20 @@
       "shortTitle": "Penicillin saved WWII troops and became everyday medicine",
       "article": "Penicillin",
       "categoryId": "27"
+    },
+    {
+      "id": "story-teflon-during-world-war",
+      "topic": "During World War II, DuPont developed polytetrafluoroethylene for the Manhattan Project to handle uranium, later marketed as a non‑stick coating.",
+      "keywords": [
+        "Teflon",
+        "military history",
+        "everyday objects",
+        "history facts"
+      ],
+      "status": "short",
+      "shortTitle": "Teflon started as a secret WWII nuclear material",
+      "article": "Polytetrafluoroethylene",
+      "categoryId": "27"
     }
   ]
 }
