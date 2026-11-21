@@ -349,6 +349,20 @@
       "shortTitle": "The Navy freighter USS Cyclops disappeared with 306 souls in 1918",
       "article": "USS Cyclops",
       "categoryId": "27"
+    },
+    {
+      "id": "story-maine-in-1898-the-uss",
+      "topic": "In 1898 the USS Maine exploded in Havana Harbor, killing 260 crew members and sparking the Spanish‑American War.",
+      "keywords": [
+        "Maine",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Maine exploded in harbor, igniting a war",
+      "article": "USS Maine (1890)",
+      "categoryId": "27"
     }
   ]
 }

@@ -321,6 +321,19 @@
       "event": "story",
       "id": "story-scipio-aemilianus-scipio-aemilianu",
       "url": "https://www.youtube.com/watch?v=XNCp-oycq5A"
+    },
+    {
+      "at": "2026-11-21T01:03:36.575Z",
+      "event": "story",
+      "id": "story-roman-concrete-the-romans-began",
+      "url": "https://www.youtube.com/watch?v=rEQQAHsR3u8",
+      "variant": "explainer"
+    },
+    {
+      "at": "2026-11-21T01:12:45.634Z",
+      "event": "story",
+      "id": "story-plataea-greek-forces-und",
+      "url": "https://www.youtube.com/watch?v=FgdPt7Fby7w"
     }
   ],
   "pendingLinks": [],

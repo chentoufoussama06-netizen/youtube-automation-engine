@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 38
+    "series:story-series-ajax-1995": 39
   },
   "history": [
     {
@@ -594,6 +594,13 @@
       "event": "story",
       "id": "story-eusebio-eusebio-died-at",
       "url": "https://www.youtube.com/watch?v=PXCR_0YHTeY"
+    },
+    {
+      "at": "2026-11-21T01:30:06.999Z",
+      "event": "story",
+      "id": "story-kevin-de-bruyne-he-made-his-retu",
+      "url": "https://www.youtube.com/watch?v=A365ff3cgAg",
+      "variant": "megastar"
     }
   ],
   "pendingLinks": [],

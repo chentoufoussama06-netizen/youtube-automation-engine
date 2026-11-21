@@ -497,5 +497,24 @@
     "title": "Scipio Obliterates Carthage After a Brutal Siege",
     "at": "2026-11-20T01:39:31.954Z",
     "style": "v2"
+  },
+  {
+    "id": "story-roman-concrete-the-romans-began",
+    "subject": "Roman concrete",
+    "article": "Roman concrete",
+    "moment": "The Romans began using volcanic pozzolana to make a hydraulic concrete that could set underwater around 200 BCE.",
+    "title": "How Roman concrete could set under water",
+    "at": "2026-11-21T01:03:14.435Z",
+    "style": "v2",
+    "variant": "explainer"
+  },
+  {
+    "id": "story-plataea-greek-forces-und",
+    "subject": "Plataea",
+    "article": "Battle of Plataea",
+    "moment": "Greek forces under Pausanias defeat the Persians at Plataea, ending the second Persian invasion of Greece, 479 BCE.",
+    "title": "Greeks Win Final Battle of Persian Wars at Plataea",
+    "at": "2026-11-21T01:12:33.186Z",
+    "style": "v2"
   }
 ]
