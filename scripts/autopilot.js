@@ -439,7 +439,10 @@ async function postLongform(lane, st) {
 // ---------------------------------------------------------------- main
 
 async function main() {
-  const lanes = LANES.filter((l) => !onlyLane || l.name.toLowerCase() === onlyLane.toLowerCase());
+  // A paused lane (lanes.js `paused`) is skipped whole: no story, no long-form,
+  // no publishing of scheduled or stuck-private videos, even when asked by name.
+  for (const l of LANES.filter((x) => x.paused)) log(`${l.name}: paused, posts nothing`);
+  const lanes = LANES.filter((l) => !l.paused && (!onlyLane || l.name.toLowerCase() === onlyLane.toLowerCase()));
 
   if (args.includes('--save-refs')) {
     for (const lane of lanes) for (const id of built(lane)) saveRefs(lane, id);

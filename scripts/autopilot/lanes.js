@@ -261,7 +261,10 @@ const LANES = [
     // Shorts feed in 28 days on its old Reddit, lost-media and tech-history
     // mix; every old video unlisted). Its old tech compilations are still on
     // disk, so long-form stays off: nothing from the old niche goes out.
-    storyShortsPerDay: 1,
+    // Stopped 2026-11-21, the user: "stop posting on aftercache". The runner
+    // skips a paused lane entirely. To resume: paused false, storyShortsPerDay 1.
+    paused: true,
+    storyShortsPerDay: 0,
     longform: false,
     look: 'football',             // clean grade, bold box
     theme: 'military',            // soldiers and aircraft clips, military music
