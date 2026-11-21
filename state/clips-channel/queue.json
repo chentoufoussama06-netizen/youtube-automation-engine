@@ -363,6 +363,20 @@
       "shortTitle": "Maine exploded in harbor, igniting a war",
       "article": "USS Maine (1890)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-thresher-the-u-s-navy-s-f",
+      "topic": "The U.S. Navy’s first nuclear‑powered attack submarine was lost with all 129 crew on 10 April 1963 during deep‑sea trials off New England.",
+      "keywords": [
+        "Thresher",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Thresher vanished on a test dive, taking its whole crew",
+      "article": "USS Thresher (SSN-593)",
+      "categoryId": "27"
     }
   ]
 }
