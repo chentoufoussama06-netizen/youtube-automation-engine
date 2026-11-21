@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 40
+    "series:story-series-ajax-1995": 41
   },
   "history": [
     {
@@ -601,6 +601,12 @@
       "id": "story-kevin-de-bruyne-he-made-his-retu",
       "url": "https://www.youtube.com/watch?v=A365ff3cgAg",
       "variant": "megastar"
+    },
+    {
+      "at": "2026-11-21T10:06:38.794Z",
+      "event": "story",
+      "id": "story-bobby-charlton-his-death-leaves",
+      "url": "https://www.youtube.com/watch?v=0XXBoc8mhno"
     }
   ],
   "pendingLinks": [],
