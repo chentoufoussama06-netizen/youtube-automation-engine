@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 49
+    "series:story-series-ajax-1995": 50
   },
   "history": [
     {
@@ -620,6 +620,12 @@
       "id": "story-zinedine-zidane-in-2010-zidane-s",
       "url": "https://www.youtube.com/watch?v=ZSNll0QTQrc",
       "variant": "megastar"
+    },
+    {
+      "at": "2026-11-22T15:36:11.758Z",
+      "event": "romano",
+      "id": "story-romano-week-2026-11-22",
+      "url": "https://www.youtube.com/watch?v=7emX6_Hd-xk"
     }
   ],
   "pendingLinks": [],
@@ -656,8 +662,8 @@
     }
   },
   "romano": {
-    "day": "2026-11-15",
-    "id": "story-romano-week-2026-11-15",
-    "url": "https://www.youtube.com/watch?v=qUxvSpCmDpM"
+    "day": "2026-11-22",
+    "id": "story-romano-week-2026-11-22",
+    "url": "https://www.youtube.com/watch?v=7emX6_Hd-xk"
   }
 }
