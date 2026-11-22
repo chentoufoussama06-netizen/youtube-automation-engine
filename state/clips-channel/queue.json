@@ -377,6 +377,20 @@
       "shortTitle": "Thresher vanished on a test dive, taking its whole crew",
       "article": "USS Thresher (SSN-593)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-audacious-in-1914-audaciou",
+      "topic": "In 1914 Audacious hit a German mine off the coast of Ireland and sank before seeing combat.",
+      "keywords": [
+        "Audacious",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "HMS Audacious hit a mine and sank before fighting a shot",
+      "article": "HMS Audacious (1912)",
+      "categoryId": "27"
     }
   ]
 }
