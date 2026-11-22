@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 47
+    "series:story-series-ajax-1995": 48
   },
   "history": [
     {
@@ -613,6 +613,13 @@
       "event": "story",
       "id": "story-jurgen-klinsmann-klinsmann-s-tenu",
       "url": "https://www.youtube.com/watch?v=VPjOF8GUT-M"
+    },
+    {
+      "at": "2026-11-22T03:18:56.723Z",
+      "event": "story",
+      "id": "story-zinedine-zidane-in-2010-zidane-s",
+      "url": "https://www.youtube.com/watch?v=ZSNll0QTQrc",
+      "variant": "megastar"
     }
   ],
   "pendingLinks": [],

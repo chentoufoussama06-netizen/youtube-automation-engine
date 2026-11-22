@@ -825,6 +825,34 @@
       "shortTitle": "Greeks Win Final Battle of Persian Wars at Plataea",
       "article": "Battle of Plataea",
       "categoryId": "27"
+    },
+    {
+      "id": "story-greek-fire-by-the-late-7th",
+      "topic": "By the late 7th century CE the Byzantine navy used a combustible liquid that could burn on water to repel Arab fleets.",
+      "keywords": [
+        "Greek fire",
+        "ancient history",
+        "history facts",
+        "ancient engineering"
+      ],
+      "status": "short",
+      "shortTitle": "Why Greek fire burned even on water",
+      "article": "Greek fire",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-alexander-the-great-alexander-wins-h",
+      "topic": "Alexander wins his first major battle against the Persians at the Granicus River, 334 BCE",
+      "keywords": [
+        "Alexander the Great",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Alexander’s First Persian Victory at the Granicus",
+      "article": "Battle of the Granicus",
+      "categoryId": "27"
     }
   ]
 }
