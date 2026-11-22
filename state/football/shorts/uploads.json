@@ -2073,15 +2073,17 @@
   "story-jurgen-klinsmann-klinsmann-s-tenu": {
     "videoId": "VPjOF8GUT-M",
     "url": "https://www.youtube.com/watch?v=VPjOF8GUT-M",
-    "privacyStatus": "private",
+    "privacyStatus": "public",
     "title": "Jürgen Klinsmann fired after USMNT collapse 2016 #Shorts",
-    "uploadedAt": "2026-11-22T00:02:41.827Z"
+    "uploadedAt": "2026-11-22T00:02:41.827Z",
+    "publishedAt": "2026-11-22T12:01:00.704Z"
   },
   "story-zinedine-zidane-in-2010-zidane-s": {
     "videoId": "ZSNll0QTQrc",
     "url": "https://www.youtube.com/watch?v=ZSNll0QTQrc",
-    "privacyStatus": "private",
+    "privacyStatus": "public",
     "title": "Zinedine Zidane: The Day He Said He’d Rather Die Than Apologise #Shorts",
-    "uploadedAt": "2026-11-22T03:18:55.397Z"
+    "uploadedAt": "2026-11-22T03:18:55.397Z",
+    "publishedAt": "2026-11-22T12:01:01.894Z"
   }
 }
