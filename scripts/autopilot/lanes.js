@@ -46,6 +46,15 @@ const DARK_FOOTBALL_STORY = {
     + '- NOT career trivia: a debut, a first club, a nomination, an award or a goal\n'
     + '  record on its own (Haaland at Bryne, Vinícius debuts at 16, Salah\'s 32 goals:\n'
     + '  84-305 views each on 8-9 Nov, against ~1,000 for every dark story).\n'
+    // 2026-11-23, this channel's own 28 days: 43 of 73 shorts reached ~1,000,
+    // 19 died under 300, and the dead ones were these kinds.
+    + '- NOT officials, presidents, politicians or managers sacked by a federation\n'
+    + '  (Blatter 201 views, Weah\'s cabinet 137, Klinsmann 333). NOT a stadium disaster\n'
+    + '  or memorial with no famous player at its centre (Heysel 104, Hillsborough 58).\n'
+    + '  NOT a legend whose career ended before the 1980s, unless every young fan still\n'
+    + '  knows the name (Beckenbauer 104, Di Stéfano 184, Eusébio 8, Gerd Müller 370).\n'
+    + '  What held: a player fans know today, banned, ruined or caught (Rio Ferdinand\'s\n'
+    + '  ban 1,276, Kolo Touré 1,131, Edgar Davids 992, André Onana 966).\n'
     + '- One specific episode. The title states the shocking fact or twist itself in\n'
     + '  plain words (like the first three examples), optionally ending with one emoji.',
   captionExample: 'Mario Balotelli',
@@ -191,6 +200,16 @@ const LANES = [
         + '  madness or murder, a betrayal, a siege, a lost city, a bizarre law or custom.\n'
         + '- One specific episode with a clear arc and a payoff. The title names it plainly\n'
         + '  (like the examples), optionally ending with one emoji.\n'
+        // 2026-11-23, this channel's own 28 days: weekly views fell 13.7K, 6.2K,
+        // 3.4K as the picks drifted to names nobody could place.
+        + '- A NAME casual viewers know (Caesar, Caligula, Nero, Cleopatra, Alexander,\n'
+        + '  Hannibal, Archimedes, Crassus, Spartacus, Caracalla, a famous pharaoh) at a\n'
+        + '  shocking or absurd turn: a humiliating death, madness, betrayal, a bizarre law.\n'
+        + '  What held here: Crassus at Carrhae 1,551 views, Elagabalus 1,324, Caracalla\n'
+        + '  killed on the loo 1,228, Archimedes killed by a soldier 1,219, Caligula\'s horse\n'
+        + '  1,153. What died: a battle or a satrap viewers cannot place (Bessus 98, the\n'
+        + '  Granicus 44, Plataea 213, Eurymedon 204, Drusus\'s fall 226), and a subject this\n'
+        + '  channel told in the last month (Carthage twice in two days: 257, then 149).\n'
         + '- History only: no prophets, founders of religions, gods or scripture stories\n'
         + '  (Muhammad, Jesus, Moses, Buddha, Rama, Krishna), and nothing after 500 CE.',
       avoid: ANCIENT_AVOID,
@@ -238,7 +257,10 @@ const LANES = [
     // events. Picking from the articles' own lines, the second (21 Nov) made
     // two that the reviewer passed: Iniesta's 2010 goal for Dani Jarque, and
     // the one photo of Zlatan's feet his wife allows on the wall.
-    test: { name: 'megastar', perDay: 1, story: MEGASTAR_STORY },
+    // Two a day from 2026-11-23: its first three (De Bruyne 768, Zidane 1,088,
+    // Mbappé 907 at 12h) against the same days' ordinary stories (Weah 137,
+    // Alves 371, Blatter 201, Eusébio 8, Charlton 1,059, Klinsmann 333).
+    test: { name: 'megastar', perDay: 2, story: MEGASTAR_STORY },
     niche: 'Dark football documentaries: real tragedies, disasters, scandals, '
       + 'disappearances, crimes, cursed careers, collapses and rise-and-fall stories '
       + 'of real footballers, managers, clubs, referees and matches, from any country and era.',

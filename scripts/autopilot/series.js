@@ -287,6 +287,44 @@ const SERIES = [
       }
     ]
   },
+  // 2026-11-23: series parts are where Football Files' subscribers come from
+  // (13 parts in 28 days: 28 subs, 2.2 a post, against 0.8 for one-off
+  // stories; Benzema Part 1: 2,912 views, +15), and the megastar slot is its
+  // best one-off format. So a megastar's life in three acts goes first.
+  // Every moment is a paraphrase of lines in the Lionel Messi article.
+  {
+    key: 'messi-too-small',
+    name: 'Lionel Messi: Too Small to Play',
+    parts: [
+      {
+        articles: ['Lionel Messi'],
+        subject: 'Lionel Messi',
+        photos: [{ article: 'Lionel Messi', n: 7, names: ['messi', 'leo', 'lionel'] }, { article: 'Camp Nou', n: 1, names: ['camp nou'] }],
+        label: 'Rosario · Barcelona · 1997–2001',
+        moment: 'At the age of 10 Lionel Messi was diagnosed with a growth hormone deficiency; his father\'s health insurance covered only two years of the therapy and Newell\'s reneged on their promise to help, so in September 2000, aged 13, he had a trial at Barcelona, where on 14 December Carles Rexach wrote him a contract on a paper napkin.',
+        title: 'Too Small to Play, Signed on a Napkin',
+        teaser: 'Years later, as Argentina\'s captain, he lost three finals in three years.'
+      },
+      {
+        articles: ['Lionel Messi'],
+        subject: 'Lionel Messi',
+        photos: [{ article: 'Lionel Messi', n: 8, names: ['messi', 'leo', 'lionel'] }],
+        label: 'Argentina · 2014–2016',
+        moment: 'As Argentina captain Lionel Messi lost the 2014 World Cup final to Germany, the 2015 Copa América final to Chile and the 2016 Copa América Centenario final to Chile again; losing three finals in three consecutive years caused him to retire from international football, and a bronze statue of him was put up in Buenos Aires to convince him to return.',
+        title: 'Messi Lost Three Finals in a Row, Then Quit',
+        teaser: 'A nationwide campaign brought him back.'
+      },
+      {
+        articles: ['Lionel Messi'],
+        subject: 'Lionel Messi',
+        photos: [{ article: 'Lionel Messi', n: 8, names: ['messi', 'leo', 'lionel'] }],
+        label: 'Argentina · 2021–2022',
+        moment: 'Lionel Messi ended Argentina\'s 28-year trophy drought by beating Brazil in the 2021 Copa América final, and at the 2022 FIFA World Cup he scored twice in the final against France to win Argentina\'s first World Cup in 36 years, becoming the first player to win the Golden Ball twice.',
+        title: 'Messi Finally Won It All for Argentina',
+        note: 'This is the last part: land the whole journey, from the boy too small to play, in the final line.'
+      }
+    ]
+  },
   {
     key: 'pep-guardiola',
     name: 'How Pep Guardiola Changed Football',
@@ -321,6 +359,63 @@ const SERIES = [
         note: 'This is the last part: land how he changed football in the final line.'
       }
     ]
+  },
+  // Ancient Untold (lane "Ancient History"), from 2026-11-23. Its series parts
+  // brought 1-4 subscribers each (Crassus Part 2 1,120 views +3, Part 3 905 +4)
+  // and it had none since 11 Nov, the weeks its views fell 13.7K, 6.2K, 3.4K.
+  // Spartacus ends on Crassus, the man behind its best short (Carrhae, 1,551).
+  // Photos are hand-picked Commons files, each looked at on 23 Nov (statues,
+  // mosaics, a 19th-century drawing, the ruins and the road themselves; no
+  // film stills, no modern people or ships).
+  {
+    key: 'spartacus',
+    lane: 'Ancient History',
+    name: 'Spartacus',
+    parts: [
+      {
+        articles: ['Spartacus'],
+        subject: 'Spartacus',
+        photos: [
+          { files: ['File:Spartacus-Vincenzo Vela-MAHG 1896-0007-IMG 8680.JPG', 'File:Spartacus - Denis Foyatier - statue in Louvre.jpg',
+            'File:Gladiators, fragment, Roman, 300-400 AD, marble and limestone mosaic - Galleria Borghese - Rome, Italy - DSC04941.jpg'] },
+          { files: ['File:Borghese gladiator mosaic scene.jpg', 'File:Retiarius defeats secutor from the Borghese gladiator mosaic.jpg'], names: ['gladiator', 'gladiators', 'school'] },
+          { files: ['File:Anfiteatro Campano (Santa Maria di Capua Vetere) 19.jpg'], names: ['capua'] },
+          { files: ['File:Frank Short - Vesuvius from the Bay of Naples - B1986.30.63 - Yale Center for British Art.jpg'], names: ['vesuvius', 'volcano'] }
+        ],
+        label: 'Capua · 73 BC',
+        moment: 'In 73 BC Spartacus and about 70 other gladiators seized kitchen utensils and fought their way out of the gladiatorial school near Capua; besieged on Mount Vesuvius by the praetor Gaius Claudius Glaber, they climbed down the steep side of the volcano on ropes made from vines and attacked the Roman camp from the rear, killing most of the militia.',
+        title: '70 Gladiators Broke Out With Kitchen Tools',
+        teaser: 'Soon some 70,000 people had joined him.',
+        note: 'Say "kitchen utensils", as the source does: it never says what kind.'
+      },
+      {
+        articles: ['Spartacus', 'Third Servile War'],
+        subject: 'Spartacus',
+        photos: [
+          { files: ['File:Le Serment de Spartacus by Louis-Ernest Barrias, Jardin des Tuileries 01.jpg', 'File:Spartacus-Vincenzo Vela-MAHG 1896-0007-IMG 8686.JPG',
+            'File:Spartacus, marble sculpture of Denis Foyatier (1830), Louvre Museum (8269334205).jpg'] },
+          { files: ['File:Gladiators, fragment, Roman, 300-400 AD, marble and limestone mosaic - Galleria Borghese - Rome, Italy - DSC04941.jpg'], names: ['slaves', 'herdsmen', 'shepherds'] },
+          { files: ['File:Head of Marcus Licinius Crassus, middle of 1st century BC, from Italy, Moi, Auguste, Empereur de Rome exhibition, Grand Palais, Paris - 14649017884.jpg'], names: ['crassus', 'wealthiest'] }
+        ],
+        label: 'Italy · 72–71 BC',
+        moment: 'Spartacus\'s forces defeated several Roman military units and swelled to an estimated 70,000; alarmed, the Senate gave the war to Marcus Licinius Crassus, the wealthiest man in Rome and the only volunteer, who took eight legions and revived decimation, killing one in ten of his own men to make them fear him more than the enemy.',
+        title: 'Rome\'s Richest Man Killed His Own Soldiers',
+        teaser: 'Then Crassus went after Spartacus himself.'
+      },
+      {
+        articles: ['Spartacus', 'Third Servile War'],
+        subject: 'Spartacus',
+        photos: [
+          { files: ['File:Tod des Spartacus by Hermann Vogel.jpg', 'File:Spartacus-Vincenzo Vela-MAHG 1896-0007-IMG 8680.JPG'] },
+          { files: ['File:Head of Marcus Licinius Crassus, middle of 1st century BC, from Italy, Moi, Auguste, Empereur de Rome exhibition, Grand Palais, Paris - 14649017884.jpg'], names: ['crassus'] },
+          { files: ['File:Appian Way.jpg', 'File:Via appia.jpg'], names: ['appian', 'road', 'capua'] }
+        ],
+        label: 'Lucania · 71 BC',
+        moment: 'In 71 BC, with Pompey\'s legions marching south, Spartacus\'s army threw its full strength against Crassus\'s legions and was utterly defeated; Spartacus was presumed killed in the final battle, although his body was never found, and 6,000 captured rebels were crucified along the Appian Way from Rome to Capua.',
+        title: 'Spartacus Vanished. 6,000 Were Crucified.',
+        note: 'This is the last part. Never describe the crucifixions in detail: say the number and the road, nothing more.'
+      }
+    ]
   }
 ];
 
@@ -352,7 +447,8 @@ function seriesPartDue(lane, now = new Date(), { failed = () => false } = {}) {
     .filter(([k, v]) => k.startsWith(`${id}~superseded`) && v.wasScheduledFor)
     .map(([, v]) => Date.parse(v.wasScheduledFor) || 0));
   if (stories.some((s) => s.series && posted(s.id) && String(ledger[s.id].uploadedAt || s.at).slice(0, 10) === today)) return null;
-  for (const series of SERIES) {
+  // A series without `lane` is Football Files' (every series before 23 Nov).
+  for (const series of SERIES.filter((s) => (s.lane || 'Football Files') === lane.name)) {
     for (let n = 1; n <= series.parts.length; n++) {
       const id = partId(series, n);
       if (posted(id)) continue;
