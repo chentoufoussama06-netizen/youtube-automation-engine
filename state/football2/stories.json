@@ -554,5 +554,18 @@
     "title": "Pertinax’s Three-Month Reign Ends in Murder",
     "at": "2026-11-23T00:58:55.999Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-spartacus-p1",
+    "subject": "Spartacus",
+    "article": "Spartacus",
+    "moment": "In 73 BC Spartacus and about 70 other gladiators seized kitchen utensils and fought their way out of the gladiatorial school near Capua; besieged on Mount Vesuvius by the praetor Gaius Claudius Glaber, they climbed down the steep side of the volcano on ropes made from vines and attacked the Roman camp from the rear, killing most of the militia.",
+    "title": "70 Gladiators Broke Out With Kitchen Tools (Part 1)",
+    "at": "2026-11-23T18:07:33.241Z",
+    "style": "v2",
+    "series": "spartacus",
+    "part": 1,
+    "of": 3,
+    "root": "story-series-spartacus-p1"
   }
 ]
