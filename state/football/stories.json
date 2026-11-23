@@ -831,5 +831,18 @@
     "at": "2026-11-23T01:07:43.709Z",
     "style": "v2",
     "variant": "megastar"
+  },
+  {
+    "id": "story-series-rogerio-ceni",
+    "subject": "Rogério Ceni",
+    "article": "Rogério Ceni",
+    "moment": "Rogério Ceni, São Paulo's goalkeeper and dead-ball specialist, scored more than 100 goals, mostly from free kicks and penalties, the most by any goalkeeper in football history; his 100th was a free kick against Corinthians.",
+    "title": "The Goalkeeper Who Scored More Than 100 Goals",
+    "at": "2026-11-23T03:05:30.495Z",
+    "style": "v2",
+    "series": "rogerio-ceni",
+    "part": 1,
+    "of": 1,
+    "root": "story-series-rogerio-ceni"
   }
 ]
