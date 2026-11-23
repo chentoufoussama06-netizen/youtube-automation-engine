@@ -844,5 +844,15 @@
     "part": 1,
     "of": 1,
     "root": "story-series-rogerio-ceni"
+  },
+  {
+    "id": "story-jose-mourinho-on-20-april-2011",
+    "subject": "José Mourinho",
+    "article": "José Mourinho",
+    "moment": "On 20 April 2011, Mourinho won his first trophy in Spanish football as Real Madrid defeated arch-rivals Barcelona 1–0 in the Copa del Rey final held at the Mestalla in Valencia, ending Real Madrid's 18-year-long Copa del Rey drought.",
+    "title": "Mourinho ends Real’s 18-year Copa del Rey drought",
+    "at": "2026-11-23T14:19:25.569Z",
+    "style": "v2",
+    "variant": "megastar"
   }
 ]
