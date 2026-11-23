@@ -22,7 +22,7 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 54
+    "series:story-series-ajax-1995": 55
   },
   "history": [
     {
@@ -626,6 +626,13 @@
       "event": "romano",
       "id": "story-romano-week-2026-11-22",
       "url": "https://www.youtube.com/watch?v=7emX6_Hd-xk"
+    },
+    {
+      "at": "2026-11-23T01:07:55.619Z",
+      "event": "story",
+      "id": "story-kylian-mbappe-in-a-2018-interv",
+      "url": "https://www.youtube.com/watch?v=XrynxOwMykM",
+      "variant": "megastar"
     }
   ],
   "pendingLinks": [],

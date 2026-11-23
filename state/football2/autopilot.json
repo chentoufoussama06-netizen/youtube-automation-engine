@@ -347,6 +347,19 @@
       "event": "story",
       "id": "story-alexander-the-great-alexander-wins-h",
       "url": "https://www.youtube.com/watch?v=GO_J26yCIu8"
+    },
+    {
+      "at": "2026-11-23T00:46:30.445Z",
+      "event": "story",
+      "id": "story-antikythera-mechanis-circa-100-bce-gr",
+      "url": "https://www.youtube.com/watch?v=K5yZ356qT8E",
+      "variant": "explainer"
+    },
+    {
+      "at": "2026-11-23T00:59:20.600Z",
+      "event": "story",
+      "id": "story-pertinax-emperor-pertinax",
+      "url": "https://www.youtube.com/watch?v=R6xFbz-1g6g"
     }
   ],
   "pendingLinks": [],

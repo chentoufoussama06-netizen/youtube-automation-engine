@@ -1,0 +1,17 @@
+A second-century BC computer predicted solar eclipses decades in advance. The Antikythera mechanism was discovered in 1901, but how ancient Greek craftsmen built it remained a mystery. X-ray scans in 2005 revealed thirty-five meshing bronze gears hidden inside crust-encased fragments. Inscriptions on the casing contained numbers linked to the synodic cycles of Venus and Saturn. The machine mapped the Moon's irregular orbit using an epicyclic gear system, where two identical gears operated face-to-face with a short pin on one gear sliding inside a slot on the other. This pin-and-slot mechanism varied the gear's driving speed, correctly capturing how the Moon moves faster at perigee than at apogee. On the rear, a spiral Saros dial contained two hundred twenty-three synodic month cells, pointing directly to thirty-eight lunar and twenty-seven solar eclipses. Another indicator rotated a half-white, half-black ball to display lunar phases using a differential gear. This hand-powered clockwork device predated the earliest medieval European clocks by over one thousand years.
+
+Source: https://en.wikipedia.org/wiki/Antikythera_mechanism
+Photos (Wikimedia Commons):
+• NAMA Machine d'Anticythère 1.jpg — No machine-readable author provided. Marsyas assumed (based on copyright claims), CC BY 2.5
+• Solar system.jpg — NASA/JPL, Public domain
+• Crab Nebula.jpg — NASA, ESA, J. Hester and A. Loll (Arizona State University), Public domain
+• Earth-moon.jpg — Apollo 8 crewmember Bill Anders, Public domain
+• Manual2021-X MOUSSAS SAROS.jpg — Xmoussas, CC BY-SA 4.0
+• Antikythera model front panel Mogi Vicentini 2007.JPG — Mogi Vicentini, CC BY 2.5
+• Mechanism of Antikythera - Kotsanas version - front side.jpg — Denexeitelos, CC BY 4.0
+• PIA23791-Venus-RealAndEnhancedContrastViews-20200608 (cropped).jpg — NASA/JPL-Caltech, Public domain
+• Lunar Occultation of Venus (NHQ201512070001).jpg — Joel Kowsky, Public domain
+• FullMoon2010.jpg — Gregory H. Revera, CC BY-SA 3.0
+
+Music: "Five Armies" by Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 — https://creativecommons.org/licenses/by/4.0/

@@ -535,5 +535,24 @@
     "title": "Alexander’s First Persian Victory at the Granicus",
     "at": "2026-11-22T03:06:49.402Z",
     "style": "v2"
+  },
+  {
+    "id": "story-antikythera-mechanis-circa-100-bce-gr",
+    "subject": "Antikythera mechanism",
+    "article": "Antikythera mechanism",
+    "moment": "Circa 100 BCE Greek craftsmen produced a gear‑driven analogue computer that predicted eclipses and planetary positions.",
+    "title": "The Secret Engine That Predicted the Stars 2,000 Years Ago",
+    "at": "2026-11-23T00:46:10.065Z",
+    "style": "v2",
+    "variant": "explainer"
+  },
+  {
+    "id": "story-pertinax-emperor-pertinax",
+    "subject": "Pertinax",
+    "article": "Year of the Five Emperors",
+    "moment": "Emperor Pertinax is murdered by the Praetorian Guard after only three months, 193 CE",
+    "title": "Pertinax’s Three-Month Reign Ends in Murder",
+    "at": "2026-11-23T00:58:55.999Z",
+    "style": "v2"
   }
 ]
