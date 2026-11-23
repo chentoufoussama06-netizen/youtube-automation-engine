@@ -294,6 +294,8 @@ const SERIES = [
   // Every moment is a paraphrase of lines in the Lionel Messi article.
   {
     key: 'messi-too-small',
+    // held until a cloud preview's photos are checked (set to false then)
+    held: true,
     name: 'Lionel Messi: Too Small to Play',
     parts: [
       {
@@ -448,7 +450,7 @@ function seriesPartDue(lane, now = new Date(), { failed = () => false } = {}) {
     .map(([, v]) => Date.parse(v.wasScheduledFor) || 0));
   if (stories.some((s) => s.series && posted(s.id) && String(ledger[s.id].uploadedAt || s.at).slice(0, 10) === today)) return null;
   // A series without `lane` is Football Files' (every series before 23 Nov).
-  for (const series of SERIES.filter((s) => (s.lane || 'Football Files') === lane.name)) {
+  for (const series of SERIES.filter((s) => !s.held && (s.lane || 'Football Files') === lane.name)) {
     for (let n = 1; n <= series.parts.length; n++) {
       const id = partId(series, n);
       if (posted(id)) continue;
