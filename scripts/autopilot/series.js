@@ -290,26 +290,17 @@ const SERIES = [
   // 2026-11-23: series parts are where Football Files' subscribers come from
   // (13 parts in 28 days: 28 subs, 2.2 a post, against 0.8 for one-off
   // stories; Benzema Part 1: 2,912 views, +15), and the megastar slot is its
-  // best one-off format. So a megastar's life in three acts goes first.
+  // best one-off format. So a megastar's story in acts goes first.
   // Every moment is a paraphrase of lines in the Lionel Messi article.
+  // The childhood act (growth hormone, the napkin contract) was cut after its
+  // 23 Nov preview: Commons has one usable photo of Messi before 2006, so one
+  // picture filled 40 of its 46 seconds. Two acts with real photos instead.
   {
-    key: 'messi-too-small',
-    // held until a cloud preview's photos are checked (set to false then)
+    key: 'messi-argentina',
+    // held until a cloud preview of Part 1 is checked (set to false then)
     held: true,
-    name: 'Lionel Messi: Too Small to Play',
+    name: 'Lionel Messi and Argentina',
     parts: [
-      {
-        articles: ['Lionel Messi'],
-        subject: 'Lionel Messi',
-        // No free photo of Messi before 2005 exists, so the part runs to his
-        // debut at 16 and the earliest photos (2005, Barcelona) carry it.
-        photos: [{ files: ['File:Leo messi barce 2005.jpg'] }, { files: ['File:Barca team.jpg'], names: ['debut', 'ronaldinho', 'first team'] },
-          { article: 'Camp Nou', n: 3, names: ['camp nou', 'barcelona'], anyYear: true }],
-        label: 'Rosario · Barcelona · 1997–2003',
-        moment: 'At the age of 10 Lionel Messi was diagnosed with a growth hormone deficiency; his father\'s health insurance covered only two years of the therapy and Newell\'s reneged on their promise to help, so at 13 he had a trial at Barcelona, where Carles Rexach wrote him a contract on a paper napkin, and at 16 he made his first-team debut in a friendly against FC Porto in November 2003.',
-        title: 'Too Small to Play, Signed on a Napkin',
-        teaser: 'Years later, as Argentina\'s captain, he lost three finals in three years.'
-      },
       {
         articles: ['Lionel Messi'],
         subject: 'Lionel Messi',
