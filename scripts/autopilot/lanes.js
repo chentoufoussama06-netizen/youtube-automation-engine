@@ -181,7 +181,11 @@ const LANES = [
     categoryId: '27',             // Education
     voice: 'en-GB-RyanNeural',
     captionHighlight: '&H0033CCFF&',   // gold
-    storyShortsPerDay: 2,
+    // Three from 2026-11-23: the planned series (series.js, `lane`) takes the
+    // first slot, the explainer test one, an ordinary story the third. Series
+    // parts brought this channel 1-4 subscribers each; it had none since 11 Nov.
+    storyShortsPerDay: 3,
+    series: true,
     // The v2 look (utils/short-style-v2.js) with a warm, grained grade.
     look: 'ancient',
     v2: 'on',

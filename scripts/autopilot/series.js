@@ -301,16 +301,23 @@ const SERIES = [
       {
         articles: ['Lionel Messi'],
         subject: 'Lionel Messi',
-        photos: [{ article: 'Lionel Messi', n: 7, names: ['messi', 'leo', 'lionel'] }, { article: 'Camp Nou', n: 1, names: ['camp nou'] }],
-        label: 'Rosario · Barcelona · 1997–2001',
-        moment: 'At the age of 10 Lionel Messi was diagnosed with a growth hormone deficiency; his father\'s health insurance covered only two years of the therapy and Newell\'s reneged on their promise to help, so in September 2000, aged 13, he had a trial at Barcelona, where on 14 December Carles Rexach wrote him a contract on a paper napkin.',
+        // No free photo of Messi before 2005 exists, so the part runs to his
+        // debut at 16 and the earliest photos (2005, Barcelona) carry it.
+        photos: [{ files: ['File:Leo messi barce 2005.jpg'] }, { files: ['File:Barca team.jpg'], names: ['debut', 'ronaldinho', 'first team'] },
+          { article: 'Camp Nou', n: 3, names: ['camp nou', 'barcelona'], anyYear: true }],
+        label: 'Rosario · Barcelona · 1997–2003',
+        moment: 'At the age of 10 Lionel Messi was diagnosed with a growth hormone deficiency; his father\'s health insurance covered only two years of the therapy and Newell\'s reneged on their promise to help, so at 13 he had a trial at Barcelona, where Carles Rexach wrote him a contract on a paper napkin, and at 16 he made his first-team debut in a friendly against FC Porto in November 2003.',
         title: 'Too Small to Play, Signed on a Napkin',
         teaser: 'Years later, as Argentina\'s captain, he lost three finals in three years.'
       },
       {
         articles: ['Lionel Messi'],
         subject: 'Lionel Messi',
-        photos: [{ article: 'Lionel Messi', n: 8, names: ['messi', 'leo', 'lionel'] }],
+        // 2014 final (Agência Brasil); no free photos of the 2015/2016 finals.
+        photos: [{ files: ['File:Germany and Argentina face off in the final of the World Cup 2014 -2014-07-13 (24) (cropped).jpg',
+          'File:Germany and Argentina face off in the final of the World Cup 2014 03.jpg', 'File:Germany and Argentina face off in the final of the World Cup 2014 15.jpg'] },
+        { files: ['File:Germany and Argentina face off in the final of the World Cup 2014 -2014-07-13 (44).jpg',
+          'File:Germany and Argentina face off in the final of the World Cup 2014 -2014-07-13 (16).jpg'], names: ['germany', 'world cup final'] }],
         label: 'Argentina · 2014–2016',
         moment: 'As Argentina captain Lionel Messi lost the 2014 World Cup final to Germany, the 2015 Copa América final to Chile and the 2016 Copa América Centenario final to Chile again; losing three finals in three consecutive years caused him to retire from international football, and a bronze statue of him was put up in Buenos Aires to convince him to return.',
         title: 'Messi Lost Three Finals in a Row, Then Quit',
@@ -319,7 +326,8 @@ const SERIES = [
       {
         articles: ['Lionel Messi'],
         subject: 'Lionel Messi',
-        photos: [{ article: 'Lionel Messi', n: 8, names: ['messi', 'leo', 'lionel'] }],
+        photos: [{ files: ['File:Lionel Messi WC2022.jpg', 'File:Lionel-Messi-Argentina-2022-FIFA-World-Cup (cropped).jpg', 'File:Celebración del partido Argentina-Croacia.jpg'] },
+        { files: ['File:Argentina 3-3 Francia - Copa Mundial 2022 - Messi patea un penal.jpg', 'File:2022 wc final 03.jpg'], names: ['france', 'final', 'twice'] }],
         label: 'Argentina · 2021–2022',
         moment: 'Lionel Messi ended Argentina\'s 28-year trophy drought by beating Brazil in the 2021 Copa América final, and at the 2022 FIFA World Cup he scored twice in the final against France to win Argentina\'s first World Cup in 36 years, becoming the first player to win the Golden Ball twice.',
         title: 'Messi Finally Won It All for Argentina',
