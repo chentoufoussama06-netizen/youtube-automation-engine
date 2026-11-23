@@ -336,7 +336,10 @@ const partId = (series, n) => `story-series-${series.key}${series.parts.length >
  * yet (a link to a private video would be dead).
  * Returns { series, part, n, prev } with prev = { id, videoId } for n > 1.
  */
-function seriesPartDue(lane, now = new Date()) {
+// `failed(id)`: a part that keeps failing its checks gives up its series, and
+// the next series starts. Ajax 1995 Part 1 had only 3 usable photos and took
+// Football Files' first slot in every run from 19 to 23 Nov.
+function seriesPartDue(lane, now = new Date(), { failed = () => false } = {}) {
   if (!lane.series) return null;
   const base = (...p) => path.join(ROOT, lane.dataRoot, ...p);
   const stories = readJson(base('stories.json'), []);
@@ -353,6 +356,7 @@ function seriesPartDue(lane, now = new Date()) {
     for (let n = 1; n <= series.parts.length; n++) {
       const id = partId(series, n);
       if (posted(id)) continue;
+      if (failed(id)) break;   // this series is given up; try the next one
       if (reservedUntil(id) > now.getTime()) return null;
       if (n > 1) {
         const prevId = partId(series, n - 1);

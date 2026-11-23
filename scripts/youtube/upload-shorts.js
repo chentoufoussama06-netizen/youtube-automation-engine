@@ -16,7 +16,14 @@
  * Every upload is private and carries no publishAt. On YouTube, privacyStatus
  * 'private' PLUS publishAt does not mean private — it means "public at that
  * timestamp", which for an unreviewed video is the one behaviour to avoid.
+ *
+ * --public uploads straight to public, still with no publishAt. The autopilot
+ * passes it for shorts that already passed its gate and the AI reviewer. The
+ * separate publish call draws on the 10,000 units the GTA runners share; from
+ * 20 to 22 Nov 2026 it ran out by evening, and the night's shorts sat private
+ * for hours ("exceeded your quota" on --publish, after a good upload).
  */
+const PUBLIC_NOW = process.argv.includes('--public');
 
 require('dotenv').config();
 
@@ -129,7 +136,7 @@ function buildMetadata(copy, job) {
       defaultAudioLanguage: process.env.CONTENT_LANGUAGE || 'en'
     },
     status: {
-      privacyStatus: 'private',                           // never publishAt — see header
+      privacyStatus: PUBLIC_NOW ? 'public' : 'private',   // never publishAt — see header
       selfDeclaredMadeForKids: false
     }
   };
@@ -234,15 +241,17 @@ async function main() {
         media: { body: fs.createReadStream(videoPath) }
       });
 
+      const privacy = res.data.status?.privacyStatus || metadata.status.privacyStatus;
       ledger[jobId] = {
         videoId: res.data.id,
         url: `https://www.youtube.com/watch?v=${res.data.id}`,
-        privacyStatus: res.data.status?.privacyStatus || 'private',
+        privacyStatus: privacy,
         title: metadata.snippet.title,
-        uploadedAt: new Date().toISOString()
+        uploadedAt: new Date().toISOString(),
+        ...(privacy === 'public' ? { publishedAt: new Date().toISOString() } : {})
       };
       await saveEntry(jobId, ledger[jobId]);
-      logger.success(`${jobId} -> ${ledger[jobId].url} (private)`);
+      logger.success(`${jobId} -> ${ledger[jobId].url} (${privacy})`);
 
       // Only ever runs on a short THIS invocation just uploaded — never a
       // backfill pass over the existing library.

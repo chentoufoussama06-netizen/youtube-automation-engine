@@ -297,16 +297,38 @@ async function postStoryShort(lane, st, sequelOf = null, pinned = null, seriesDu
   return res;
 }
 
+/**
+ * A short that never went up was never told: take it off the lane's told list,
+ * so its story can be picked again. Viral Vault's USS Maine story (21 Nov) hit
+ * the shared daily upload limit and was then refused as "already told".
+ */
+function forgetStory(lane, id) {
+  const p = base(lane, 'stories.json');
+  const told = readJson(p, []);
+  const kept = told.filter((s) => s.id !== id);
+  if (kept.length !== told.length) {
+    fs.writeFileSync(p, JSON.stringify(kept, null, 2));
+    log(`${lane.name}: ${id} was not posted, so its story goes back in the pool`);
+  }
+}
+
 /** Gate, upload and publish a rendered short ({ id, video, title }). */
 function publishMade(lane, st, made, kind, event, variant = null) {
   const gate = check(made.video, 'short');
   if (!gate.ok) {
     fs.rmSync(made.video, { force: true });
+    forgetStory(lane, made.id);
     return { ok: false, msg: `${lane.name}: ${kind} ${made.id} rejected — ${gate.problems.join('; ')}` };
   }
   // --only: this short, never another file left in the video folder.
-  run(lane, 'scripts/youtube/upload-shorts.js', ['--no-subs', '--limit', '1', '--only', made.id], 15);
-  if (!ledgerOf(lane)[made.id]) return { ok: false, uploaded: true, msg: `${lane.name}: ${kind} ${made.id} rendered but upload failed` };
+  // --public: it already passed the gate and the reviewer, so it goes up public
+  // in one call; the publish below is then a no-op. The separate publish ran
+  // out of the shared quota on 20-22 Nov and left the night's shorts private.
+  run(lane, 'scripts/youtube/upload-shorts.js', ['--no-subs', '--limit', '1', '--only', made.id, '--public'], 15);
+  if (!ledgerOf(lane)[made.id]) {
+    forgetStory(lane, made.id);
+    return { ok: false, uploaded: true, msg: `${lane.name}: ${kind} ${made.id} rendered but upload failed` };
+  }
   run(lane, 'scripts/youtube/upload-shorts.js', ['--publish', made.id], 10);
   const entry = ledgerOf(lane)[made.id];
   st.history.push({ at: new Date().toISOString(), event, id: made.id, url: entry.url, ...(variant ? { variant } : {}) });
@@ -518,7 +540,8 @@ async function main() {
     // The planned series part takes the first story slot and a winner's next
     // part the one after; if either fails its checks, that slot still gets a
     // fresh story (a series part is tried again the next day).
-    const seriesDue = lane.storyShortsPerDay ? seriesPartDue(lane) : null;
+    const seriesDue = lane.storyShortsPerDay
+      ? seriesPartDue(lane, new Date(), { failed: (id) => (st.failures[`series:${id}`] || 0) >= MAX_FAILURES }) : null;
     const sequelOf = await sequelDue(lane, st);
     const specials = [seriesDue && { seriesDue, key: `series:${partId(seriesDue.series, seriesDue.n)}` },
       sequelOf && { sequelOf, key: `sequel:${sequelOf.id}` }].filter(Boolean);

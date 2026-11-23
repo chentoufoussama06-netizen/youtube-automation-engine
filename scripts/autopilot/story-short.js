@@ -195,7 +195,58 @@ const SEXUAL_CASE = /\b(rape[ds]?|raping|rapist|sexual(ly)? (assault\w*|abuse\w*
 const DARK_PICK = 'the most gripping short: a death, a crime, a scandal, a ban, a disaster, a collapse, a betrayal. '
   + 'Answer line 0 for a subject with no gripping sentence (routine career facts, results, transfers).';
 const DARK_TITLE = 'under 55 characters, opening on the name people know, stating what happened plainly as a fact, no question, no emoji.';
-async function bankStories(ai, research, lane, bank, { seed = '', subjects = 6, line: lineRule = DARK_LINE, minYear = 0, pick = DARK_PICK, title: titleRule = DARK_TITLE } = {}) {
+/**
+ * This channel's own results for the pickers: its public story shorts 2 to 21
+ * days old, the most and the least watched. The topics then follow what this
+ * audience actually watched, run after run (2026-11-23, the user: "make sure
+ * ... the topics are developing themself"). Null without a token or quota,
+ * as in the preview workflow: the pickers then run as before.
+ */
+async function ownResults(lane, ledger) {
+  try {
+    const now = Date.now();
+    const items = Object.entries(ledger)
+      .filter(([id, v]) => /^story-/.test(id) && v.videoId && v.privacyStatus === 'public' && !v.hidden)
+      .map(([, v]) => ({ videoId: v.videoId, title: String(v.title || '').replace(/\s*#Shorts$/i, '').trim(), at: Date.parse(v.publishedAt || v.uploadedAt || 0) }))
+      // Series parts are another format, and a sexual-offence case is no longer
+      // picked automatically (SEXUAL_CASE), so neither is shown as a model.
+      .filter((x) => x.title && !/\(Part \d+\)/i.test(x.title) && !SEXUAL_CASE.test(x.title)
+        && now - x.at > 2 * 86400000 && now - x.at < 14 * 86400000);
+    if (items.length < 6) return null;
+    const { google } = require('googleapis');
+    const creds = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'credentials.json'), 'utf8')).youtube;
+    const oauth = new google.auth.OAuth2(creds.client_id, creds.client_secret, (creds.redirect_uris || [])[0]);
+    oauth.setCredentials(JSON.parse(fs.readFileSync(path.join(ROOT, 'config', lane.tokens), 'utf8')).youtube);
+    const yt = google.youtube({ version: 'v3', auth: oauth });
+    const views = new Map();
+    for (let i = 0; i < items.length; i += 50) {
+      const r = await yt.videos.list({ part: 'statistics', id: items.slice(i, i + 50).map((x) => x.videoId).join(',') });
+      for (const v of r.data.items || []) views.set(v.id, Number(v.statistics?.viewCount) || 0);
+    }
+    // Under 10 views is a short the feed never showed (Viral Vault's first week),
+    // not the audience's verdict on its topic.
+    const scored = items.filter((x) => views.get(x.videoId) >= 10).map((x) => ({ ...x, views: views.get(x.videoId) }))
+      .sort((a, b) => b.views - a.views);
+    if (scored.length < 6) return null;
+    const n = Math.min(6, Math.floor(scored.length / 3));
+    return { worked: scored.slice(0, n), flopped: scored.slice(-n).reverse() };
+  } catch (e) {
+    logger.info(`own results unavailable (${String(e.message).slice(0, 80)})`);
+    return null;
+  }
+}
+
+const resultsBlock = (r) => (r ? `
+THIS CHANNEL'S OWN RESULTS, views after 2+ days from its own audience. They outrank every
+outside example: pick more of what worked (the same kind of subject, turn and title shape)
+and nothing like what flopped.
+Worked:
+${r.worked.map((x) => `- "${x.title}" (${x.views.toLocaleString('en-US')} views)`).join('\n')}
+Flopped:
+${r.flopped.map((x) => `- "${x.title}" (${x.views.toLocaleString('en-US')} views)`).join('\n')}
+` : '');
+
+async function bankStories(ai, research, lane, bank, { seed = '', subjects = 10, line: lineRule = DARK_LINE, minYear = 0, pick = DARK_PICK, title: titleRule = DARK_TITLE, results = null } = {}) {
   if (!bank.length) return [];
   // a line about a year this recent or later: photos from then exist (the era rule)
   const recentEnough = (x) => !minYear || (x.match(/\b(?:19|20)\d\d\b/g) || []).some((y) => Number(y) >= minYear);
@@ -220,6 +271,7 @@ Below are real sentences from Wikipedia articles, grouped by subject. For each s
 choose the ONE sentence that would make ${pick}
 Then write that story's title: ${titleRule} Use only what the
 sentence says.
+${resultsBlock(results)}
 ${cands.map((c, i) => `\nSubject ${i + 1}: ${c.subject}\n${c.lines.map((l, j) => `  ${j + 1}. ${l}`).join('\n')}`).join('\n')}
 
 Return ONLY JSON: {"picks": [{"subject": 1, "line": 3, "title": "..."}]}`;
@@ -239,13 +291,13 @@ Return ONLY JSON: {"picks": [{"subject": 1, "line": 3, "title": "..."}]}`;
   return out;
 }
 
-async function propose(ai, lane, avoid, hot = [], news = [], bank = []) {
+async function propose(ai, lane, avoid, hot = [], news = [], bank = [], results = null) {
   const story = lane.story || DEFAULT_STORY;
   const prompt = `You pick stories for the YouTube Shorts channel "${lane.name}".
 
 The format that is winning right now (titles and views from young channels):
 ${story.examples.map((e) => `- ${e}`).join('\n')}
-${news.length ? `
+${resultsBlock(results)}${news.length ? `
 IN THE NEWS — this channel's headlines from the last two days. A story about
 one of these beats any old one (Kane's Ballon d'Or, posted the morning after,
 outran every short before it) — but ONLY if the episode is already written up
@@ -875,11 +927,18 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
       const t = String(v.title).replace(/\s*#Shorts$/i, '');
       return { id, title: t, subject: (t.match(/\p{Lu}[\p{L}'’-]+/gu) || []).slice(0, 2).join(' '), moment: '', at: v.publishedAt || v.uploadedAt || '' };
     });
-  const avoid = [...done.map((d) => `${d.subject}: ${d.moment}`),
-    ...Object.entries(ledger).filter(([id]) => !id.startsWith('reddit-')).map(([, v]) => String(v.title || '').replace(/\s*#Shorts$/i, ''))].slice(-120);
+  // Everything ever posted, not the last 120: from 21 to 23 Nov the proposer
+  // offered 221 stories the channels had already told, mostly older ones that
+  // had fallen off a 120-line list.
+  const avoid = [...new Set([...done.map((d) => `${d.subject}: ${d.moment}`),
+    ...Object.entries(ledger).filter(([id]) => !id.startsWith('reddit-')).map(([, v]) => String(v.title || '').replace(/\s*#Shorts$/i, ''))]
+    .map((t) => String(t).replace(/\s+/g, ' ').trim().slice(0, 90)).filter(Boolean))].slice(-400);
   // Same subject at most once a fortnight, so the feed is not one player.
   const recent = new Set(done.filter((d) => Date.now() - Date.parse(d.at) < 14 * 86400000).map((d) => fold(d.subject)));
   const hot = sequelOf || pinned ? [] : await trending();
+  // What this channel's own viewers watched and skipped: the pickers lean on it.
+  const results = sequelOf || pinned ? null : await ownResults(lane, ledger);
+  if (results) logger.info(`own results: worked ${results.worked.map((x) => `"${x.title.slice(0, 40)}" ${x.views}`).join(', ')} | flopped ${results.flopped.map((x) => `"${x.title.slice(0, 40)}" ${x.views}`).join(', ')}`);
   // Famous subjects not told yet, most-read first (scripts/autopilot/story-bank.js):
   // from memory the AI kept proposing the same dozen stories (10 Nov).
   // A test picks by its own scope: the bank's sentences are the dark lines of
@@ -928,11 +987,11 @@ async function makeStoryShort(laneName, { dryRun = false, sequelOf = null, story
           // Given the names alone (11-16 Nov), the proposer invented an
           // episode for nearly every one; all were rejected and runs ended
           // with no story. propose() no longer sees the bank.
-          ...(round <= 2 || ownBank ? await bankStories(ai, research, lane, bank, { seed: `${new Date().toISOString().slice(0, 13)}-${round}`, ...(ownBank || {}) })
+          ...(round <= 2 || ownBank ? await bankStories(ai, research, lane, bank, { seed: `${new Date().toISOString().slice(0, 13)}-${round}`, ...(ownBank || {}), results })
             .catch((e) => { logger.info(`bank stories failed: ${String(e.message).slice(0, 80)}`); return []; }) : []),
           // A test with its own bank takes real lines only: from names alone the
           // proposer invented the megastars' lives (20 Nov preview).
-          ...(ownBank ? [] : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : []))
+          ...(ownBank ? [] : await propose(ai, lane, avoid, round === 1 ? hot : [], round === 1 ? news : [], [], results))
         ];
     } catch (error) {
       logger.warn(`proposal round ${round} failed: ${error.message}`);
@@ -1585,4 +1644,4 @@ if (require.main === module) {
     .catch((e) => { logger.error(`story-short failed: ${e.message}`); process.exit(1); });
 }
 
-module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, sameEpisode, bankStories, propose, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
+module.exports = { makeStoryShort, hookProblem, promiseProblem, sharpenHook, sameEpisode, bankStories, propose, __ownResults: ownResults, renderStills, chooseStyle, unsupportedSentences, parseJson, trending, seriesBrief, seriesPhotos };
