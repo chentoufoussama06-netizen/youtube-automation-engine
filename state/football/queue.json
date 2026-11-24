@@ -2307,6 +2307,48 @@
       "shortTitle": "Mourinho ends Real’s 18-year Copa del Rey drought",
       "article": "José Mourinho",
       "categoryId": "17"
+    },
+    {
+      "id": "story-johan-cruyff-in-february-1991",
+      "topic": "In February 1991, he suffered a heart attack and had to undergo bypass surgery.",
+      "keywords": [
+        "Johan Cruyff",
+        "football",
+        "football story",
+        "football tragedy"
+      ],
+      "status": "short",
+      "shortTitle": "Johan Cruyff suffered a heart attack and had bypass surgery",
+      "article": "Johan Cruyff",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-thierry-henry-on-10-december-2",
+      "topic": "On 10 December 2011, Arsenal unveiled a bronze statue of Henry at the Emirates Stadium as part of its 125th anniversary celebrations.",
+      "keywords": [
+        "Thierry Henry",
+        "football",
+        "football story",
+        "football legends"
+      ],
+      "status": "short",
+      "shortTitle": "Thierry Henry’s bronze statue unveiled at the Emirates Stadium",
+      "article": "Thierry Henry",
+      "categoryId": "17"
+    },
+    {
+      "id": "story-vinicius-junior-in-some-incident",
+      "topic": "In some incidents in 2023, Vinícius was subjected to racist slurs and chants from football fans in Spain, including an effigy of him being hanged from a bridge in Madrid.",
+      "keywords": [
+        "Vinícius Júnior",
+        "football",
+        "football story",
+        "football legends"
+      ],
+      "status": "short",
+      "shortTitle": "Vinícius Júnior Faced a Hanging Effigy",
+      "article": "Vinícius Júnior",
+      "categoryId": "17"
     }
   ]
 }

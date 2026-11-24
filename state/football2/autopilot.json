@@ -366,6 +366,25 @@
       "event": "series",
       "id": "story-series-spartacus-p1",
       "url": "https://www.youtube.com/watch?v=WPP379467y8"
+    },
+    {
+      "at": "2026-11-24T00:56:36.204Z",
+      "event": "series",
+      "id": "story-series-spartacus-p2",
+      "url": "https://www.youtube.com/watch?v=NA7_vKWyPhE"
+    },
+    {
+      "at": "2026-11-24T01:02:13.827Z",
+      "event": "story",
+      "id": "story-roman-hypocaust-heat-romans-heated-pu",
+      "url": "https://www.youtube.com/watch?v=kQyEoSL5stw",
+      "variant": "explainer"
+    },
+    {
+      "at": "2026-11-24T01:19:17.098Z",
+      "event": "story",
+      "id": "story-thermopylae-the-300-spartans",
+      "url": "https://www.youtube.com/watch?v=KnmKvS4zXGo"
     }
   ],
   "pendingLinks": [],
@@ -384,6 +403,9 @@
     },
     "story-themistocles-themistocles-con": {
       "playlistId": "PLLiWUFWpyAIA"
+    },
+    "story-series-spartacus-p1": {
+      "playlistId": "PLCdR12pH5ysA"
     }
   }
 }

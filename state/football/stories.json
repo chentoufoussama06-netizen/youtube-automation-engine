@@ -854,5 +854,34 @@
     "at": "2026-11-23T14:19:25.569Z",
     "style": "v2",
     "variant": "megastar"
+  },
+  {
+    "id": "story-johan-cruyff-in-february-1991",
+    "subject": "Johan Cruyff",
+    "article": "Johan Cruyff",
+    "moment": "In February 1991, he suffered a heart attack and had to undergo bypass surgery.",
+    "title": "Johan Cruyff suffered a heart attack and had bypass surgery",
+    "at": "2026-11-24T01:23:43.924Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-thierry-henry-on-10-december-2",
+    "subject": "Thierry Henry",
+    "article": "Thierry Henry",
+    "moment": "On 10 December 2011, Arsenal unveiled a bronze statue of Henry at the Emirates Stadium as part of its 125th anniversary celebrations.",
+    "title": "Thierry Henry’s bronze statue unveiled at the Emirates Stadium",
+    "at": "2026-11-24T01:40:46.546Z",
+    "style": "v2",
+    "variant": "megastar"
+  },
+  {
+    "id": "story-vinicius-junior-in-some-incident",
+    "subject": "Vinícius Júnior",
+    "article": "Vinícius Júnior",
+    "moment": "In some incidents in 2023, Vinícius was subjected to racist slurs and chants from football fans in Spain, including an effigy of him being hanged from a bridge in Madrid.",
+    "title": "Vinícius Júnior Faced a Hanging Effigy",
+    "at": "2026-11-24T01:48:19.303Z",
+    "style": "v2",
+    "variant": "megastar"
   }
 ]

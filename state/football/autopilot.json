@@ -22,7 +22,8 @@
     "sequel:story-jude-bellingham-at-the-2026-worl": 1,
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
-    "series:story-series-ajax-1995": 55
+    "series:story-series-ajax-1995": 55,
+    "series:story-series-pep-guardiola-p1": 1
   },
   "history": [
     {
@@ -645,6 +646,26 @@
       "event": "story",
       "id": "story-jose-mourinho-on-20-april-2011",
       "url": "https://www.youtube.com/watch?v=J0IYZRRY_4Y",
+      "variant": "megastar"
+    },
+    {
+      "at": "2026-11-24T01:23:52.147Z",
+      "event": "story",
+      "id": "story-johan-cruyff-in-february-1991",
+      "url": "https://www.youtube.com/watch?v=lnAFabkwUlQ"
+    },
+    {
+      "at": "2026-11-24T01:40:58.489Z",
+      "event": "story",
+      "id": "story-thierry-henry-on-10-december-2",
+      "url": "https://www.youtube.com/watch?v=6pj0zgfxq94",
+      "variant": "megastar"
+    },
+    {
+      "at": "2026-11-24T01:48:29.590Z",
+      "event": "story",
+      "id": "story-vinicius-junior-in-some-incident",
+      "url": "https://www.youtube.com/watch?v=jHqGI5cwW8Q",
       "variant": "megastar"
     }
   ],

@@ -567,5 +567,38 @@
     "part": 1,
     "of": 3,
     "root": "story-series-spartacus-p1"
+  },
+  {
+    "id": "story-series-spartacus-p2",
+    "subject": "Spartacus",
+    "article": "Spartacus",
+    "moment": "Spartacus's forces defeated several Roman military units and swelled to an estimated 70,000; alarmed, the Senate gave the war to Marcus Licinius Crassus, the wealthiest man in Rome and the only volunteer, who took eight legions and revived decimation, killing one in ten of his own men to make them fear him more than the enemy.",
+    "title": "Rome's Richest Man Killed His Own Soldiers (Part 2)",
+    "at": "2026-11-24T00:56:09.255Z",
+    "style": "v2",
+    "series": "spartacus",
+    "part": 2,
+    "of": 3,
+    "root": "story-series-spartacus-p1",
+    "sequelOf": "story-series-spartacus-p1"
+  },
+  {
+    "id": "story-roman-hypocaust-heat-romans-heated-pu",
+    "subject": "Roman hypocaust heating",
+    "article": "Hypocaust",
+    "moment": "Romans heated public baths and villas with underfloor heating around 100 CE.",
+    "title": "How the Romans Warmed Their Homes with Underground Fires",
+    "at": "2026-11-24T01:02:00.792Z",
+    "style": "v2",
+    "variant": "explainer"
+  },
+  {
+    "id": "story-thermopylae-the-300-spartans",
+    "subject": "Thermopylae",
+    "article": "Battle of Thermopylae",
+    "moment": "The 300 Spartans hold the pass for three days before being betrayed by Ephialtes in 480 BC.",
+    "title": "Thermopylae’s Betrayal by a Local Guide",
+    "at": "2026-11-24T01:18:50.099Z",
+    "style": "v2"
   }
 ]

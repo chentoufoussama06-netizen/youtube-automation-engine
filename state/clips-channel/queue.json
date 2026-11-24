@@ -405,6 +405,20 @@
       "shortTitle": "Emden Beached After Battle With HMAS Sydney, Crew Captured",
       "article": "SMS Emden",
       "categoryId": "27"
+    },
+    {
+      "id": "story-princess-sophia-in-1918-the-pass",
+      "topic": "In 1918 the passenger steamer Princess Sophia struck a reef in Alaska’s Lynn Canal and sank, killing all 343 aboard.",
+      "keywords": [
+        "Princess Sophia",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Princess Sophia struck a reef, 343 vanished",
+      "article": "SS Princess Sophia",
+      "categoryId": "27"
     }
   ]
 }
