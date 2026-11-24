@@ -297,8 +297,7 @@ const SERIES = [
   // picture filled 40 of its 46 seconds. Two acts with real photos instead.
   {
     key: 'messi-argentina',
-    // held until a cloud preview of Part 1 is checked (set to false then)
-    held: true,
+    held: false,
     name: 'Lionel Messi and Argentina',
     parts: [
       {
