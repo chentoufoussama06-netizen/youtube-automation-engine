@@ -883,5 +883,38 @@
     "at": "2026-11-24T01:48:19.303Z",
     "style": "v2",
     "variant": "megastar"
+  },
+  {
+    "id": "story-series-messi-argentina-p1",
+    "subject": "Lionel Messi",
+    "article": "Lionel Messi",
+    "moment": "As Argentina captain Lionel Messi lost the 2014 World Cup final to Germany, the 2015 Copa América final to Chile and the 2016 Copa América Centenario final to Chile again; losing three finals in three consecutive years caused him to retire from international football, and a bronze statue of him was put up in Buenos Aires to convince him to return.",
+    "title": "Messi Lost Three Finals in a Row, Then Quit (Part 1)",
+    "at": "2026-11-25T01:30:14.661Z",
+    "style": "v2",
+    "series": "messi-argentina",
+    "part": 1,
+    "of": 2,
+    "root": "story-series-messi-argentina-p1"
+  },
+  {
+    "id": "story-david-beckham-on-18-may-2013-b",
+    "subject": "David Beckham",
+    "article": "David Beckham",
+    "moment": "On 18 May 2013, Beckham was made captain in his final home game against Brest.",
+    "title": "David Beckham: The Day He Captained His Final Home Game",
+    "at": "2026-11-25T01:42:22.962Z",
+    "style": "v2",
+    "variant": "megastar"
+  },
+  {
+    "id": "story-neymar-in-a-2025-interv",
+    "subject": "Neymar",
+    "article": "Neymar",
+    "moment": "In a 2025 interview, Neymar responded to the claims that he did not reach the heights expected of him: \"Many things happened, I had many injuries that cost me a lot in my career\".",
+    "title": "Neymar: The Injuries That Shattered His Dream",
+    "at": "2026-11-25T01:47:11.778Z",
+    "style": "v2",
+    "variant": "megastar"
   }
 ]

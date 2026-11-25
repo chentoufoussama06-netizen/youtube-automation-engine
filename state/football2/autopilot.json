@@ -385,6 +385,25 @@
       "event": "story",
       "id": "story-thermopylae-the-300-spartans",
       "url": "https://www.youtube.com/watch?v=KnmKvS4zXGo"
+    },
+    {
+      "at": "2026-11-25T01:10:43.557Z",
+      "event": "series",
+      "id": "story-series-spartacus-p3",
+      "url": "https://www.youtube.com/watch?v=P226G81HBsY"
+    },
+    {
+      "at": "2026-11-25T01:22:00.159Z",
+      "event": "story",
+      "id": "story-persian-qanat-water-persians-began-d",
+      "url": "https://www.youtube.com/watch?v=1CV5aBL6eW0",
+      "variant": "explainer"
+    },
+    {
+      "at": "2026-11-25T01:27:16.480Z",
+      "event": "story",
+      "id": "story-cyrus-cyrus-the-great",
+      "url": "https://www.youtube.com/watch?v=hFuV-ueq3SU"
     }
   ],
   "pendingLinks": [],

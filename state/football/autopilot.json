@@ -667,6 +667,26 @@
       "id": "story-vinicius-junior-in-some-incident",
       "url": "https://www.youtube.com/watch?v=jHqGI5cwW8Q",
       "variant": "megastar"
+    },
+    {
+      "at": "2026-11-25T01:30:22.960Z",
+      "event": "series",
+      "id": "story-series-messi-argentina-p1",
+      "url": "https://www.youtube.com/watch?v=blFxJZk4Y_w"
+    },
+    {
+      "at": "2026-11-25T01:42:32.786Z",
+      "event": "story",
+      "id": "story-david-beckham-on-18-may-2013-b",
+      "url": "https://www.youtube.com/watch?v=o-T99qIKof8",
+      "variant": "megastar"
+    },
+    {
+      "at": "2026-11-25T01:47:19.998Z",
+      "event": "story",
+      "id": "story-neymar-in-a-2025-interv",
+      "url": "https://www.youtube.com/watch?v=tHmd-SSyjG0",
+      "variant": "megastar"
     }
   ],
   "pendingLinks": [],

@@ -419,6 +419,20 @@
       "shortTitle": "Princess Sophia struck a reef, 343 vanished",
       "article": "SS Princess Sophia",
       "categoryId": "27"
+    },
+    {
+      "id": "story-uss-indianapolis-after-delivering",
+      "topic": "After delivering atomic bomb components, the cruiser Indianapolis was torpedoed in 1945 and left drifting for days before a rescue.",
+      "keywords": [
+        "USS Indianapolis",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "USS Indianapolis torpedoed after atomic bomb mission",
+      "article": "USS Indianapolis (CA-35)",
+      "categoryId": "27"
     }
   ]
 }

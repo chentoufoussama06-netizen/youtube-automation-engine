@@ -600,5 +600,38 @@
     "title": "Thermopylae’s Betrayal by a Local Guide",
     "at": "2026-11-24T01:18:50.099Z",
     "style": "v2"
+  },
+  {
+    "id": "story-series-spartacus-p3",
+    "subject": "Spartacus",
+    "article": "Spartacus",
+    "moment": "In 71 BC, with Pompey's legions marching south, Spartacus's army threw its full strength against Crassus's legions and was utterly defeated; Spartacus was presumed killed in the final battle, although his body was never found, and 6,000 captured rebels were crucified along the Appian Way from Rome to Capua.",
+    "title": "Spartacus Vanished. 6,000 Were Crucified. (Part 3)",
+    "at": "2026-11-25T01:10:22.648Z",
+    "style": "v2",
+    "series": "spartacus",
+    "part": 3,
+    "of": 3,
+    "root": "story-series-spartacus-p1",
+    "sequelOf": "story-series-spartacus-p2"
+  },
+  {
+    "id": "story-persian-qanat-water-persians-began-d",
+    "subject": "Persian qanat water tunnels",
+    "article": "Qanat",
+    "moment": "Persians began digging underground aqueducts (qanats) to supply arid settlements as early as 500 BCE.",
+    "title": "How Ancient Persia Dug Underground Rivers",
+    "at": "2026-11-25T01:21:44.949Z",
+    "style": "v2",
+    "variant": "explainer"
+  },
+  {
+    "id": "story-cyrus-cyrus-the-great",
+    "subject": "Cyrus",
+    "article": "Cyrus the Great",
+    "moment": "Cyrus the Great diverted the Euphrates River to expose the Persian city of Babylon in 539 BCE.",
+    "title": "Cyrus Drained the Euphrates to Capture Babylon",
+    "at": "2026-11-25T01:26:57.463Z",
+    "style": "v2"
   }
 ]
