@@ -916,5 +916,39 @@
     "at": "2026-11-25T01:47:11.778Z",
     "style": "v2",
     "variant": "megastar"
+  },
+  {
+    "id": "story-series-messi-argentina-p2",
+    "subject": "Lionel Messi",
+    "article": "Lionel Messi",
+    "moment": "Lionel Messi ended Argentina's 28-year trophy drought by beating Brazil in the 2021 Copa América final, and at the 2022 FIFA World Cup he scored twice in the final against France to win Argentina's first World Cup in 36 years, becoming the first player to win the Golden Ball twice.",
+    "title": "Messi Finally Won It All for Argentina (Part 2)",
+    "at": "2026-11-26T01:26:06.403Z",
+    "style": "v2",
+    "series": "messi-argentina",
+    "part": 2,
+    "of": 2,
+    "root": "story-series-messi-argentina-p1",
+    "sequelOf": "story-series-messi-argentina-p1"
+  },
+  {
+    "id": "story-andres-iniesta-after-seeking-ps",
+    "subject": "Andrés Iniesta",
+    "article": "Andrés Iniesta",
+    "moment": "After seeking psychological help, including from psychologist Inma Puig, he experienced catharsis when he scored Spain's match-winning goal in the 2010 FIFA World Cup final, which he dedicated to Jarque by revealing the message \"Dani Jarque, always with us\" written on his undershirt.",
+    "title": "Andrés Iniesta: Scoring the World Cup Goal for a Fallen Friend",
+    "at": "2026-11-26T01:34:26.307Z",
+    "style": "v2",
+    "variant": "megastar"
+  },
+  {
+    "id": "story-erling-haaland-on-6-june-2025-h",
+    "subject": "Erling Haaland",
+    "article": "Erling Haaland",
+    "moment": "On 6 June 2025, Haaland scored Norway's final goal in their 3–0 World Cup qualifying win against Italy, securing the nation's first victory over the Italians in 25 years.",
+    "title": "Erling Haaland: The Goal That Ended 25-Year Italy Curse",
+    "at": "2026-11-26T01:44:00.925Z",
+    "style": "v2",
+    "variant": "megastar"
   }
 ]

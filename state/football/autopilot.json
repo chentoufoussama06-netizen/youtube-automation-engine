@@ -687,6 +687,26 @@
       "id": "story-neymar-in-a-2025-interv",
       "url": "https://www.youtube.com/watch?v=tHmd-SSyjG0",
       "variant": "megastar"
+    },
+    {
+      "at": "2026-11-26T01:26:14.251Z",
+      "event": "series",
+      "id": "story-series-messi-argentina-p2",
+      "url": "https://www.youtube.com/watch?v=U0ZHXXiSL1o"
+    },
+    {
+      "at": "2026-11-26T01:34:36.358Z",
+      "event": "story",
+      "id": "story-andres-iniesta-after-seeking-ps",
+      "url": "https://www.youtube.com/watch?v=cpqt7hUGheU",
+      "variant": "megastar"
+    },
+    {
+      "at": "2026-11-26T01:44:09.905Z",
+      "event": "story",
+      "id": "story-erling-haaland-on-6-june-2025-h",
+      "url": "https://www.youtube.com/watch?v=hDr41HdI7G4",
+      "variant": "megastar"
     }
   ],
   "pendingLinks": [],
@@ -720,6 +740,9 @@
     },
     "story-jude-bellingham-at-the-2026-worl": {
       "playlistId": "PLBW985yJKNcQ"
+    },
+    "story-series-messi-argentina-p1": {
+      "playlistId": "PLenaq2M1RPXg"
     }
   },
   "romano": {

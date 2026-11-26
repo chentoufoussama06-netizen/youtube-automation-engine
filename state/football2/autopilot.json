@@ -404,6 +404,25 @@
       "event": "story",
       "id": "story-cyrus-cyrus-the-great",
       "url": "https://www.youtube.com/watch?v=hFuV-ueq3SU"
+    },
+    {
+      "at": "2026-11-26T00:49:39.871Z",
+      "event": "story",
+      "id": "story-egyptian-faience-around-2500-bce",
+      "url": "https://www.youtube.com/watch?v=A-LI2ZRvYbA",
+      "variant": "explainer"
+    },
+    {
+      "at": "2026-11-26T01:15:43.960Z",
+      "event": "story",
+      "id": "story-ptolemy-xiii-after-the-battle",
+      "url": "https://www.youtube.com/watch?v=ZZwwc6D2VV4"
+    },
+    {
+      "at": "2026-11-26T01:22:18.508Z",
+      "event": "story",
+      "id": "story-vercingetorix-in-46-bce-vercin",
+      "url": "https://www.youtube.com/watch?v=e6JRWc9DcBc"
     }
   ],
   "pendingLinks": [],

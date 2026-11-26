@@ -633,5 +633,33 @@
     "title": "Cyrus Drained the Euphrates to Capture Babylon",
     "at": "2026-11-25T01:26:57.463Z",
     "style": "v2"
+  },
+  {
+    "id": "story-egyptian-faience-around-2500-bce",
+    "subject": "Egyptian faience",
+    "article": "Egyptian faience",
+    "moment": "Around 2500 BCE artisans created bright blue glaze using self‑glazing quartz and copper compounds.",
+    "title": "The Ancient Recipe Behind Egyptian Blue Glaze",
+    "at": "2026-11-26T00:49:13.696Z",
+    "style": "v2",
+    "variant": "explainer"
+  },
+  {
+    "id": "story-ptolemy-xiii-after-the-battle",
+    "subject": "Ptolemy XIII",
+    "article": "Ptolemy XIII Theos Philopator",
+    "moment": "After the Battle of the Nile in 47 BC, Ptolemy XIII drowned while trying to escape on a small boat in the Nile.",
+    "title": "Ptolemy XIII Drowned After the Nile Battle",
+    "at": "2026-11-26T01:15:27.950Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-vercingetorix-in-46-bce-vercin",
+    "subject": "Vercingetorix",
+    "article": "Vercingetorix",
+    "moment": "In 46 BCE Vercingetorix surrendered to Caesar and was later executed in Rome.",
+    "title": "Vercingetorix’s Surrender Ends in Execution",
+    "at": "2026-11-26T01:22:08.154Z",
+    "style": "v2"
   }
 ]
