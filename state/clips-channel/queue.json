@@ -433,6 +433,20 @@
       "shortTitle": "USS Indianapolis torpedoed after atomic bomb mission",
       "article": "USS Indianapolis (CA-35)",
       "categoryId": "27"
+    },
+    {
+      "id": "story-el-faro-in-2015-the-carg",
+      "topic": "In 2015 the cargo ship El Faro was lost in Hurricane Joaquin while en route from Florida to Puerto Rico, with all 33 crew members perishing.",
+      "keywords": [
+        "El Faro",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "El Faro vanished in a hurricane, 33 crew lost",
+      "article": "SS El Faro",
+      "categoryId": "27"
     }
   ]
 }
