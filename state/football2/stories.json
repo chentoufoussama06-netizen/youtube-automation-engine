@@ -661,5 +661,33 @@
     "title": "Vercingetorix’s Surrender Ends in Execution",
     "at": "2026-11-26T01:22:08.154Z",
     "style": "v2"
+  },
+  {
+    "id": "story-ziggurat-babylonians-cons",
+    "subject": "Ziggurat",
+    "article": "Ziggurat",
+    "moment": "Babylonians constructed stepped temples as early as 2100 BCE.",
+    "title": "The Hidden Strength Behind Babylon’s Ziggurats",
+    "at": "2026-11-27T01:06:24.358Z",
+    "style": "v2",
+    "variant": "explainer"
+  },
+  {
+    "id": "story-mithridates-mithridates-vi-r",
+    "subject": "Mithridates",
+    "article": "Mithridates VI Eupator",
+    "moment": "Mithridates VI regularly tested deadly poisons on himself around 85 BCE.",
+    "title": "Mithridates Tested Poison on Himself Daily",
+    "at": "2026-11-27T01:13:08.546Z",
+    "style": "v2"
+  },
+  {
+    "id": "story-caligula-41-ce-the-empero",
+    "subject": "Caligula",
+    "article": "Caligula",
+    "moment": "41 CE – The emperor was stabbed to death by a Praetorian Guard.",
+    "title": "Caligula Murdered by His Own Guard",
+    "at": "2026-11-27T01:19:14.130Z",
+    "style": "v2"
   }
 ]

@@ -447,6 +447,20 @@
       "shortTitle": "El Faro vanished in a hurricane, 33 crew lost",
       "article": "SS El Faro",
       "categoryId": "27"
+    },
+    {
+      "id": "story-rms-carpathia-after-rescuing-t",
+      "topic": "After rescuing Titanic survivors, the RMS Carpathia was torpedoed and sunk by a German U‑boat in 1918.",
+      "keywords": [
+        "RMS Carpathia",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Titanic’s rescuer Carpathia sunk by torpedo in 1918",
+      "article": "RMS Carpathia",
+      "categoryId": "27"
     }
   ]
 }

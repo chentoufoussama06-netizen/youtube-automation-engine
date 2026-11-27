@@ -23,7 +23,7 @@
     "series:story-series-de-la-fuente-p4": 2,
     "sequel:story-mohamed-salah-in-his-first-sea": 1,
     "series:story-series-ajax-1995": 55,
-    "series:story-series-pep-guardiola-p1": 1
+    "series:story-series-pep-guardiola-p1": 2
   },
   "history": [
     {
@@ -706,6 +706,20 @@
       "event": "story",
       "id": "story-erling-haaland-on-6-june-2025-h",
       "url": "https://www.youtube.com/watch?v=hDr41HdI7G4",
+      "variant": "megastar"
+    },
+    {
+      "at": "2026-11-27T01:40:14.594Z",
+      "event": "story",
+      "id": "story-jude-bellingham-on-16-july-2025",
+      "url": "https://www.youtube.com/watch?v=04BznnzVvgE",
+      "variant": "megastar"
+    },
+    {
+      "at": "2026-11-27T01:51:46.912Z",
+      "event": "story",
+      "id": "story-sergio-ramos-ramos-chose-to-w",
+      "url": "https://www.youtube.com/watch?v=EhpqRHFL6A4",
       "variant": "megastar"
     }
   ],
