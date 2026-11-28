@@ -1066,6 +1066,48 @@
       "shortTitle": "Caligula Murdered by His Own Guard",
       "article": "Caligula",
       "categoryId": "27"
+    },
+    {
+      "id": "story-mayan-calendar-in-3114-bce-the",
+      "topic": "In 3114 BCE the Long Count calendar started, tracking cycles for centuries.",
+      "keywords": [
+        "Mayan calendar",
+        "ancient history",
+        "history facts",
+        "ancient engineering"
+      ],
+      "status": "short",
+      "shortTitle": "How the Maya Kept Time for Millennia",
+      "article": "Maya calendar",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-sargon-sargon-built-the",
+      "topic": "Sargon built the world’s first known empire, conquering Mesopotamia in c. 2334 BCE.",
+      "keywords": [
+        "Sargon",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Sargon Created the First Empire in History",
+      "article": "Sargon of Akkad",
+      "categoryId": "27"
+    },
+    {
+      "id": "story-sulla-sulla-marched-hi",
+      "topic": "Sulla marched his legions on Rome and seized the city in 88 BCE.",
+      "keywords": [
+        "Sulla",
+        "ancient history",
+        "roman empire",
+        "history"
+      ],
+      "status": "short",
+      "shortTitle": "Sulla Walked Into Rome with His Own Army",
+      "article": "Sulla",
+      "categoryId": "27"
     }
   ]
 }

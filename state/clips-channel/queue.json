@@ -461,6 +461,20 @@
       "shortTitle": "Titanic’s rescuer Carpathia sunk by torpedo in 1918",
       "article": "RMS Carpathia",
       "categoryId": "27"
+    },
+    {
+      "id": "story-bounty-the-british-ship",
+      "topic": "The British ship Bounty was seized in 1789 during the famous mutiny, and the mutineers later abandoned her on a remote island.",
+      "keywords": [
+        "Bounty",
+        "shipwreck",
+        "maritime history",
+        "ocean mysteries"
+      ],
+      "status": "short",
+      "shortTitle": "Bounty mutineers abandoned the ship on a deserted island",
+      "article": "HMS Bounty",
+      "categoryId": "27"
     }
   ]
 }

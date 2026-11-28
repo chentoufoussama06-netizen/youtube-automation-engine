@@ -727,6 +727,20 @@
       "event": "story",
       "id": "story-karim-benzema-in-2021-benzema",
       "url": "https://www.youtube.com/watch?v=quXCDZZjWpI"
+    },
+    {
+      "at": "2026-11-28T00:48:36.929Z",
+      "event": "story",
+      "id": "story-zlatan-ibrahimovic-in-2018-ibrahimo",
+      "url": "https://www.youtube.com/watch?v=MzL6jQ7iHQY",
+      "variant": "megastar"
+    },
+    {
+      "at": "2026-11-28T00:53:05.467Z",
+      "event": "story",
+      "id": "story-diego-maradona-maradona-s-mothe",
+      "url": "https://www.youtube.com/watch?v=mD8A81zDro4",
+      "variant": "megastar"
     }
   ],
   "pendingLinks": [],

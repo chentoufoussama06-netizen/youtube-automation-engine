@@ -1,0 +1,17 @@
+August 11, 3114 BC marked the beginning of time. The ancient Maya created the Long Count calendar, but how did they track centuries without losing their place? According to Maya tradition, the deity Itzamna brought this calendrical system to the people. To record history beyond a 52-year cycle, they used a linear, positional notation system tallying days from a mythological starting point. Instead of a standard base-10 decimal scheme, they counted days using a modified base-20 vigesimal system. Each position represented twenty times the unit before it. However, they made a critical exception for the second-order place value. Instead of twenty times twenty, which equals 400 days, it represented 18 times 20, or 360 days. This calculation aligned their system far more closely with the solar year. Their setup also tracked higher-order cycles, stretching all the way up to the piktun, kalabtun, kʼinchiltun, and alautun. Today, this ancient system still matters because it allows dates to be extended infinitely far into the past or future.
+
+Source: https://en.wikipedia.org/wiki/Maya_calendar
+Photos (Wikimedia Commons):
+• Maya Calendar by Matthew Bisanz.JPG — MBisanz, CC BY-SA 3.0
+• MA D293 Maya stone carving from Copan.jpg — Unknown authorUnknown author, Public domain
+• Codex Lacambalam lámina 15.png — Lacambalam, CC BY-SA 4.0
+• Plat decorat amb calendari, Topoxté, Museu Nacional d'Arqueologia i Etnologia, Guatemala.jpg — Joanbanjo, CC BY-SA 4.0
+• Altar L de Quiriguá, museu Nacional d'Arqueologia i Etnologia de Guatemala (MUNAE).jpg — Joanbanjo, CC BY-SA 4.0
+• Altar L de Quiriguá, museu Nacional d'Arqueologia i Etnologia de Guatemala.jpg — Joanbanjo, CC BY-SA 4.0
+• Fragment d'un calendari en relleu, Mèxic, museu d'Etnologia de Berlín.jpg — Joanbanjo, CC BY-SA 4.0
+• Calendario maya (Ethnologisches Museum Berlin).jpg — José Luis Filpo Cabana, CC BY-SA 4.0
+• Altar L de Quiriguá (Quiriguá).jpg — José Luis Filpo Cabana, CC BY-SA 4.0
+• Recipient amb tapa amb el déu Itzamnaaj com a au, museu Nacional d'Arqueologia i Etnologia, Guatemala.jpg — Joanbanjo, CC BY-SA 4.0
+
+Music: "Curse of the Scarab" by Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons: By Attribution 4.0 — https://creativecommons.org/licenses/by/4.0/
